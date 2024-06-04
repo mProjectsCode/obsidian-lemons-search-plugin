@@ -14,6 +14,8 @@ export class SearchModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 
+		this.modalEl.addClass('lemons-search-modal');
+
 		this.plugin.search.create_search_ui(contentEl);
 	}
 

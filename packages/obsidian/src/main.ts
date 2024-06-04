@@ -1,7 +1,7 @@
 import { Plugin, TFile } from 'obsidian';
 import { type MyPluginSettings, DEFAULT_SETTINGS } from './settings/Settings';
 import { SampleSettingTab } from './settings/SettingTab';
-import init, { InitInput, Search, greet, setup } from '../../lemons-search/pkg';
+import init, { InitInput, Search, setup } from '../../lemons-search/pkg';
 import wasmbin from '../../lemons-search/pkg/lemons_search_bg.wasm';
 import { SearchModal } from './SearchModal';
 
@@ -17,7 +17,7 @@ export default class LemonsSearchPlugin extends Plugin {
 
 		setup();
 
-		this.search = new Search();
+		this.search = new Search(this);
 
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
@@ -35,7 +35,7 @@ export default class LemonsSearchPlugin extends Plugin {
 					continue;
 				}
 
-				this.search.add_file(file.path, '');
+				this.search.add_file(file.path);
 			}
 		});
 	}
@@ -48,5 +48,17 @@ export default class LemonsSearchPlugin extends Plugin {
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	async readFile(path: string): Promise<string | undefined> {
+		const file = this.app.vault.getFileByPath(path);
+		if (!file) {
+			return undefined;
+		}
+
+		console.log("read file");
+		
+
+		return this.app.vault.cachedRead(file);
 	}
 }

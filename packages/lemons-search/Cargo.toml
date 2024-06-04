@@ -22,6 +22,7 @@ leptos = { version = "0.6.12", features = ["nightly", "csr"]}
 web-sys = "0.3.69"
 nucleo-matcher = "0.3.1"
 itertools = "0.13.0"
+wasm-bindgen-futures = "0.4.42"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"

@@ -6,3 +6,26 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.lemons-search-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: var(--size-4-3);
+}
+
+.lemons-search-modal {
+    min-width: 80%;
+    max-height: 80%;
+}
+
+.lemons-search-modal pre {
+    margin-block: 0;
+}
+
+.lemons-search-modal .modal-content input {
+    width: 100%;
+}
+
+.lemons-search-modal .modal-content .prompt-results {
+    padding: 0;
+    padding-top: var(--size-4-3);
+}
