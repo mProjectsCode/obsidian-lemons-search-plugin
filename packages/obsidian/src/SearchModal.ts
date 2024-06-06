@@ -1,6 +1,5 @@
 import { Modal } from 'obsidian';
 import LemonsSearchPlugin from './main';
-import { Search } from '../../lemons-search/pkg/lemons_search';
 
 export class SearchModal extends Modal {
 	plugin: LemonsSearchPlugin;
@@ -16,7 +15,7 @@ export class SearchModal extends Modal {
 
 		this.modalEl.addClass('lemons-search-modal');
 
-		this.plugin.search.create_search_ui(contentEl);
+		this.plugin.rustPlugin.create_search_ui(contentEl, () => this.close());
 	}
 
 	onClose(): void {

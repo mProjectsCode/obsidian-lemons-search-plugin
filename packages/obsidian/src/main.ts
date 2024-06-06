@@ -1,14 +1,14 @@
 import { Plugin, TFile } from 'obsidian';
 import { type MyPluginSettings, DEFAULT_SETTINGS } from './settings/Settings';
 import { SampleSettingTab } from './settings/SettingTab';
-import init, { InitInput, Search, setup } from '../../lemons-search/pkg';
+import init, { InitInput, RustPlugin, setup } from '../../lemons-search/pkg';
 import wasmbin from '../../lemons-search/pkg/lemons_search_bg.wasm';
 import { SearchModal } from './SearchModal';
 
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
 	settings: MyPluginSettings;
-	search!: Search;
+	rustPlugin!: RustPlugin;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -17,7 +17,7 @@ export default class LemonsSearchPlugin extends Plugin {
 
 		setup();
 
-		this.search = new Search(this);
+		this.rustPlugin = new RustPlugin(this);
 
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
@@ -30,13 +30,9 @@ export default class LemonsSearchPlugin extends Plugin {
 		});
 
 		this.app.workspace.onLayoutReady(() => {
-			for (const file of this.app.vault.getAllLoadedFiles()) {
-				if (!(file instanceof TFile)) {
-					continue;
-				}
-
-				this.search.add_file(file.path);
-			}
+			this.rustPlugin.update_index(
+				this.app.vault.getAllLoadedFiles().filter(file => file instanceof TFile).map((file) => file.path)
+			);
 		});
 	}
 
@@ -60,5 +56,9 @@ export default class LemonsSearchPlugin extends Plugin {
 		
 
 		return this.app.vault.cachedRead(file);
+	}
+
+	openFile(path: string): void {
+		this.app.workspace.openLinkText(path, '', true);
 	}
 }
