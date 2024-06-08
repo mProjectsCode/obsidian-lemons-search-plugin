@@ -1,5 +1,5 @@
 import { Modal } from 'obsidian';
-import LemonsSearchPlugin from './main';
+import type LemonsSearchPlugin from './main';
 
 export class SearchModal extends Modal {
 	plugin: LemonsSearchPlugin;
