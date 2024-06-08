@@ -30,5 +30,5 @@ exampleVault/.obsidian/*
 !exampleVault/.obsidian/plugins
 
 exampleVault/.obsidian/plugins/*
-exampleVault/.obsidian/plugins/lemons-plugin-template/*
-!exampleVault/.obsidian/plugins/lemons-plugin-template/.hotreload
+exampleVault/.obsidian/plugins/lemons-search/*
+!exampleVault/.obsidian/plugins/lemons-search/.hotreload

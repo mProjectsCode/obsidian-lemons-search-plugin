@@ -1,6 +1,6 @@
-mod utils;
 mod plugin_wrapper;
 mod ui;
+mod utils;
 
 use itertools::Itertools;
 
@@ -30,7 +30,11 @@ pub struct Search {
 impl Search {
     pub fn new(data: Vec<String>) -> Search {
         let matcher = Matcher::new(Config::DEFAULT);
-        Search { data, matcher, pattern: None }
+        Search {
+            data,
+            matcher,
+            pattern: None,
+        }
     }
 
     pub fn search(&mut self, search_string: &str) -> Vec<(String, Vec<u32>)> {
@@ -57,7 +61,7 @@ impl Search {
             .take(100)
             .map(|result| {
                 let mut vec = Vec::<char>::new();
-                let haystack = Utf32Str::new(&result.0, &mut vec);
+                let haystack = Utf32Str::new(result.0, &mut vec);
                 let mut indices = Vec::<u32>::new();
 
                 _ = pattern.indices(haystack, &mut self.matcher, &mut indices);
@@ -77,9 +81,12 @@ pub struct SearchIndex {
 
 impl SearchIndex {
     pub fn new() -> SearchIndex {
+        SearchIndex { data: Vec::new() }
+    }
+}
 
-        SearchIndex {
-            data: Vec::new(),
-        }
+impl Default for SearchIndex {
+    fn default() -> Self {
+        Self::new()
     }
 }
