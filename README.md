@@ -1,38 +1,16 @@
-# Lemons Plugin Template
+# Lemons Search
 
-## Setup
+A fast fuzzy finder based quick switcher with preview.
 
-This uses [bun](https://bun.sh/), not node. So you need that installed. If you are on windows use WSL, if that does not work... good luck.
+## Keyboard Navigation
 
-Things to change Checklist:
+While the focus is in the input field, you can use the following special actions.
 
--   [ ] `manifest.json`
--   [ ] `package.json`
--   [ ] `versions.json`
--   [ ] `automation/config.js`
--   [ ] `.github/workflows/release.yml`
--   [ ] rename `exampleVault/.obsidian/lemons-plugin-template`
+-   `uparrow` Move selection up by one
+-   `downarrow` Move selection down by one
+-   `enter` Open selection
 
-If and **only if** you completed these steps, you can run `bun install` and `bun run dev` to start your plugin jorney.
+## Mouse Navigation
 
-## Scripts Explained
-
--   `dev` - build into the example vault with hot reload
--   `build` - build for release
--   `tsc` - run type checker
--   `test` - run your tests
--   `test:log` - run your tests with console output enabled
--   `format` - format your code
--   `format:check` - check the formatting of your code
--   `lint` - lint your code
--   `lint:fix` - lint your code and fix auto fixable mistakes
--   `check` - check for formatting, linting, type errors and run the tests
--   `check:fix` - fix formatting and linting errors, check for type errors and run the tests
--   `release` - run the script to release a new version
-
-## References
-
--   Sample plugin repo: https://github.com/obsidianmd/obsidian-sample-plugin
--   Obsidian help: https://help.obsidian.md/Home
--   Obsidian docs: https://docs.obsidian.md/Home
--   Obsidian API: https://github.com/obsidianmd/obsidian-api/blob/master/obsidian.d.ts
+-   Clicking on a suggestion that is not selected will select the clicked suggestion
+-   Clicking on the selected suggestion will open the suggestion

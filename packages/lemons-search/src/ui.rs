@@ -104,6 +104,7 @@ pub fn App(
                     on:input=search_input_event
                     on:keydown=search_key_event
                     prop:value=search_string
+                    placeholder="Search for files..."
                 />
                 <div class="prompt-results">
                     {result_elements}
@@ -131,24 +132,37 @@ fn SuggestionItem(
 ) -> impl IntoView {
     let normalized_selection = move || selection().rem_euclid(max_index());
     let is_selected = move || index == normalized_selection();
-    let set_section_to_index = move |_| set_selection(index);
     let el: NodeRef<html::Div> = create_node_ref();
 
     let scroll__is_selected = is_selected.clone();
     create_effect(move |_| {
         if scroll__is_selected() {
             if let Some(el) = el.get_untracked() {
-                el.scroll_into_view_with_bool(false);
+                let scroll_fn =
+                    js_sys::Reflect::get(&el, &JsValue::from_str("scrollIntoViewIfNeeded"))
+                        .unwrap();
+                if scroll_fn.is_function() {
+                    let scroll_fn_2: js_sys::Function = scroll_fn.try_into().unwrap();
+                    scroll_fn_2.call1(&el, &JsValue::TRUE).unwrap();
+                }
             }
         }
     });
+
+    let click__is_selected = is_selected.clone();
+    let click_suggestion = move |_| {
+        if click__is_selected() {
+            open_selection();
+        } else {
+            set_selection(index);
+        }
+    };
 
     view! {
         <div
             class="suggestion-item mod-complex"
             class:is-selected=is_selected
-            on:mouseenter=set_section_to_index
-            on:click=move |_| open_selection()
+            on:click=click_suggestion
             node_ref=el
         >
             <div class="suggestion-content">

@@ -64,4 +64,24 @@ impl RustPlugin {
     pub fn update_index(&mut self, data: Vec<String>) {
         self.index.data = data;
     }
+
+    pub fn add_file(&mut self, path: String) {
+        self.index.add_file(path);
+    }
+
+    pub fn remove_file(&mut self, path: String) {
+        self.index.remove_file(&path);
+    }
+
+    pub fn rename_file(&mut self, old_path: String, new_path: String) {
+        self.index.rename_file(&old_path, new_path);
+    }
+
+    pub fn clear_index(&mut self) {
+        self.index.data = Vec::new();
+    }
+
+    pub fn check_index_consistency(&self, data: Vec<String>) -> bool {
+        self.index.data == data
+    }
 }

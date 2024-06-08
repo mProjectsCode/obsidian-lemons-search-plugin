@@ -83,6 +83,19 @@ impl SearchIndex {
     pub fn new() -> SearchIndex {
         SearchIndex { data: Vec::new() }
     }
+
+    fn add_file(&mut self, path: String) {
+        self.data.push(path);
+    }
+
+    fn remove_file(&mut self, path: &str) {
+        self.data.retain(|x| x != path);
+    }
+
+    fn rename_file(&mut self, old_path: &str, new_path: String) {
+        self.data.retain(|x| x != old_path);
+        self.data.push(new_path);
+    }
 }
 
 impl Default for SearchIndex {
