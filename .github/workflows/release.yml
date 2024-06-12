@@ -27,7 +27,7 @@ jobs:
             - name: Install wasm-pack
               run: bun install -g wasm-pack
             - name: Set Nightly
-              run: cd packages/lemons-search && rustup override set nightly && cd ../..
+              run: cd packages/lemons-search && rustup override set nightly && rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu && cd ../..
             - name: Build
               id: build
               run: |
