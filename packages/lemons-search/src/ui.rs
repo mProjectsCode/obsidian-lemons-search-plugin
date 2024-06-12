@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use leptos::{
-    component, create_effect, create_local_resource, create_memo, create_node_ref, create_resource,
+    component, create_effect, create_local_resource, create_memo, create_node_ref,
     create_signal, event_target_value, html, view, IntoView, NodeRef, ReadSignal, SignalWith,
     Suspense, WriteSignal,
 };
