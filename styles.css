@@ -40,7 +40,23 @@ body {
 	overflow-y: auto;
 }
 
+.lemons-search-modal .lemons-search-wrapper .lemons-search-preview .preview-empty {
+	color: var(--text-faint);
+}
+
+.lemons-search-modal .lemons-search-wrapper .lemons-search-preview .preview-img img {
+	max-width: 100%;
+}
+
 .lemons-search-modal .modal-content .prompt-results {
 	padding: 0;
 	overflow-y: auto;
 }
+
+/* .lemons-search-modal .modal-content .prompt-results .suggestion-title {
+	color: var(--text-muted);
+
+	& .suggestion-highlight {
+		color: var(--text-normal);
+	}
+} */

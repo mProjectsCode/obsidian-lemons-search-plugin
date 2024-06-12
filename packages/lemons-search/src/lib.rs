@@ -29,7 +29,7 @@ pub struct Search {
 
 impl Search {
     pub fn new(data: Vec<String>) -> Search {
-        let matcher = Matcher::new(Config::DEFAULT);
+        let matcher = Matcher::new(Config::DEFAULT.match_paths());
         Search {
             data,
             matcher,

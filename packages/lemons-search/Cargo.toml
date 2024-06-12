@@ -19,10 +19,11 @@ wasm-bindgen = "0.2.84"
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 leptos = { version = "0.6.12", features = ["nightly", "csr"]}
-web-sys = "0.3.69"
+web-sys = { version = "0.3.69", features = ["Worker"] }
 nucleo-matcher = "0.3.1"
 itertools = "0.13.0"
 wasm-bindgen-futures = "0.4.42"
+leptos-use = "0.10.10"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"

@@ -1,13 +1,26 @@
 use std::{cell::RefCell, rc::Rc};
 
 use leptos::{
-    component, create_effect, create_memo, create_node_ref, create_resource, create_signal,
-    event_target_value, html, view, IntoView, NodeRef, ReadSignal, SignalWith, WriteSignal,
+    component, create_effect, create_local_resource, create_memo, create_node_ref, create_resource,
+    create_signal, event_target_value, html, view, IntoView, NodeRef, ReadSignal, SignalWith,
+    Suspense, WriteSignal,
 };
+use leptos_use::signal_debounced;
 use wasm_bindgen::JsValue;
 use web_sys::js_sys;
 
 use crate::{plugin_wrapper::PluginWrapper, Search};
+
+const IMAGE_FORMATS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+
+enum PreviewType {
+    Text(String),
+    EmptyText,
+    Image(String),
+    FileNotFound,
+    Unsupported,
+    None,
+}
 
 #[component]
 pub fn App(
@@ -18,8 +31,10 @@ pub fn App(
     let (search_string, set_search_string) = create_signal("".to_string());
     let (selection, set_selection) = create_signal::<i32>(0);
 
+    let debounced_search_string = signal_debounced(search_string, 100.0);
+
     // the search results
-    let results = create_memo(move |_| search.borrow_mut().search(&search_string()));
+    let results = create_memo(move |_| search.borrow_mut().search(&debounced_search_string()));
 
     // length of the search results
     let results_len = move || results.with(|x| x.len() as i32);
@@ -27,23 +42,36 @@ pub fn App(
     // the selected element
     let selected_element = move || match results_len() {
         0 => None,
-        _ => Some(
-            results()[selection().rem_euclid(results_len()) as usize]
-                .0
-                .clone(),
-        ),
+        _ => Some(results.with(|x| x[selection().rem_euclid(results_len()) as usize].0.clone())),
     };
 
     // preview of the selected element
     let preview_plugin = plugin.clone();
-    let async_preview = create_resource(selected_element, move |selected| {
-        let value = preview_plugin.clone();
+    let async_preview = create_local_resource(selected_element, move |selected| {
+        let plugin = preview_plugin.clone();
 
         async move {
             if let Some(path) = selected {
-                value.read_file(path).await
+                if path.ends_with(".md") {
+                    let content = plugin.read_file(path).await;
+                    match content {
+                        Some(content) => match content.is_empty() {
+                            true => PreviewType::EmptyText,
+                            false => PreviewType::Text(content),
+                        },
+                        None => PreviewType::FileNotFound,
+                    }
+                } else if IMAGE_FORMATS.iter().any(|&format| path.ends_with(format)) {
+                    let content = plugin.get_resource_path(path);
+                    match content {
+                        Some(content) => PreviewType::Image(content),
+                        None => PreviewType::FileNotFound,
+                    }
+                } else {
+                    PreviewType::Unsupported
+                }
             } else {
-                None
+                PreviewType::None
             }
         }
     });
@@ -70,9 +98,11 @@ pub fn App(
     let search_key_event = move |ev: web_sys::KeyboardEvent| match ev.key().as_str() {
         "ArrowDown" => {
             set_selection(selection() + 1);
+            ev.prevent_default();
         }
         "ArrowUp" => {
             set_selection(selection() - 1);
+            ev.prevent_default();
         }
         "Home" => {
             set_selection(0);
@@ -85,6 +115,9 @@ pub fn App(
         }
         "Escape" => {
             close_modal();
+        }
+        "Tab" => {
+            set_search_string(selected_element().unwrap_or_default());
         }
         _ => {}
     };
@@ -111,10 +144,20 @@ pub fn App(
                 </div>
             </div>
             <div class="lemons-search-preview">
-                {move || match async_preview().flatten() {
-                    Some(preview) => preview,
-                    None => "No File Selected".to_string()
-                }}
+                <Suspense fallback=move || view!{ <div class="preview-empty">Loading...</div> }>
+                    {move || {
+                        async_preview.map(|preview| {
+                            match preview {
+                                PreviewType::Text(content) => view! { <div class="preview-text">{content}</div> },
+                                PreviewType::EmptyText => view! { <div class="preview-empty">Empty file...</div> },
+                                PreviewType::Image(path) => view! { <div class="preview-img"><img src=path /></div> },
+                                PreviewType::FileNotFound => view! { <div class="preview-empty">File not found...</div> },
+                                PreviewType::Unsupported => view! { <div class="preview-empty">Unsupported file...</div> },
+                                PreviewType::None => view! { <div class="preview-empty">No file selected...</div> }
+                            }
+                        })
+                    }}
+                </Suspense>
             </div>
         </div>
     }
@@ -131,7 +174,7 @@ fn SuggestionItem(
     open_selection: impl Fn() + 'static,
 ) -> impl IntoView {
     let normalized_selection = move || selection().rem_euclid(max_index());
-    let is_selected = move || index == normalized_selection();
+    let is_selected = create_memo(move |_| index == normalized_selection());
     let el: NodeRef<html::Div> = create_node_ref();
 
     let scroll__is_selected = is_selected.clone();

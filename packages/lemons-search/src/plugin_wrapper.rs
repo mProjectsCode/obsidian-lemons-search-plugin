@@ -14,6 +14,8 @@ extern "C" {
     async fn read_file(this: &LemonsSearchPlugin, path: String) -> JsValue;
     #[wasm_bindgen(method, js_name=openFile)]
     fn open_file(this: &LemonsSearchPlugin, path: String);
+    #[wasm_bindgen(method, js_name=getResourcePath)]
+    fn get_resource_path(this: &LemonsSearchPlugin, path: String) -> Option<String>;
 }
 
 pub struct PluginWrapper {
@@ -32,6 +34,10 @@ impl PluginWrapper {
 
     pub fn open_file(&self, path: String) {
         self.plugin.open_file(path);
+    }
+
+    pub fn get_resource_path(&self, path: String) -> Option<String> {
+        self.plugin.get_resource_path(path)
     }
 }
 

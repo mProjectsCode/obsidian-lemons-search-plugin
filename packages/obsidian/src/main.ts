@@ -33,27 +33,27 @@ export default class LemonsSearchPlugin extends Plugin {
 
 		this.app.workspace.onLayoutReady(() => {
 			this.rustPlugin.update_index(this.getFilePaths());
-		});
 
-		this.app.vault.on('create', file => {
-			if (file instanceof TFile) {
-				this.rustPlugin.add_file(file.path);
-				this.checkIndexConsistency();
-			}
-		});
+			this.app.vault.on('create', file => {
+				if (file instanceof TFile) {
+					this.rustPlugin.add_file(file.path);
+					this.checkIndexConsistency();
+				}
+			});
 
-		this.app.vault.on('delete', file => {
-			if (file instanceof TFile) {
-				this.rustPlugin.remove_file(file.path);
-				this.checkIndexConsistency();
-			}
-		});
+			this.app.vault.on('delete', file => {
+				if (file instanceof TFile) {
+					this.rustPlugin.remove_file(file.path);
+					this.checkIndexConsistency();
+				}
+			});
 
-		this.app.vault.on('rename', (file, oldPath) => {
-			if (file instanceof TFile) {
-				this.rustPlugin.rename_file(oldPath, file.path);
-				this.checkIndexConsistency();
-			}
+			this.app.vault.on('rename', (file, oldPath) => {
+				if (file instanceof TFile) {
+					this.rustPlugin.rename_file(oldPath, file.path);
+					this.checkIndexConsistency();
+				}
+			});
 		});
 	}
 
@@ -86,12 +86,19 @@ export default class LemonsSearchPlugin extends Plugin {
 			return undefined;
 		}
 
-		console.log('read file');
-
 		return this.app.vault.cachedRead(file);
 	}
 
 	openFile(path: string): void {
 		void this.app.workspace.openLinkText(path, '', true);
+	}
+
+	getResourcePath(path: string): string | undefined {
+		const file = this.app.vault.getFileByPath(path);
+		if (!file) {
+			return undefined;
+		}
+
+		return this.app.vault.getResourcePath(file);
 	}
 }
