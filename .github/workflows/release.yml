@@ -26,6 +26,8 @@ jobs:
                   target: wasm32-unknown-unknown
             - name: Install wasm-pack
               run: bun install -g wasm-pack
+            - name: Set Nightly
+              run: cd packages/lemons-search && rustup override set nightly && cd ../..
             - name: Build
               id: build
               run: |
