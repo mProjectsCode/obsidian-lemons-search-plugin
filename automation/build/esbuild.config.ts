@@ -4,6 +4,7 @@ import esbuildSvelte from 'esbuild-svelte';
 import sveltePreprocess from 'svelte-preprocess';
 import { getBuildBanner } from 'build/buildBanner';
 import { wasmPlugin } from './wasmPlugin';
+import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
 
 const banner = getBuildBanner('Release Build', version => version);
 
@@ -40,7 +41,12 @@ const build = await esbuild.build({
 	define: {
 		MB_GLOBAL_CONFIG_DEV_BUILD: 'false',
 	},
-	plugins: [wasmPlugin],
+	plugins: [
+		wasmPlugin,
+		inlineWorkerPlugin({
+			plugins: [wasmPlugin],
+		}),
+	],
 });
 
 const file = Bun.file('meta.txt');
