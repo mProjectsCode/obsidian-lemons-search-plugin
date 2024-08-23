@@ -31,7 +31,12 @@ const config = {
 		'@typescript-eslint/ban-ts-comment': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
 		'@typescript-eslint/no-inferrable-types': 'off',
-		'@typescript-eslint/explicit-function-return-type': ['warn'],
+		'@typescript-eslint/explicit-function-return-type': [
+			'warn',
+			{
+				allowExpressions: true,
+			},
+		],
 		'@typescript-eslint/require-await': 'off',
 	},
 };

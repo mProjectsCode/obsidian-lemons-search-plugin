@@ -1,14 +1,13 @@
-mod plugin_wrapper;
-mod ui;
 mod utils;
 
 use itertools::Itertools;
-
 use nucleo_matcher::{
     pattern::{CaseMatching, Normalization, Pattern},
     Config, Matcher, Utf32Str,
 };
+use speedy::{Readable, Writable};
 use wasm_bindgen::prelude::*;
+use web_sys::js_sys::Uint8Array;
 
 #[wasm_bindgen]
 extern "C" {
@@ -21,23 +20,32 @@ pub fn setup() {
     console_error_panic_hook::set_once();
 }
 
+#[wasm_bindgen]
 pub struct Search {
     data: Vec<String>,
     matcher: Matcher,
     pattern: Option<Pattern>,
 }
 
+impl Default for Search {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[wasm_bindgen]
 impl Search {
-    pub fn new(data: Vec<String>) -> Search {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
         let matcher = Matcher::new(Config::DEFAULT.match_paths());
         Search {
-            data,
+            data: Vec::new(),
             matcher,
             pattern: None,
         }
     }
 
-    pub fn search(&mut self, search_string: &str) -> Vec<(String, Vec<u32>)> {
+    pub fn search(&mut self, search_string: &str) -> Uint8Array {
         // log(&format!("{:?}", file_paths));
 
         let pattern = match &mut self.pattern {
@@ -55,7 +63,7 @@ impl Search {
             }
         };
 
-        pattern
+        let results = pattern
             .match_list(&self.data, &mut self.matcher)
             .into_iter()
             .take(100)
@@ -69,37 +77,61 @@ impl Search {
                 indices.sort_unstable();
                 indices.dedup();
 
-                (result.0.clone(), indices)
+                SearchResult::new(result.0.clone(), indices)
             })
-            .collect_vec()
-    }
-}
+            .collect_vec();
 
-pub struct SearchIndex {
-    pub data: Vec<String>,
-}
+        let data = results.write_to_vec().unwrap();
 
-impl SearchIndex {
-    pub fn new() -> SearchIndex {
-        SearchIndex { data: Vec::new() }
+        Uint8Array::from(data.as_slice())
     }
 
-    fn add_file(&mut self, path: String) {
+    pub fn add_file(&mut self, path: String) {
         self.data.push(path);
     }
 
-    fn remove_file(&mut self, path: &str) {
+    pub fn remove_file(&mut self, path: &str) {
         self.data.retain(|x| x != path);
     }
 
-    fn rename_file(&mut self, old_path: &str, new_path: String) {
+    pub fn rename_file(&mut self, old_path: &str, new_path: String) {
         self.data.retain(|x| x != old_path);
         self.data.push(new_path);
     }
+
+    pub fn update_index(&mut self, data: Vec<String>) {
+        self.data = data;
+    }
+
+    pub fn clear_index(&mut self) {
+        self.data = Vec::new();
+    }
+
+    pub fn check_index_consistency(&self, data: Vec<String>) -> bool {
+        self.data == data
+    }
 }
 
-impl Default for SearchIndex {
-    fn default() -> Self {
-        Self::new()
+#[wasm_bindgen]
+#[derive(Debug, Clone, PartialEq, Readable, Writable)]
+pub struct SearchResult {
+    path: String,
+    indices: Vec<u32>,
+}
+
+impl SearchResult {
+    pub fn new(path: String, indices: Vec<u32>) -> Self {
+        SearchResult { path, indices }
+    }
+}
+
+#[wasm_bindgen]
+impl SearchResult {
+    pub fn path(&self) -> String {
+        self.path.clone()
+    }
+
+    pub fn indices(&self) -> Vec<u32> {
+        self.indices.clone()
     }
 }

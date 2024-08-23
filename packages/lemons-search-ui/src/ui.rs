@@ -1,15 +1,19 @@
-use std::{cell::RefCell, rc::Rc};
+use std::rc::Rc;
 
 use leptos::{
     component, create_effect, create_local_resource, create_memo, create_node_ref, create_signal,
     event_target_value, html, view, IntoView, NodeRef, ReadSignal, SignalWith, Suspense,
     WriteSignal,
 };
-use leptos_use::signal_debounced;
+use leptos_use::{use_interval_fn, watch_debounced};
+use speedy::Readable;
 use wasm_bindgen::JsValue;
-use web_sys::js_sys;
+use web_sys::{js_sys, Element};
 
-use crate::{plugin_wrapper::PluginWrapper, Search};
+use crate::{
+    plugin_wrapper::{PluginWrapper, SearchWorkerBuffer, SearchWorkerQueue},
+    utils::SearchResult,
+};
 
 const IMAGE_FORMATS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
 
@@ -24,30 +28,70 @@ enum PreviewType {
 
 #[component]
 pub fn App(
-    search: RefCell<Search>,
+    search: Rc<SearchWorkerBuffer>,
+    queue: Rc<SearchWorkerQueue>,
     plugin: Rc<PluginWrapper>,
     close_fn: js_sys::Function,
 ) -> impl IntoView {
-    let (search_string, set_search_string) = create_signal("".to_string());
     let (selection, set_selection) = create_signal::<i32>(0);
+    let (search_string, set_search_string) = create_signal("".to_string());
+    let prompt_results_ref: NodeRef<html::Div> = create_node_ref();
 
-    let debounced_search_string = signal_debounced(search_string, 100.0);
+    create_effect(move |_| {
+        let search_string = search_string();
+        queue.push(search_string);
+    });
 
     // the search results
-    let results = create_memo(move |_| search.borrow_mut().search(&debounced_search_string()));
+    let (results, set_results) = create_signal::<Vec<SearchResult>>(Vec::new());
+
+    let _ = use_interval_fn(
+        move || {
+            if search.has_data() {
+                set_results(
+                    Vec::<SearchResult>::read_from_buffer(&search.get_data().to_vec()).unwrap(),
+                );
+            }
+        },
+        50,
+    );
 
     // length of the search results
     let results_len = move || results.with(|x| x.len() as i32);
 
-    // the selected element
-    let selected_element = move || match results_len() {
+    let selection_memo = create_memo(move |_| match results_len() {
         0 => None,
-        _ => Some(results.with(|x| x[selection().rem_euclid(results_len()) as usize].0.clone())),
-    };
+        _ => Some(selection().rem_euclid(results_len())),
+    });
+
+    // scroll the selected element into view
+    create_effect(move |_| {
+        if let Some(selection) = selection_memo() {
+            if let Some(el) = prompt_results_ref.get_untracked() {
+                let selected_child = el.children().item(selection as u32);
+                if let Some(selected_child) = selected_child {
+                    scroll_into_view(&selected_child);
+                }
+            }
+        }
+    });
+
+    // the selected element
+    let selected_element = move || selection_memo().map(|i| results.with(|x| x[i as usize].path()));
+
+    let (selected_element_debounced, set_selected_element_debounced) =
+        create_signal::<Option<String>>(None);
+    let _ = watch_debounced(
+        selected_element,
+        move |_, _, _| {
+            set_selected_element_debounced(selected_element());
+        },
+        50.0,
+    );
 
     // preview of the selected element
     let preview_plugin = plugin.clone();
-    let async_preview = create_local_resource(selected_element, move |selected| {
+    let async_preview = create_local_resource(selected_element_debounced, move |selected| {
         let plugin = preview_plugin.clone();
 
         async move {
@@ -76,24 +120,27 @@ pub fn App(
         }
     });
 
+    // update the search string
     let search_input_event = move |ev: web_sys::Event| {
         set_search_string(event_target_value(&ev));
         set_selection(0);
     };
 
+    // close the modal
     let close_modal = move || {
         close_fn.call0(&JsValue::NULL).unwrap();
     };
 
-    let plugin__open_selected = plugin.clone();
+    // open the selected element
     let close_modal__open_selected = close_modal.clone();
     let open_selected = move || {
         if let Some(selected_element) = selected_element() {
-            plugin__open_selected.open_file(selected_element);
+            plugin.open_file(selected_element);
             close_modal__open_selected();
         }
     };
 
+    // handle key events
     let open_selected__search_key_event = open_selected.clone();
     let search_key_event = move |ev: web_sys::KeyboardEvent| match ev.key().as_str() {
         "ArrowDown" => {
@@ -123,11 +170,23 @@ pub fn App(
     };
 
     let result_elements = move || {
-        results().iter().enumerate().map(|(i, result)| {
-            view! {
-                <SuggestionItem str=result.0.clone() highlights=result.1.clone() index=i as i32 max_index=results_len selection=selection set_selection=set_selection open_selection=open_selected.clone() />
-            }
-        }).collect::<Vec<_>>()
+        results()
+            .iter()
+            .enumerate()
+            .map(|(i, result)| {
+                view! {
+                    <SuggestionItem
+                        str=result.path()
+                        highlights=result.indices()
+                        index=i as i32
+                        max_index=results_len
+                        selection=selection
+                        set_selection=set_selection
+                        open_selection=open_selected.clone()
+                    />
+                }
+            })
+            .collect::<Vec<_>>()
     };
 
     view! {
@@ -139,7 +198,7 @@ pub fn App(
                     prop:value=search_string
                     placeholder="Search for files..."
                 />
-                <div class="prompt-results">
+                <div class="prompt-results" node_ref=prompt_results_ref>
                     {result_elements}
                 </div>
             </div>
@@ -175,26 +234,9 @@ fn SuggestionItem(
 ) -> impl IntoView {
     let normalized_selection = move || selection().rem_euclid(max_index());
     let is_selected = create_memo(move |_| index == normalized_selection());
-    let el: NodeRef<html::Div> = create_node_ref();
 
-    let scroll__is_selected = is_selected.clone();
-    create_effect(move |_| {
-        if scroll__is_selected() {
-            if let Some(el) = el.get_untracked() {
-                let scroll_fn =
-                    js_sys::Reflect::get(&el, &JsValue::from_str("scrollIntoViewIfNeeded"))
-                        .unwrap();
-                if scroll_fn.is_function() {
-                    let scroll_fn_2: js_sys::Function = scroll_fn.try_into().unwrap();
-                    scroll_fn_2.call1(&el, &JsValue::TRUE).unwrap();
-                }
-            }
-        }
-    });
-
-    let click__is_selected = is_selected.clone();
     let click_suggestion = move |_| {
-        if click__is_selected() {
+        if is_selected() {
             open_selection();
         } else {
             set_selection(index);
@@ -206,7 +248,6 @@ fn SuggestionItem(
             class="suggestion-item mod-complex"
             class:is-selected=is_selected
             on:click=click_suggestion
-            node_ref=el
         >
             <div class="suggestion-content">
                 {suggestion_title(str, &highlights)}
@@ -234,5 +275,13 @@ fn suggestion_title(str: String, highlights: &Vec<u32>) -> impl IntoView {
         result.push(view! { <span>{str[start..].to_owned()}</span> });
 
         view! { <div class="suggestion-title">{result}</div> }
+    }
+}
+
+fn scroll_into_view(el: &Element) {
+    let scroll_fn = js_sys::Reflect::get(el, &JsValue::from_str("scrollIntoViewIfNeeded")).unwrap();
+    if scroll_fn.is_function() {
+        let scroll_fn_2: js_sys::Function = scroll_fn.into();
+        scroll_fn_2.call1(el, &JsValue::TRUE).unwrap();
     }
 }
