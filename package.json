@@ -1,7 +1,7 @@
 {
-	"name": "lemons-plugin-template",
-	"version": "0.0.4",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "lemons-search",
+	"version": "0.0.1",
+	"description": "A blazingly fast fuzzy finder with file preview.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "bun run automation/build/esbuild.dev.config.ts",
