@@ -1,9 +1,9 @@
 import type LemonsSearchPlugin from './main';
-import { type SearchWorkerRPCConfigMain, type SearchWorkerRPCConfigWorker } from './SearchWorkerRPCConfig';
-import { WorkerRPC } from './WorkerRPC';
+import { type SearchWorkerRPCHandlersMain, type SearchWorkerRPCHandlersWorker } from './searchWorker/SearchWorkerRPCConfig';
+import { RPCController } from './rpc/RPC';
 
 // @ts-expect-error
-import SearchWorker from './search.worker';
+import SearchWorker from './searchWorker/search.worker';
 
 export class SearchUI {
 	plugin: LemonsSearchPlugin;
@@ -12,7 +12,7 @@ export class SearchUI {
 	worker: Worker;
 	targetEl: HTMLElement;
 	onCancel: () => void;
-	RPC: WorkerRPC<SearchWorkerRPCConfigWorker, SearchWorkerRPCConfigMain>;
+	RPC: RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>;
 
 	searchQueueSlot: string | undefined;
 	searchWorkerRunning: boolean = false;
@@ -28,9 +28,9 @@ export class SearchUI {
 		this.uuid = crypto.randomUUID();
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		this.worker = new SearchWorker('worker.js') as Worker;
+		this.worker = new SearchWorker() as Worker;
 
-		this.RPC = new WorkerRPC<SearchWorkerRPCConfigWorker, SearchWorkerRPCConfigMain>(
+		this.RPC = new RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(
 			{
 				onSearchFinished: result => this.onSearchFinished(result),
 				onInitialized: () => {
@@ -43,15 +43,15 @@ export class SearchUI {
 		);
 
 		this.worker.onmessage = e => {
-			this.RPC.onMessage(e.data);
+			this.RPC.handle(e.data);
 		};
 
 		this.plugin.registerSearchUI(this);
 
-		this.plugin.rustPlugin.create_search_ui(targetEl, () => this.onCancel(), this, this);
+		this.plugin.rustPlugin.create_search_ui(targetEl, () => this.onCancel(), this);
 	}
 
-	push(path: string): void {
+	search(path: string): void {
 		this.searchQueueSlot = path;
 
 		this.startSearch();
@@ -79,11 +79,11 @@ export class SearchUI {
 		this.startSearch();
 	}
 
-	hasData(): boolean {
+	hasResults(): boolean {
 		return this.searchWorkerNewData && this.searchWorkerResult !== undefined;
 	}
 
-	getData(): Uint8Array {
+	getResults(): Uint8Array {
 		this.searchWorkerNewData = false;
 		return this.searchWorkerResult!;
 	}
@@ -91,6 +91,6 @@ export class SearchUI {
 	destroy(): void {
 		this.plugin.unregisterSearchUI(this);
 		this.worker.terminate();
-		this.targetEl.innerHTML = '';
+		this.targetEl.empty();
 	}
 }

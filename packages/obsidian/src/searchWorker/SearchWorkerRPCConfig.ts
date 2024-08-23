@@ -1,7 +1,7 @@
 /* eslint-disable */
 // eslint turns them into interfaces which causes TS errors
 
-export type SearchWorkerRPCConfigWorker = {
+export type SearchWorkerRPCHandlersWorker = {
 	updateIndex: [string[]];
 	onFileCreate: [string];
 	onFileDelete: [string];
@@ -10,7 +10,7 @@ export type SearchWorkerRPCConfigWorker = {
 	search: [string];
 };
 
-export type SearchWorkerRPCConfigMain = {
+export type SearchWorkerRPCHandlersMain = {
 	onSearchFinished: [Uint8Array];
 	onInitialized: [];
 };

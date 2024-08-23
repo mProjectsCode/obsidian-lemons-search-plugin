@@ -11,7 +11,7 @@ use wasm_bindgen::JsValue;
 use web_sys::{js_sys, Element};
 
 use crate::{
-    plugin_wrapper::{PluginWrapper, SearchWorkerBuffer, SearchWorkerQueue},
+    plugin_wrapper::{PluginWrapper, SearchController},
     utils::SearchResult,
 };
 
@@ -28,18 +28,18 @@ enum PreviewType {
 
 #[component]
 pub fn App(
-    search: Rc<SearchWorkerBuffer>,
-    queue: Rc<SearchWorkerQueue>,
+    search: Rc<SearchController>,
     plugin: Rc<PluginWrapper>,
-    close_fn: js_sys::Function,
+    cancel_fn: js_sys::Function,
 ) -> impl IntoView {
     let (selection, set_selection) = create_signal::<i32>(0);
     let (search_string, set_search_string) = create_signal("".to_string());
     let prompt_results_ref: NodeRef<html::Div> = create_node_ref();
 
+    let search__effect = search.clone();
     create_effect(move |_| {
         let search_string = search_string();
-        queue.push(search_string);
+        search__effect.search(search_string);
     });
 
     // the search results
@@ -47,9 +47,9 @@ pub fn App(
 
     let _ = use_interval_fn(
         move || {
-            if search.has_data() {
+            if search.has_results() {
                 set_results(
-                    Vec::<SearchResult>::read_from_buffer(&search.get_data().to_vec()).unwrap(),
+                    Vec::<SearchResult>::read_from_buffer(&search.get_results().to_vec()).unwrap(),
                 );
             }
         },
@@ -127,12 +127,12 @@ pub fn App(
     };
 
     // close the modal
-    let close_modal = move || {
-        close_fn.call0(&JsValue::NULL).unwrap();
+    let cancel_search = move || {
+        cancel_fn.call0(&JsValue::NULL).unwrap();
     };
 
     // open the selected element
-    let close_modal__open_selected = close_modal.clone();
+    let close_modal__open_selected = cancel_search.clone();
     let open_selected = move || {
         if let Some(selected_element) = selected_element() {
             plugin.open_file(selected_element);
@@ -161,7 +161,7 @@ pub fn App(
             open_selected__search_key_event();
         }
         "Escape" => {
-            close_modal();
+            cancel_search();
         }
         "Tab" => {
             set_search_string(selected_element().unwrap_or_default());

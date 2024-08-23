@@ -1,7 +1,7 @@
-export interface MyPluginSettings {
-	mySetting: string;
+export interface LemonsSearchSettings {
+	placeholder: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default',
+export const DEFAULT_SETTINGS: LemonsSearchSettings = {
+	placeholder: 'placeholder',
 };

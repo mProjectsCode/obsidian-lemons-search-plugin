@@ -17,17 +17,14 @@ extern "C" {
     #[wasm_bindgen(method, js_name=getResourcePath)]
     pub fn get_resource_path(this: &LemonsSearchPlugin, path: String) -> Option<String>;
 
-    pub type SearchWorkerBuffer;
+    pub type SearchController;
 
-    #[wasm_bindgen(method, js_name=hasData)]
-    pub fn has_data(this: &SearchWorkerBuffer) -> bool;
-    #[wasm_bindgen(method, js_name=getData)]
-    pub fn get_data(this: &SearchWorkerBuffer) -> Uint8Array;
-
-    pub type SearchWorkerQueue;
-
-    #[wasm_bindgen(method, js_name=push)]
-    pub fn push(this: &SearchWorkerQueue, path: String);
+    #[wasm_bindgen(method, js_name=hasResults)]
+    pub fn has_results(this: &SearchController) -> bool;
+    #[wasm_bindgen(method, js_name=getResults)]
+    pub fn get_results(this: &SearchController) -> Uint8Array;
+    #[wasm_bindgen(method, js_name=search)]
+    pub fn search(this: &SearchController, path: String);
 }
 
 pub struct PluginWrapper {
@@ -70,16 +67,14 @@ impl RustPlugin {
     pub fn create_search_ui(
         &self,
         mount_point: web_sys::HtmlElement,
-        close_fn: js_sys::Function,
-        search: SearchWorkerBuffer,
-        queue: SearchWorkerQueue,
+        cancel_fn: js_sys::Function,
+        search: SearchController,
     ) {
         let plugin = self.plugin.clone();
         let search = Rc::new(search);
-        let queue = Rc::new(queue);
         leptos::mount_to(
             mount_point,
-            move || view! { <App search=search queue=queue plugin=plugin close_fn=close_fn /> },
+            move || view! { <App search=search plugin=plugin cancel_fn=cancel_fn /> },
         );
     }
 }

@@ -1,6 +1,5 @@
 import { Plugin, TFile } from 'obsidian';
-import { type MyPluginSettings, DEFAULT_SETTINGS } from './settings/Settings';
-import { SampleSettingTab } from './settings/SettingTab';
+import { type LemonsSearchSettings, DEFAULT_SETTINGS } from './settings/Settings';
 import init, { type InitInput, RustPlugin, setup } from '../../lemons-search-ui/pkg';
 import wasmbin from '../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm';
 import { SearchModal } from './SearchModal';
@@ -10,7 +9,7 @@ import { type SearchUI } from './SearchUI';
 
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
-	settings: MyPluginSettings;
+	settings: LemonsSearchSettings;
 	rustPlugin!: RustPlugin;
 
 	searchUIs = new Map<string, SearchUI>();
@@ -24,7 +23,7 @@ export default class LemonsSearchPlugin extends Plugin {
 
 		this.rustPlugin = new RustPlugin(this);
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		// this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		this.addCommand({
 			id: 'open-search',
@@ -67,7 +66,7 @@ export default class LemonsSearchPlugin extends Plugin {
 	onunload(): void {}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData()) as MyPluginSettings;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData()) as LemonsSearchSettings;
 	}
 
 	async saveSettings(): Promise<void> {

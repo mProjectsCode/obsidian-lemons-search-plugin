@@ -1,11 +1,11 @@
-import init, { type InitInput, setup, Search } from '../../lemons-search/pkg';
-import wasmbin from '../../lemons-search/pkg/lemons_search_bg.wasm';
-import { type SearchWorkerRPCConfigMain, type SearchWorkerRPCConfigWorker } from './SearchWorkerRPCConfig';
-import { WorkerRPC } from './WorkerRPC';
+import init, { type InitInput, setup, Search } from '../../../lemons-search/pkg/lemons_search';
+import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm';
+import { type SearchWorkerRPCHandlersMain, type SearchWorkerRPCHandlersWorker } from './SearchWorkerRPCConfig';
+import { RPCController } from '../rpc/RPC';
 
 let search: Search | undefined = undefined;
 
-const RPC = new WorkerRPC<SearchWorkerRPCConfigMain, SearchWorkerRPCConfigWorker>(
+const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
 	{
 		onFileCreate(name) {
 			search?.add_file(name);
@@ -34,11 +34,11 @@ void init(wasmbin as unknown as InitInput).then(() => {
 
 	search = new Search();
 
-	console.log('search worker initialized');
+	// console.log('search worker initialized');
 
 	RPC.call('onInitialized');
 });
 
 onmessage = e => {
-	RPC.onMessage(e.data);
+	RPC.handle(e.data);
 };
