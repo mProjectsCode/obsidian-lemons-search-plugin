@@ -2,11 +2,12 @@ use std::rc::Rc;
 
 use leptos::{
     component, create_effect, create_local_resource, create_memo, create_node_ref, create_signal,
-    event_target_value, html, view, IntoView, NodeRef, ReadSignal, SignalWith, Suspense,
-    WriteSignal,
+    event_target_value, html, view, IntoView, Memo, NodeRef, ReadSignal, SignalGetUntracked,
+    SignalWith, Suspense, WriteSignal,
 };
 use leptos_use::{use_interval_fn, watch_debounced};
 use speedy::Readable;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 use web_sys::{js_sys, Element};
 
@@ -16,6 +17,12 @@ use crate::{
 };
 
 const IMAGE_FORMATS: [&str; 6] = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
 
 enum PreviewType {
     Text(String),
@@ -79,46 +86,8 @@ pub fn App(
     // the selected element
     let selected_element = move || selection_memo().map(|i| results.with(|x| x[i as usize].path()));
 
-    let (selected_element_debounced, set_selected_element_debounced) =
-        create_signal::<Option<String>>(None);
-    let _ = watch_debounced(
-        selected_element,
-        move |_, _, _| {
-            set_selected_element_debounced(selected_element());
-        },
-        50.0,
-    );
-
     // preview of the selected element
     let preview_plugin = plugin.clone();
-    let async_preview = create_local_resource(selected_element_debounced, move |selected| {
-        let plugin = preview_plugin.clone();
-
-        async move {
-            if let Some(path) = selected {
-                if path.ends_with(".md") {
-                    let content = plugin.read_file(path).await;
-                    match content {
-                        Some(content) => match content.is_empty() {
-                            true => PreviewType::EmptyText,
-                            false => PreviewType::Text(content),
-                        },
-                        None => PreviewType::FileNotFound,
-                    }
-                } else if IMAGE_FORMATS.iter().any(|&format| path.ends_with(format)) {
-                    let content = plugin.get_resource_path(path);
-                    match content {
-                        Some(content) => PreviewType::Image(content),
-                        None => PreviewType::FileNotFound,
-                    }
-                } else {
-                    PreviewType::Unsupported
-                }
-            } else {
-                PreviewType::None
-            }
-        }
-    });
 
     // update the search string
     let search_input_event = move |ev: web_sys::Event| {
@@ -174,17 +143,14 @@ pub fn App(
             .iter()
             .enumerate()
             .map(|(i, result)| {
-                view! {
-                    <SuggestionItem
-                        str=result.path()
-                        highlights=result.indices()
-                        index=i as i32
-                        max_index=results_len
-                        selection=selection
-                        set_selection=set_selection
-                        open_selection=open_selected.clone()
-                    />
-                }
+                suggestion_item(
+                    result.path(),
+                    result.indices_ref(),
+                    i as i32,
+                    selection_memo,
+                    set_selection,
+                    open_selected.clone(),
+                )
             })
             .collect::<Vec<_>>()
     };
@@ -202,38 +168,20 @@ pub fn App(
                     {result_elements}
                 </div>
             </div>
-            <div class="lemons-search-preview">
-                <Suspense fallback=move || view!{ <div class="preview-empty">Loading...</div> }>
-                    {move || {
-                        async_preview.map(|preview| {
-                            match preview {
-                                PreviewType::Text(content) => view! { <div class="preview-text">{content}</div> },
-                                PreviewType::EmptyText => view! { <div class="preview-empty">Empty file...</div> },
-                                PreviewType::Image(path) => view! { <div class="preview-img"><img src=path /></div> },
-                                PreviewType::FileNotFound => view! { <div class="preview-empty">File not found...</div> },
-                                PreviewType::Unsupported => view! { <div class="preview-empty">Unsupported file...</div> },
-                                PreviewType::None => view! { <div class="preview-empty">No file selected...</div> }
-                            }
-                        })
-                    }}
-                </Suspense>
-            </div>
+            <FilePreview plugin=preview_plugin selected_element=selected_element />
         </div>
     }
 }
 
-#[component]
-fn SuggestionItem(
+fn suggestion_item(
     str: String,
-    highlights: Vec<u32>,
+    highlights: &Vec<u32>,
     index: i32,
-    max_index: impl Fn() -> i32 + 'static + Clone,
-    selection: ReadSignal<i32>,
+    selected_index: Memo<Option<i32>>,
     set_selection: WriteSignal<i32>,
     open_selection: impl Fn() + 'static,
 ) -> impl IntoView {
-    let normalized_selection = move || selection().rem_euclid(max_index());
-    let is_selected = create_memo(move |_| index == normalized_selection());
+    let is_selected = create_memo(move |_| Some(index) == selected_index());
 
     let click_suggestion = move |_| {
         if is_selected() {
@@ -275,6 +223,68 @@ fn suggestion_title(str: String, highlights: &Vec<u32>) -> impl IntoView {
         result.push(view! { <span>{str[start..].to_owned()}</span> });
 
         view! { <div class="suggestion-title">{result}</div> }
+    }
+}
+
+#[component]
+fn FilePreview(
+    plugin: Rc<PluginWrapper>,
+    selected_element: impl Fn() -> Option<String> + Clone + 'static,
+) -> impl IntoView {
+    let (selected_element_debounced, set_selected_element_debounced) =
+        create_signal::<Option<String>>(None);
+    let _ = watch_debounced(
+        selected_element.clone(),
+        move |_, _, _| {
+            set_selected_element_debounced(selected_element());
+        },
+        50.0,
+    );
+
+    let async_preview = create_local_resource(selected_element_debounced, move |selected| {
+        let plugin = plugin.clone();
+
+        async move {
+            if let Some(path) = selected {
+                if path.ends_with(".md") {
+                    let content = plugin.read_file(path).await;
+                    match content {
+                        Some(content) => match content.is_empty() {
+                            true => PreviewType::EmptyText,
+                            false => PreviewType::Text(content),
+                        },
+                        None => PreviewType::FileNotFound,
+                    }
+                } else if IMAGE_FORMATS.iter().any(|&format| path.ends_with(format)) {
+                    let content = plugin.get_resource_path(path);
+                    match content {
+                        Some(content) => PreviewType::Image(content),
+                        None => PreviewType::FileNotFound,
+                    }
+                } else {
+                    PreviewType::Unsupported
+                }
+            } else {
+                PreviewType::None
+            }
+        }
+    });
+
+    view! {
+        <div class="lemons-search-preview">
+            <Suspense fallback=move || view!{ <div class="preview-empty">Loading...</div> }>
+                {move || async_preview.map(|preview| {
+                    match preview {
+                        PreviewType::Text(content) => view! { <div class="preview-text">{content}</div> },
+                        PreviewType::EmptyText => view! { <div class="preview-empty">Empty file...</div> },
+                        PreviewType::Image(path) => view! { <div class="preview-img"><img src=path /></div> },
+                        PreviewType::FileNotFound => view! { <div class="preview-empty">File not found...</div> },
+                        PreviewType::Unsupported => view! { <div class="preview-empty">Unsupported file...</div> },
+                        PreviewType::None => view! { <div class="preview-empty">No file selected...</div> }
+                    }
+                })}
+            </Suspense>
+        </div>
     }
 }
 

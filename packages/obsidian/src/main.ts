@@ -7,6 +7,8 @@ import { type SearchUI } from './SearchUI';
 
 // const DEBUG = true;
 
+const CONTENT_SLICE_LENGTH = 5000;
+
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
 	settings: LemonsSearchSettings;
@@ -93,6 +95,17 @@ export default class LemonsSearchPlugin extends Plugin {
 		}
 
 		return this.app.vault.cachedRead(file);
+	}
+
+	async readFileTruncated(path: string): Promise<string | undefined> {
+		const content = await this.readFile(path);
+		if (!content) {
+			return undefined;
+		}
+		if (content.length < CONTENT_SLICE_LENGTH) {
+			return content;
+		}
+		return content.slice(0, CONTENT_SLICE_LENGTH) + '\n\n...';
 	}
 
 	openFile(path: string): void {

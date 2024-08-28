@@ -1,3 +1,5 @@
+#![feature(async_closure)]
+
 mod plugin_wrapper;
 mod ui;
 mod utils;

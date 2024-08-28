@@ -12,6 +12,10 @@ impl SearchResult {
     pub fn new(path: String, indices: Vec<u32>) -> Self {
         SearchResult { path, indices }
     }
+
+    pub fn indices_ref(&self) -> &Vec<u32> {
+        &self.indices
+    }
 }
 
 #[wasm_bindgen]

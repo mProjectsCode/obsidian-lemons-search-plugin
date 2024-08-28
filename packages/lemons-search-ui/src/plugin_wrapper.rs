@@ -10,8 +10,8 @@ use crate::ui::App;
 extern "C" {
     pub type LemonsSearchPlugin;
 
-    #[wasm_bindgen(method, js_name=readFile)]
-    pub async fn read_file(this: &LemonsSearchPlugin, path: String) -> JsValue;
+    #[wasm_bindgen(method, js_name=readFileTruncated)]
+    pub async fn read_file_truncated(this: &LemonsSearchPlugin, path: String) -> JsValue;
     #[wasm_bindgen(method, js_name=openFile)]
     pub fn open_file(this: &LemonsSearchPlugin, path: String);
     #[wasm_bindgen(method, js_name=getResourcePath)]
@@ -37,8 +37,8 @@ impl PluginWrapper {
     }
 
     pub async fn read_file(&self, path: String) -> Option<String> {
-        let value = self.plugin.read_file(path).await;
-        value.as_string()
+        let content = self.plugin.read_file_truncated(path).await;
+        content.as_string()
     }
 
     pub fn open_file(&self, path: String) {
