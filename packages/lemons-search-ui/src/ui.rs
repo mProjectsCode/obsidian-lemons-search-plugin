@@ -2,8 +2,7 @@ use std::rc::Rc;
 
 use leptos::{
     component, create_effect, create_local_resource, create_memo, create_node_ref, create_signal,
-    event_target_value, html, view, IntoView, Memo, NodeRef, ReadSignal, SignalGetUntracked,
-    SignalWith, Suspense, WriteSignal,
+    event_target_value, html, view, IntoView, Memo, NodeRef, SignalWith, Suspense, WriteSignal,
 };
 use leptos_use::{use_interval_fn, watch_debounced};
 use speedy::Readable;
@@ -11,6 +10,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 use web_sys::{js_sys, Element};
 
+use crate::utils::HighlightRange;
 use crate::{
     plugin_wrapper::{PluginWrapper, SearchController},
     utils::SearchResult,
@@ -84,7 +84,8 @@ pub fn App(
     });
 
     // the selected element
-    let selected_element = move || selection_memo().map(|i| results.with(|x| x[i as usize].path()));
+    let selected_element =
+        move || selection_memo().map(|i| results.with(|x| x[i as usize].path.clone()));
 
     // preview of the selected element
     let preview_plugin = plugin.clone();
@@ -144,8 +145,9 @@ pub fn App(
             .enumerate()
             .map(|(i, result)| {
                 suggestion_item(
-                    result.path(),
-                    result.indices_ref(),
+                    result.path.clone(),
+                    &result.chars,
+                    &result.highlights,
                     i as i32,
                     selection_memo,
                     set_selection,
@@ -174,8 +176,9 @@ pub fn App(
 }
 
 fn suggestion_item(
-    str: String,
-    highlights: &Vec<u32>,
+    path: String,
+    chars: &Vec<char>,
+    highlights: &Vec<HighlightRange>,
     index: i32,
     selected_index: Memo<Option<i32>>,
     set_selection: WriteSignal<i32>,
@@ -198,29 +201,34 @@ fn suggestion_item(
             on:click=click_suggestion
         >
             <div class="suggestion-content">
-                {suggestion_title(str, &highlights)}
+                {suggestion_title(path, chars, highlights)}
             </div>
         </div>
     }
 }
 
-fn suggestion_title(str: String, highlights: &Vec<u32>) -> impl IntoView {
+fn suggestion_title(
+    path: String,
+    chars: &Vec<char>,
+    highlights: &Vec<HighlightRange>,
+) -> impl IntoView {
     if highlights.is_empty() {
-        view! { <div class="suggestion-title">{str}</div> }
+        view! { <div class="suggestion-title">{path}</div> }
     } else {
         let mut result = Vec::new();
-        let mut start = 0;
-        for highlight in highlights {
-            let u_highlight = *highlight as usize;
+        let mut current = 0;
 
-            if start != u_highlight {
-                result.push(view! { <span>{str[start..u_highlight].to_owned()}</span> });
+        // log(format!("highlights: {:?}", highlights).as_str());
+
+        for highlight in highlights {
+            if current != highlight.start {
+                result.push(view! { <span>{chars[current..highlight.start].to_owned()}</span> });
             }
 
-            result.push(view! { <span class="suggestion-highlight">{str[u_highlight..u_highlight + 1].to_owned()}</span> });
-            start = u_highlight + 1;
+            result.push(view! { <span class="suggestion-highlight">{chars[highlight.start..highlight.end].to_owned()}</span> });
+            current = highlight.end;
         }
-        result.push(view! { <span>{str[start..].to_owned()}</span> });
+        result.push(view! { <span>{chars[current..].to_owned()}</span> });
 
         view! { <div class="suggestion-title">{result}</div> }
     }

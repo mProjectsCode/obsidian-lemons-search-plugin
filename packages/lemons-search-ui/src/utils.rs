@@ -1,30 +1,14 @@
 use speedy::{Readable, Writable};
-use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
-#[derive(Clone, Debug, PartialEq, Readable, Writable)]
+#[derive(Debug, Clone, PartialEq, Readable, Writable)]
 pub struct SearchResult {
-    path: String,
-    indices: Vec<u32>,
+    pub path: String,
+    pub chars: Vec<char>,
+    pub highlights: Vec<HighlightRange>,
 }
 
-impl SearchResult {
-    pub fn new(path: String, indices: Vec<u32>) -> Self {
-        SearchResult { path, indices }
-    }
-
-    pub fn indices_ref(&self) -> &Vec<u32> {
-        &self.indices
-    }
-}
-
-#[wasm_bindgen]
-impl SearchResult {
-    pub fn path(&self) -> String {
-        self.path.clone()
-    }
-
-    pub fn indices(&self) -> Vec<u32> {
-        self.indices.clone()
-    }
+#[derive(Debug, Clone, PartialEq, Readable, Writable)]
+pub struct HighlightRange {
+    pub start: usize,
+    pub end: usize,
 }

@@ -1,28 +1,17 @@
 {
 	"inputs": {
 		"packages/obsidian/src/settings/Settings.ts": {
-			"bytes": 137,
+			"bytes": 153,
 			"imports": [],
 			"format": "esm"
 		},
-		"packages/obsidian/src/settings/SettingTab.ts": {
-			"bytes": 694,
-			"imports": [
-				{
-					"path": "obsidian",
-					"kind": "import-statement",
-					"external": true
-				}
-			],
-			"format": "esm"
-		},
-		"packages/lemons-search/pkg/lemons_search.js": {
-			"bytes": 32638,
+		"packages/lemons-search-ui/pkg/lemons_search_ui.js": {
+			"bytes": 35334,
 			"imports": [],
 			"format": "esm"
 		},
-		"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search/pkg/lemons_search_bg.wasm": {
-			"bytes": 365256,
+		"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm": {
+			"bytes": 281393,
 			"imports": [
 				{
 					"path": "<runtime>",
@@ -31,8 +20,50 @@
 				}
 			]
 		},
+		"packages/obsidian/src/rpc/RPC.ts": {
+			"bytes": 1714,
+			"imports": [],
+			"format": "esm"
+		},
+		"inline-worker:__inline-worker": {
+			"bytes": 234,
+			"imports": [],
+			"format": "esm"
+		},
+		"packages/obsidian/src/searchWorker/search.worker.ts": {
+			"bytes": 369247,
+			"imports": [
+				{
+					"path": "inline-worker:__inline-worker",
+					"kind": "import-statement",
+					"original": "__inline-worker"
+				}
+			],
+			"format": "esm"
+		},
+		"packages/obsidian/src/SearchUI.ts": {
+			"bytes": 2582,
+			"imports": [
+				{
+					"path": "./searchWorker/SearchWorkerRPCConfig",
+					"kind": "import-statement",
+					"external": true
+				},
+				{
+					"path": "packages/obsidian/src/rpc/RPC.ts",
+					"kind": "import-statement",
+					"original": "./rpc/RPC"
+				},
+				{
+					"path": "packages/obsidian/src/searchWorker/search.worker.ts",
+					"kind": "import-statement",
+					"original": "./searchWorker/search.worker"
+				}
+			],
+			"format": "esm"
+		},
 		"packages/obsidian/src/SearchModal.ts": {
-			"bytes": 539,
+			"bytes": 600,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -40,20 +71,15 @@
 					"external": true
 				},
 				{
-					"path": "./main",
+					"path": "packages/obsidian/src/SearchUI.ts",
 					"kind": "import-statement",
-					"external": true
-				},
-				{
-					"path": "../../lemons-search/pkg/lemons_search",
-					"kind": "import-statement",
-					"external": true
+					"original": "./SearchUI"
 				}
 			],
 			"format": "esm"
 		},
 		"packages/obsidian/src/main.ts": {
-			"bytes": 1327,
+			"bytes": 3334,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -66,24 +92,24 @@
 					"original": "./settings/Settings"
 				},
 				{
-					"path": "packages/obsidian/src/settings/SettingTab.ts",
+					"path": "packages/lemons-search-ui/pkg/lemons_search_ui.js",
 					"kind": "import-statement",
-					"original": "./settings/SettingTab"
+					"original": "../../lemons-search-ui/pkg"
 				},
 				{
-					"path": "packages/lemons-search/pkg/lemons_search.js",
+					"path": "wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm",
 					"kind": "import-statement",
-					"original": "../../lemons-search/pkg"
-				},
-				{
-					"path": "wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search/pkg/lemons_search_bg.wasm",
-					"kind": "import-statement",
-					"original": "../../lemons-search/pkg/lemons_search_bg.wasm"
+					"original": "../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm"
 				},
 				{
 					"path": "packages/obsidian/src/SearchModal.ts",
 					"kind": "import-statement",
 					"original": "./SearchModal"
+				},
+				{
+					"path": "./SearchUI",
+					"kind": "import-statement",
+					"external": true
 				}
 			],
 			"format": "esm"
@@ -101,36 +127,40 @@
 					"path": "obsidian",
 					"kind": "require-call",
 					"external": true
-				},
-				{
-					"path": "obsidian",
-					"kind": "require-call",
-					"external": true
 				}
 			],
 			"exports": [],
 			"entryPoint": "packages/obsidian/src/main.ts",
 			"inputs": {
 				"packages/obsidian/src/main.ts": {
-					"bytesInOutput": 601
+					"bytesInOutput": 1483
 				},
 				"packages/obsidian/src/settings/Settings.ts": {
-					"bytesInOutput": 28
+					"bytesInOutput": 34
 				},
-				"packages/obsidian/src/settings/SettingTab.ts": {
-					"bytesInOutput": 397
+				"packages/lemons-search-ui/pkg/lemons_search_ui.js": {
+					"bytesInOutput": 16240
 				},
-				"packages/lemons-search/pkg/lemons_search.js": {
-					"bytesInOutput": 13068
-				},
-				"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search/pkg/lemons_search_bg.wasm": {
-					"bytesInOutput": 487020
+				"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm": {
+					"bytesInOutput": 375204
 				},
 				"packages/obsidian/src/SearchModal.ts": {
-					"bytesInOutput": 206
+					"bytesInOutput": 311
+				},
+				"packages/obsidian/src/rpc/RPC.ts": {
+					"bytesInOutput": 236
+				},
+				"inline-worker:__inline-worker": {
+					"bytesInOutput": 132
+				},
+				"packages/obsidian/src/searchWorker/search.worker.ts": {
+					"bytesInOutput": 369112
+				},
+				"packages/obsidian/src/SearchUI.ts": {
+					"bytesInOutput": 1211
 				}
 			},
-			"bytes": 503604
+			"bytes": 765871
 		}
 	}
 }

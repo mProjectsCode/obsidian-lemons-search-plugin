@@ -5,9 +5,12 @@ use nucleo_matcher::{
     pattern::{CaseMatching, Normalization, Pattern},
     Config, Matcher, Utf32Str,
 };
-use speedy::{Readable, Writable};
+use speedy::Writable;
+use utils::SearchResult;
 use wasm_bindgen::prelude::*;
 use web_sys::js_sys::Uint8Array;
+
+const MAX_RESULTS: usize = 50;
 
 #[wasm_bindgen]
 extern "C" {
@@ -66,7 +69,7 @@ impl Search {
         let results = pattern
             .match_list(&self.data, &mut self.matcher)
             .into_iter()
-            .take(100)
+            .take(MAX_RESULTS)
             .map(|result| {
                 let mut vec = Vec::<char>::new();
                 let haystack = Utf32Str::new(result.0, &mut vec);
@@ -109,29 +112,5 @@ impl Search {
 
     pub fn check_index_consistency(&self, data: Vec<String>) -> bool {
         self.data == data
-    }
-}
-
-#[wasm_bindgen]
-#[derive(Debug, Clone, PartialEq, Readable, Writable)]
-pub struct SearchResult {
-    path: String,
-    indices: Vec<u32>,
-}
-
-impl SearchResult {
-    pub fn new(path: String, indices: Vec<u32>) -> Self {
-        SearchResult { path, indices }
-    }
-}
-
-#[wasm_bindgen]
-impl SearchResult {
-    pub fn path(&self) -> String {
-        self.path.clone()
-    }
-
-    pub fn indices(&self) -> Vec<u32> {
-        self.indices.clone()
     }
 }
