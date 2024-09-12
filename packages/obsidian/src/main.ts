@@ -29,7 +29,7 @@ export default class LemonsSearchPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'open-search',
-			name: 'Open Search',
+			name: 'Open search',
 			callback: () => {
 				new SearchModal(this).open();
 			},
