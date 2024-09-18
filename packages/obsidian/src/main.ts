@@ -36,32 +36,38 @@ export default class LemonsSearchPlugin extends Plugin {
 		});
 
 		this.app.workspace.onLayoutReady(() => {
-			this.app.vault.on('create', file => {
-				if (file instanceof TFile) {
-					for (const searchUI of this.searchUIs.values()) {
-						searchUI.RPC.call('onFileCreate', file.path);
+			this.registerEvent(
+				this.app.vault.on('create', file => {
+					if (file instanceof TFile) {
+						for (const searchUI of this.searchUIs.values()) {
+							searchUI.RPC.call('onFileCreate', file.path);
+						}
+						// this.checkIndexConsistency();
 					}
-					// this.checkIndexConsistency();
-				}
-			});
+				}),
+			);
 
-			this.app.vault.on('delete', file => {
-				if (file instanceof TFile) {
-					for (const searchUI of this.searchUIs.values()) {
-						searchUI.RPC.call('onFileDelete', file.path);
+			this.registerEvent(
+				this.app.vault.on('delete', file => {
+					if (file instanceof TFile) {
+						for (const searchUI of this.searchUIs.values()) {
+							searchUI.RPC.call('onFileDelete', file.path);
+						}
+						// this.checkIndexConsistency();
 					}
-					// this.checkIndexConsistency();
-				}
-			});
+				}),
+			);
 
-			this.app.vault.on('rename', (file, oldPath) => {
-				if (file instanceof TFile) {
-					for (const searchUI of this.searchUIs.values()) {
-						searchUI.RPC.call('onFileRename', oldPath, file.path);
+			this.registerEvent(
+				this.app.vault.on('rename', (file, oldPath) => {
+					if (file instanceof TFile) {
+						for (const searchUI of this.searchUIs.values()) {
+							searchUI.RPC.call('onFileRename', oldPath, file.path);
+						}
+						// this.checkIndexConsistency();
 					}
-					// this.checkIndexConsistency();
-				}
-			});
+				}),
+			);
 		});
 	}
 
