@@ -2,6 +2,41 @@
 
 A fast fuzzy finder based quick switcher with preview.
 
+The plugin add a new command `Lemons Search: Open search` that opens the quick switcher.
+The quick switcher lets you easily search all file paths in your vault and offers a quick preview of the selected search result.
+
+To ensure top performance and high quality results, the plugin is written in rust using the [nucleo-matcher](https://crates.io/crates/nucleo-matcher) create running in a web worker.
+This ensures that the majority of the computational load is taken of the main thead for a smoother feel.
+
+## Special Search Commands
+
+Every query consists of search atoms separated by spaces. Spaces can be escaped using `\`.
+In the following illustration each underlined part is a separate search atom.
+
+```
+movie Star\ Wars
+----- ----------
+```
+
+Search atoms can be modified using special characters to change their behavior.
+
+-   **Substring**: prefix with `'`
+    -   will require search results to contain the search atom as a continuous sequence
+    -   e.g. `'foo` will only match `yummy food` but not `funny doodle`
+    -   use `!` to negate, e.g. `!foo`
+-   **Prefix**: prefix with `^`
+    -   will require search results to have the search atom as a prefix
+    -   e.g. `^foo` will only match `food` but not `yummy food`
+    -   use `!^` to negate, e.g. `!^foo`
+-   **Postfix**: postfix with `$`
+    -   will require search results to have the search atom as a postfix
+    -   e.g. `.md$` will only match `foo.md` but not `foo.txt`
+    -   use `!<search atom>$` to negate, e.g. `!.md$`
+-   **Exact**: prefix with `^` and postfix with `$`
+    -   will require search results to equal the search atom
+    -   e.g. `^foo.md$` will **only** match `foo.md` and nothing else
+    -   use `!^<search atom>$` to negate, e.g. `!^foo.md$`
+
 ## Keyboard Navigation
 
 While the focus is in the input field, you can use the following special actions.
@@ -9,6 +44,7 @@ While the focus is in the input field, you can use the following special actions
 -   `uparrow` Move selection up by one
 -   `downarrow` Move selection down by one
 -   `enter` Open selection
+-   `tab` Copy the current selection into the search bar
 
 ## Mouse Navigation
 
