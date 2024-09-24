@@ -5,6 +5,8 @@ A fast fuzzy finder based quick switcher with preview.
 The plugin add a new command `Lemons Search: Open search` that opens the quick switcher.
 The quick switcher lets you easily search all file paths in your vault and offers a quick preview of the selected search result.
 
+![exampleImage](https://raw.githubusercontent.com/mProjectsCode/obsidian-lemons-search-plugin/master/exampleImage.png)
+
 To ensure top performance and high quality results, the plugin is written in rust using the [nucleo-matcher](https://crates.io/crates/nucleo-matcher) create running in a web worker.
 This ensures that the majority of the computational load is taken of the main thead for a smoother feel.
 
