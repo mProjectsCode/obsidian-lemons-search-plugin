@@ -11,7 +11,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-wasm-bindgen = "0.2.84"
+wasm-bindgen = "0.2.93"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -19,14 +19,14 @@ wasm-bindgen = "0.2.84"
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 itertools = "0.13.0"
-wasm-bindgen-futures = "0.4.42"
-leptos-use = "0.12.0"
-leptos = { version = "0.6.14", features = ["nightly", "csr"]}
-web-sys = { version = "0.3.69", features = ["Worker"] }
+wasm-bindgen-futures = "0.4.43"
+leptos-use = "0.13.5"
+leptos = { version = "0.6.15", features = ["nightly", "csr"]}
+web-sys = { version = "0.3.70", features = ["Worker"] }
 speedy = "=0.8.7"
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.34"
+wasm-bindgen-test = "0.3.43"
 
 [profile.release]
 opt-level = 3               # Highest level of optimization.
