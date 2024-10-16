@@ -19,7 +19,7 @@ export default class LemonsSearchPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		await init(wasmbin as unknown as InitInput);
+		await init({ module_or_path: wasmbin as unknown as InitInput });
 
 		setup();
 
