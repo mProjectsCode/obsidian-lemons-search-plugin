@@ -1,7 +1,7 @@
 {
 	"id": "lemons-search",
 	"name": "Lemons Search",
-	"version": "0.0.7",
+	"version": "0.0.7-canary.20241111T211218",
 	"minAppVersion": "1.6.0",
 	"description": "A blazingly fast fuzzy finder with file preview.",
 	"author": "Moritz Jung",
