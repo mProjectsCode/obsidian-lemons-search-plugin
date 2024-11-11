@@ -1,15 +1,5 @@
 {
 	"inputs": {
-		"packages/obsidian/src/settings/Settings.ts": {
-			"bytes": 153,
-			"imports": [],
-			"format": "esm"
-		},
-		"packages/obsidian/src/searchWorker/SearchWorkerRPCConfig.ts": {
-			"bytes": 465,
-			"imports": [],
-			"format": "esm"
-		},
 		"packages/obsidian/src/rpc/RPC.ts": {
 			"bytes": 1714,
 			"imports": [
@@ -2313,12 +2303,12 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/utils.ts": {
-			"bytes": 83,
+			"bytes": 81,
 			"imports": [],
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
-			"bytes": 23744,
+			"bytes": 24179,
 			"imports": [
 				{
 					"path": "node_modules/svelte/src/internal/disclose-version.js",
@@ -2365,32 +2355,27 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/SearchUI.ts": {
-			"bytes": 2996,
+			"bytes": 3115,
 			"imports": [
-				{
-					"path": "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig.ts",
-					"kind": "import-statement",
-					"original": "./searchWorker/SearchWorkerRPCConfig"
-				},
 				{
 					"path": "packages/obsidian/src/rpc/RPC.ts",
 					"kind": "import-statement",
-					"original": "./rpc/RPC"
+					"original": "packages/obsidian/src/rpc/RPC"
 				},
 				{
 					"path": "packages/obsidian/src/searchUI/SearchUIComponent.svelte",
 					"kind": "import-statement",
-					"original": "./searchUI/SearchUIComponent.svelte"
+					"original": "packages/obsidian/src/searchUI/SearchUIComponent.svelte"
+				},
+				{
+					"path": "packages/obsidian/src/searchWorker/search.worker.ts",
+					"kind": "import-statement",
+					"original": "packages/obsidian/src/searchWorker/search.worker"
 				},
 				{
 					"path": "node_modules/svelte/src/index-client.js",
 					"kind": "import-statement",
 					"original": "svelte"
-				},
-				{
-					"path": "packages/obsidian/src/searchWorker/search.worker.ts",
-					"kind": "import-statement",
-					"original": "./searchWorker/search.worker"
 				},
 				{
 					"path": "<runtime>",
@@ -2401,7 +2386,7 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/SearchModal.ts": {
-			"bytes": 600,
+			"bytes": 640,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -2411,7 +2396,7 @@
 				{
 					"path": "packages/obsidian/src/SearchUI.ts",
 					"kind": "import-statement",
-					"original": "./SearchUI"
+					"original": "packages/obsidian/src/SearchUI"
 				},
 				{
 					"path": "<runtime>",
@@ -2421,8 +2406,13 @@
 			],
 			"format": "esm"
 		},
+		"packages/obsidian/src/settings/Settings.ts": {
+			"bytes": 153,
+			"imports": [],
+			"format": "esm"
+		},
 		"packages/obsidian/src/main.ts": {
-			"bytes": 3483,
+			"bytes": 3601,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -2430,19 +2420,14 @@
 					"external": true
 				},
 				{
-					"path": "packages/obsidian/src/settings/Settings.ts",
-					"kind": "import-statement",
-					"original": "./settings/Settings"
-				},
-				{
 					"path": "packages/obsidian/src/SearchModal.ts",
 					"kind": "import-statement",
-					"original": "./SearchModal"
+					"original": "packages/obsidian/src/SearchModal"
 				},
 				{
-					"path": "packages/obsidian/src/SearchUI.ts",
+					"path": "packages/obsidian/src/settings/Settings.ts",
 					"kind": "import-statement",
-					"original": "./SearchUI"
+					"original": "packages/obsidian/src/settings/Settings"
 				},
 				{
 					"path": "<runtime>",
@@ -2472,9 +2457,6 @@
 			"inputs": {
 				"packages/obsidian/src/main.ts": {
 					"bytesInOutput": 1537
-				},
-				"packages/obsidian/src/settings/Settings.ts": {
-					"bytesInOutput": 35
 				},
 				"packages/obsidian/src/SearchModal.ts": {
 					"bytesInOutput": 351
@@ -2606,7 +2588,7 @@
 					"bytesInOutput": 33
 				},
 				"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
-					"bytesInOutput": 4002
+					"bytesInOutput": 4047
 				},
 				"inline-worker:__inline-worker": {
 					"bytesInOutput": 133
@@ -2616,9 +2598,12 @@
 				},
 				"packages/obsidian/src/SearchUI.ts": {
 					"bytesInOutput": 1478
+				},
+				"packages/obsidian/src/settings/Settings.ts": {
+					"bytesInOutput": 35
 				}
 			},
-			"bytes": 411495
+			"bytes": 411540
 		}
 	}
 }

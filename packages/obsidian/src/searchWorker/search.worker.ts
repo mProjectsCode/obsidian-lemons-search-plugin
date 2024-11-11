@@ -1,8 +1,8 @@
 import type { InitInput } from 'packages/lemons-search/pkg/lemons_search';
 import init, { setup, Search } from 'packages/lemons-search/pkg/lemons_search';
-import wasmbin from 'packages/lemons-search/pkg/lemons_search_bg.wasm';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchResult, SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm';
 
 let search: Search | undefined = undefined;
 
