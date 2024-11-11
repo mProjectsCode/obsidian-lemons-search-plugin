@@ -2,8 +2,9 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"module": "ESNext",
-		"target": "ES6",
+		"target": "ESNext",
 		"allowJs": true,
+		"checkJs": true,
 		"noImplicitAny": true,
 		"strict": true,
 		"strictNullChecks": true,
@@ -11,8 +12,13 @@
 		"moduleResolution": "node",
 		"importHelpers": true,
 		"isolatedModules": true,
+		"skipLibCheck": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"sourceMap": true,
 		"lib": ["DOM", "ESNext"],
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["packages/obsidian/src/**/*.ts", "tests/**/*.ts"]
+	"include": ["packages/obsidian/src/**/*.ts", "packages/obsidian/src/**/*.svelte", "tests/**/*.ts"]
 }

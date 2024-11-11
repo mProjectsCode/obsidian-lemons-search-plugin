@@ -1,28 +1,29 @@
-import init, { type InitInput, setup, Search } from '../../../lemons-search/pkg/lemons_search';
-import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm';
-import { type SearchWorkerRPCHandlersMain, type SearchWorkerRPCHandlersWorker } from './SearchWorkerRPCConfig';
-import { RPCController } from '../rpc/RPC';
+import type { InitInput } from 'packages/lemons-search/pkg/lemons_search';
+import init, { setup, Search } from 'packages/lemons-search/pkg/lemons_search';
+import wasmbin from 'packages/lemons-search/pkg/lemons_search_bg.wasm';
+import { RPCController } from 'packages/obsidian/src/rpc/RPC';
+import type { SearchResult, SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 
 let search: Search | undefined = undefined;
 
 const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
 	{
-		onFileCreate(name) {
+		onFileCreate(name): void {
 			search?.add_file(name);
 		},
-		onFileDelete(name) {
+		onFileDelete(name): void {
 			search?.remove_file(name);
 		},
-		onFileRename(oldName, newName) {
+		onFileRename(oldName, newName): void {
 			search?.rename_file(oldName, newName);
 		},
-		updateIndex(files) {
+		updateIndex(files): void {
 			search?.update_index(files);
 		},
-		search(query) {
+		search(query): void {
 			if (!search) return;
 
-			const result = search.search(query);
+			const result = search.search(query) as SearchResult[];
 			RPC.call('onSearchFinished', result);
 		},
 	},
@@ -39,6 +40,6 @@ void init(wasmbin as unknown as InitInput).then(() => {
 	RPC.call('onInitialized');
 });
 
-onmessage = e => {
+onmessage = (e): void => {
 	RPC.handle(e.data);
 };

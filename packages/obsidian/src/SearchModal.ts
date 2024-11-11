@@ -1,6 +1,6 @@
 import { Modal } from 'obsidian';
-import type LemonsSearchPlugin from './main';
-import { SearchUI } from './SearchUI';
+import type LemonsSearchPlugin from 'packages/obsidian/src/main';
+import { SearchUI } from 'packages/obsidian/src/SearchUI';
 
 export class SearchModal extends Modal {
 	plugin: LemonsSearchPlugin;

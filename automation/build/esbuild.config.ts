@@ -1,7 +1,7 @@
 import builtins from 'builtin-modules';
 import esbuild from 'esbuild';
 import esbuildSvelte from 'esbuild-svelte';
-import sveltePreprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 import { getBuildBanner } from 'build/buildBanner';
 import { wasmPlugin } from './wasmPlugin';
 import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
@@ -45,6 +45,14 @@ const build = await esbuild.build({
 		wasmPlugin,
 		inlineWorkerPlugin({
 			plugins: [wasmPlugin],
+		}),
+		esbuildSvelte({
+			compilerOptions: { css: 'injected', dev: false },
+			preprocess: sveltePreprocess(),
+			filterWarnings: warning => {
+				// we don't want warnings from node modules that we can do nothing about
+				return !warning.filename?.includes('node_modules');
+			},
 		}),
 	],
 });

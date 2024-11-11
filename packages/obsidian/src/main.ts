@@ -1,9 +1,10 @@
 import { Plugin, TFile } from 'obsidian';
-import { type LemonsSearchSettings, DEFAULT_SETTINGS } from './settings/Settings';
-import init, { type InitInput, RustPlugin, setup } from '../../lemons-search-ui/pkg';
-import wasmbin from '../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm';
-import { SearchModal } from './SearchModal';
-import { type SearchUI } from './SearchUI';
+// import init, { type InitInput, RustPlugin, setup } from '../../lemons-search-ui/pkg';
+// import wasmbin from '../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm';
+import { SearchModal } from 'packages/obsidian/src/SearchModal';
+import type { SearchUI } from 'packages/obsidian/src/SearchUI';
+import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
+import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 
 // const DEBUG = true;
 
@@ -12,18 +13,18 @@ const CONTENT_SLICE_LENGTH = 5000;
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
 	settings: LemonsSearchSettings;
-	rustPlugin!: RustPlugin;
+	// rustPlugin!: RustPlugin;
 
 	searchUIs = new Map<string, SearchUI>();
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		await init({ module_or_path: wasmbin as unknown as InitInput });
+		// await init({ module_or_path: wasmbin as unknown as InitInput });
 
-		setup();
+		// setup();
 
-		this.rustPlugin = new RustPlugin(this);
+		// this.rustPlugin = new RustPlugin(this);
 
 		// this.addSettingTab(new SampleSettingTab(this.app, this));
 

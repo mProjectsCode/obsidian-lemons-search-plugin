@@ -1,9 +1,10 @@
-import type LemonsSearchPlugin from './main';
-import { type SearchWorkerRPCHandlersMain, type SearchWorkerRPCHandlersWorker } from './searchWorker/SearchWorkerRPCConfig';
-import { RPCController } from './rpc/RPC';
-
+import type LemonsSearchPlugin from 'packages/obsidian/src/main';
+import { RPCController } from 'packages/obsidian/src/rpc/RPC';
+import SearchUIComponent from 'packages/obsidian/src/searchUI/SearchUIComponent.svelte';
 // @ts-expect-error
-import SearchWorker from './searchWorker/search.worker';
+import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker';
+import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker, SearchResult } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import { mount, unmount } from 'svelte';
 
 export class SearchUI {
 	plugin: LemonsSearchPlugin;
@@ -16,9 +17,11 @@ export class SearchUI {
 
 	searchQueueSlot: string | undefined;
 	searchWorkerRunning: boolean = false;
-	searchWorkerResult: Uint8Array | undefined;
+	searchWorkerResult: SearchResult[] | undefined;
 	searchWorkerNewData: boolean = false;
 	searchWorkerInitialized: boolean = false;
+
+	searchComponent: ReturnType<typeof SearchUIComponent>;
 
 	constructor(plugin: LemonsSearchPlugin, targetEl: HTMLElement, onCancel: () => void) {
 		this.plugin = plugin;
@@ -32,23 +35,31 @@ export class SearchUI {
 
 		this.RPC = new RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(
 			{
-				onSearchFinished: result => this.onSearchFinished(result),
-				onInitialized: () => {
+				onSearchFinished: (result): void => this.onSearchFinished(result),
+				onInitialized: (): void => {
 					this.searchWorkerInitialized = true;
 					this.RPC.call('updateIndex', this.plugin.getFilePaths());
 					this.startSearch();
 				},
 			},
-			m => this.worker.postMessage(m),
+			(m): void => this.worker.postMessage(m),
 		);
 
-		this.worker.onmessage = e => {
+		this.worker.onmessage = (e): void => {
 			this.RPC.handle(e.data);
 		};
 
 		this.plugin.registerSearchUI(this);
 
-		this.plugin.rustPlugin.create_search_ui(targetEl, () => this.onCancel(), this);
+		// this.plugin.rustPlugin.create_search_ui(targetEl, () => this.onCancel(), this);
+		this.searchComponent = mount(SearchUIComponent, {
+			target: targetEl,
+			props: {
+				search: this,
+				plugin: this.plugin,
+				closeSearch: () => this.onCancel(),
+			},
+		});
 	}
 
 	search(path: string): void {
@@ -69,7 +80,7 @@ export class SearchUI {
 		this.searchQueueSlot = undefined;
 	}
 
-	onSearchFinished(result: Uint8Array): void {
+	onSearchFinished(result: SearchResult[]): void {
 		// console.log('onSearchFinished', result);
 
 		this.searchWorkerRunning = false;
@@ -83,7 +94,7 @@ export class SearchUI {
 		return this.searchWorkerNewData && this.searchWorkerResult !== undefined;
 	}
 
-	getResults(): Uint8Array {
+	getResults(): SearchResult[] {
 		this.searchWorkerNewData = false;
 		return this.searchWorkerResult!;
 	}
@@ -91,6 +102,7 @@ export class SearchUI {
 	destroy(): void {
 		this.plugin.unregisterSearchUI(this);
 		this.worker.terminate();
+		unmount(this.searchComponent);
 		this.targetEl.empty();
 	}
 }

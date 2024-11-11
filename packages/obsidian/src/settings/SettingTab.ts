@@ -1,5 +1,6 @@
-import { type App, PluginSettingTab } from 'obsidian';
-import type LemonsSearchPlugin from '../main';
+import type { App } from 'obsidian';
+import { PluginSettingTab } from 'obsidian';
+import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 
 export class LemonsSearchSettingsTab extends PluginSettingTab {
 	plugin: LemonsSearchPlugin;

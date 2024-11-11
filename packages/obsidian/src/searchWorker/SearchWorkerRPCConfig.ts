@@ -11,6 +11,11 @@ export type SearchWorkerRPCHandlersWorker = {
 };
 
 export type SearchWorkerRPCHandlersMain = {
-	onSearchFinished: [Uint8Array];
+	onSearchFinished: [SearchResult[]];
 	onInitialized: [];
 };
+
+export interface SearchResult {
+	path: string;
+	highlights: { text: string; highlight: boolean }[];
+}

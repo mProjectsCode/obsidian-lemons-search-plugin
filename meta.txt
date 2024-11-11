@@ -5,24 +5,2347 @@
 			"imports": [],
 			"format": "esm"
 		},
-		"packages/lemons-search-ui/pkg/lemons_search_ui.js": {
-			"bytes": 35334,
+		"packages/obsidian/src/searchWorker/SearchWorkerRPCConfig.ts": {
+			"bytes": 465,
 			"imports": [],
 			"format": "esm"
 		},
-		"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm": {
-			"bytes": 281393,
+		"packages/obsidian/src/rpc/RPC.ts": {
+			"bytes": 1714,
 			"imports": [
 				{
 					"path": "<runtime>",
 					"kind": "import-statement",
 					"external": true
 				}
-			]
+			],
+			"format": "esm"
 		},
-		"packages/obsidian/src/rpc/RPC.ts": {
-			"bytes": 1714,
+		"node_modules/svelte/src/version.js": {
+			"bytes": 247,
 			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/disclose-version.js": {
+			"bytes": 162,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/version.js",
+					"kind": "import-statement",
+					"original": "../version.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/constants.js": {
+			"bytes": 2005,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/css.js": {
+			"bytes": 537,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/esm-env/browser.js": {
+			"bytes": 82,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/warnings.js": {
+			"bytes": 7342,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/shared/utils.js": {
+			"bytes": 1600,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/constants.js": {
+			"bytes": 1016,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/equality.js": {
+			"bytes": 448,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/errors.js": {
+			"bytes": 11995,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/flags/index.js": {
+			"bytes": 110,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/sources.js": {
+			"bytes": 5798,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/equality.js",
+					"kind": "import-statement",
+					"original": "./equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/flags/index.js",
+					"kind": "import-statement",
+					"original": "../../flags/index.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/deriveds.js": {
+			"bytes": 3782,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/equality.js",
+					"kind": "import-statement",
+					"original": "./equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./sources.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/effects.js": {
+			"bytes": 14148,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../errors.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../dom/operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/deriveds.js",
+					"kind": "import-statement",
+					"original": "./deriveds.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/task.js": {
+			"bytes": 1435,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/ownership.js": {
+			"bytes": 6788,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/shared/errors.js": {
+			"bytes": 2001,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/runtime.js": {
+			"bytes": 30246,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "./constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "./dom/task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/ownership.js",
+					"kind": "import-statement",
+					"original": "./dev/ownership.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/deriveds.js",
+					"kind": "import-statement",
+					"original": "./reactivity/deriveds.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/errors.js",
+					"kind": "import-statement",
+					"original": "../shared/errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/flags/index.js",
+					"kind": "import-statement",
+					"original": "../flags/index.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/proxy.js": {
+			"bytes": 9398,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/ownership.js",
+					"kind": "import-statement",
+					"original": "./dev/ownership.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "./constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/equality.js": {
+			"bytes": 2869,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/proxy.js",
+					"kind": "import-statement",
+					"original": "../proxy.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/operations.js": {
+			"bytes": 4813,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "./hydration.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/equality.js",
+					"kind": "import-statement",
+					"original": "../dev/equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/hydration.js": {
+			"bytes": 2620,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "./operations.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/elements.js": {
+			"bytes": 1576,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../dom/hydration.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/misc.js": {
+			"bytes": 1511,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js": {
+			"bytes": 1977,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/misc.js",
+					"kind": "import-statement",
+					"original": "../misc.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/events.js": {
+			"bytes": 9855,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./bindings/shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/svelte-head.js": {
+			"bytes": 2110,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/reconciler.js": {
+			"bytes": 174,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/template.js": {
+			"bytes": 6726,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "./hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "./operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/reconciler.js",
+					"kind": "import-statement",
+					"original": "./reconciler.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "./task.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/utils.js": {
+			"bytes": 6892,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/render.js": {
+			"bytes": 8288,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "./dom/operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "./dom/hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/events.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/events.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/svelte-head.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/svelte-head.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "./warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "./dom/template.js"
+				},
+				{
+					"path": "node_modules/svelte/src/utils.js",
+					"kind": "import-statement",
+					"original": "../../utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/hmr.js": {
+			"bytes": 2001,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../dom/hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "../reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "../render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/legacy.js": {
+			"bytes": 789,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/ownership.js",
+					"kind": "import-statement",
+					"original": "./ownership.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/shared/warnings.js": {
+			"bytes": 1297,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/shared/clone.js": {
+			"bytes": 2917,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/warnings.js",
+					"kind": "import-statement",
+					"original": "./warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "./utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/inspect.js": {
+			"bytes": 1077,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/clone.js",
+					"kind": "import-statement",
+					"original": "../../shared/clone.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../reactivity/effects.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/await.js": {
+			"bytes": 4630,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/if.js": {
+			"bytes": 2457,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/key.js": {
+			"bytes": 920,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/equality.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/css-props.js": {
+			"bytes": 803,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/each.js": {
+			"bytes": 13812,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/html.js": {
+			"bytes": 3558,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/reconciler.js",
+					"kind": "import-statement",
+					"original": "../reconciler.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "../template.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/utils.js",
+					"kind": "import-statement",
+					"original": "../../../../utils.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/slot.js": {
+			"bytes": 1082,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/snippet.js": {
+			"bytes": 3264,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/reconciler.js",
+					"kind": "import-statement",
+					"original": "../reconciler.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "../template.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../../errors.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/svelte-component.js": {
+			"bytes": 973,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/blocks/svelte-element.js": {
+			"bytes": 4476,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "../operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "../../render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/each.js",
+					"kind": "import-statement",
+					"original": "./each.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "../template.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/css.js": {
+			"bytes": 1093,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "./task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/css.js",
+					"kind": "import-statement",
+					"original": "../dev/css.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/actions.js": {
+			"bytes": 1366,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/equality.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/attributes.js": {
+			"bytes": 13932,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/events.js",
+					"kind": "import-statement",
+					"original": "./events.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/misc.js",
+					"kind": "import-statement",
+					"original": "./misc.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/utils.js",
+					"kind": "import-statement",
+					"original": "../../../../utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/class.js": {
+			"bytes": 3336,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../hydration.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/style.js": {
+			"bytes": 435,
+			"imports": [],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/timing.js": {
+			"bytes": 534,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/loop.js": {
+			"bytes": 842,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/timing.js",
+					"kind": "import-statement",
+					"original": "./timing.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/transitions.js": {
+			"bytes": 12578,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/loop.js",
+					"kind": "import-statement",
+					"original": "../../loop.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "../../render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/each.js",
+					"kind": "import-statement",
+					"original": "../blocks/each.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../task.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/document.js": {
+			"bytes": 531,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/input.js": {
+			"bytes": 6030,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../../../errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/proxy.js",
+					"kind": "import-statement",
+					"original": "../../../proxy.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../../task.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/media.js": {
+			"bytes": 5723,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "../../hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/navigator.js": {
+			"bytes": 231,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/props.js": {
+			"bytes": 573,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../../shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/select.js": {
+			"bytes": 3767,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/proxy.js",
+					"kind": "import-statement",
+					"original": "../../../proxy.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/size.js": {
+			"bytes": 2893,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../../runtime.js"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/this.js": {
+			"bytes": 1964,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/task.js",
+					"kind": "import-statement",
+					"original": "../../task.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/universal.js": {
+			"bytes": 1660,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/bindings/window.js": {
+			"bytes": 1763,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js",
+					"kind": "import-statement",
+					"original": "./shared.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/legacy/event-modifiers.js": {
+			"bytes": 3220,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/events.js",
+					"kind": "import-statement",
+					"original": "../elements/events.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/legacy/lifecycle.js": {
+			"bytes": 2011,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/deriveds.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/deriveds.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/legacy/misc.js": {
+			"bytes": 1862,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/index-client.js": {
+			"bytes": 6469,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./internal/client/runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "./internal/shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/index.js",
+					"kind": "import-statement",
+					"original": "./internal/client/index.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "./internal/client/errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/errors.js",
+					"kind": "import-statement",
+					"original": "./internal/shared/errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/flags/index.js",
+					"kind": "import-statement",
+					"original": "./internal/flags/index.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "./internal/client/render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./internal/client/runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/snippet.js",
+					"kind": "import-statement",
+					"original": "./internal/client/dom/blocks/snippet.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/store/utils.js": {
+			"bytes": 913,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/index-client.js",
+					"kind": "import-statement",
+					"original": "../index-client.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../internal/shared/utils.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/store.js": {
+			"bytes": 4967,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/store/utils.js",
+					"kind": "import-statement",
+					"original": "../../../store/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./sources.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/reactivity/props.js": {
+			"bytes": 12325,
+			"imports": [
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/deriveds.js",
+					"kind": "import-statement",
+					"original": "./deriveds.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/equality.js",
+					"kind": "import-statement",
+					"original": "./equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "../errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/proxy.js",
+					"kind": "import-statement",
+					"original": "../proxy.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/store.js",
+					"kind": "import-statement",
+					"original": "./store.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/flags/index.js",
+					"kind": "import-statement",
+					"original": "../../flags/index.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/validate.js": {
+			"bytes": 3080,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "./warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/store.js",
+					"kind": "import-statement",
+					"original": "./reactivity/store.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/legacy/legacy-client.js": {
+			"bytes": 7651,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../internal/client/constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../internal/client/reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "../internal/client/reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "../internal/client/render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../internal/client/runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/errors.js",
+					"kind": "import-statement",
+					"original": "../internal/shared/errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../internal/shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../internal/client/warnings.js"
+				},
+				{
+					"path": "node_modules/esm-env/browser.js",
+					"kind": "import-statement",
+					"original": "esm-env"
+				},
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/legacy/event-modifiers.js",
+					"kind": "import-statement",
+					"original": "../internal/client/dom/legacy/event-modifiers.js"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dom/elements/custom-element.js": {
+			"bytes": 9704,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/legacy/legacy-client.js",
+					"kind": "import-statement",
+					"original": "../../../../legacy/legacy-client.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "../../reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "../template.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../../../shared/utils.js"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/shared/validate.js": {
+			"bytes": 900,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/utils.js",
+					"kind": "import-statement",
+					"original": "../../utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/warnings.js",
+					"kind": "import-statement",
+					"original": "./warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/errors.js",
+					"kind": "import-statement",
+					"original": "./errors.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/dev/console-log.js": {
+			"bytes": 799,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/client/constants.js",
+					"kind": "import-statement",
+					"original": "../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/clone.js",
+					"kind": "import-statement",
+					"original": "../../shared/clone.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/warnings.js",
+					"kind": "import-statement",
+					"original": "../warnings.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "../runtime.js"
+				}
+			],
+			"format": "esm"
+		},
+		"node_modules/svelte/src/internal/client/index.js": {
+			"bytes": 4922,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/constants.js",
+					"kind": "import-statement",
+					"original": "../../constants.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/css.js",
+					"kind": "import-statement",
+					"original": "./dev/css.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/elements.js",
+					"kind": "import-statement",
+					"original": "./dev/elements.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/hmr.js",
+					"kind": "import-statement",
+					"original": "./dev/hmr.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/ownership.js",
+					"kind": "import-statement",
+					"original": "./dev/ownership.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/legacy.js",
+					"kind": "import-statement",
+					"original": "./dev/legacy.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/inspect.js",
+					"kind": "import-statement",
+					"original": "./dev/inspect.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/await.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/await.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/if.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/if.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/key.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/key.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/css-props.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/css-props.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/each.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/each.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/html.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/html.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/slot.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/slot.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/snippet.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/snippet.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/svelte-component.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/svelte-component.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/svelte-element.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/svelte-element.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/blocks/svelte-head.js",
+					"kind": "import-statement",
+					"original": "./dom/blocks/svelte-head.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/css.js",
+					"kind": "import-statement",
+					"original": "./dom/css.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/actions.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/actions.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/attributes.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/attributes.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/class.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/class.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/events.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/events.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/misc.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/misc.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/style.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/style.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/transitions.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/transitions.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/document.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/document.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/input.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/input.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/media.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/media.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/navigator.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/navigator.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/props.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/props.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/select.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/select.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/size.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/size.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/this.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/this.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/universal.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/universal.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/bindings/window.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/bindings/window.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/hydration.js",
+					"kind": "import-statement",
+					"original": "./dom/hydration.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/legacy/event-modifiers.js",
+					"kind": "import-statement",
+					"original": "./dom/legacy/event-modifiers.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/legacy/lifecycle.js",
+					"kind": "import-statement",
+					"original": "./dom/legacy/lifecycle.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/legacy/misc.js",
+					"kind": "import-statement",
+					"original": "./dom/legacy/misc.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/template.js",
+					"kind": "import-statement",
+					"original": "./dom/template.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/deriveds.js",
+					"kind": "import-statement",
+					"original": "./reactivity/deriveds.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/effects.js",
+					"kind": "import-statement",
+					"original": "./reactivity/effects.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/sources.js",
+					"kind": "import-statement",
+					"original": "./reactivity/sources.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/props.js",
+					"kind": "import-statement",
+					"original": "./reactivity/props.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/reactivity/store.js",
+					"kind": "import-statement",
+					"original": "./reactivity/store.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/render.js",
+					"kind": "import-statement",
+					"original": "./render.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/runtime.js",
+					"kind": "import-statement",
+					"original": "./runtime.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/validate.js",
+					"kind": "import-statement",
+					"original": "./validate.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/timing.js",
+					"kind": "import-statement",
+					"original": "./timing.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/proxy.js",
+					"kind": "import-statement",
+					"original": "./proxy.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/elements/custom-element.js",
+					"kind": "import-statement",
+					"original": "./dom/elements/custom-element.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dom/operations.js",
+					"kind": "import-statement",
+					"original": "./dom/operations.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/clone.js",
+					"kind": "import-statement",
+					"original": "../shared/clone.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/utils.js",
+					"kind": "import-statement",
+					"original": "../shared/utils.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/shared/validate.js",
+					"kind": "import-statement",
+					"original": "../shared/validate.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/equality.js",
+					"kind": "import-statement",
+					"original": "./dev/equality.js"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/dev/console-log.js",
+					"kind": "import-statement",
+					"original": "./dev/console-log.js"
+				}
+			],
+			"format": "esm"
+		},
+		"packages/obsidian/src/utils.ts": {
+			"bytes": 83,
+			"imports": [],
+			"format": "esm"
+		},
+		"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
+			"bytes": 23744,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/internal/disclose-version.js",
+					"kind": "import-statement",
+					"original": "svelte/internal/disclose-version"
+				},
+				{
+					"path": "node_modules/svelte/src/internal/client/index.js",
+					"kind": "import-statement",
+					"original": "svelte/internal/client"
+				},
+				{
+					"path": "node_modules/svelte/src/index-client.js",
+					"kind": "import-statement",
+					"original": "svelte"
+				},
+				{
+					"path": "packages/obsidian/src/SearchUI.ts",
+					"kind": "import-statement",
+					"original": "../SearchUI"
+				},
+				{
+					"path": "packages/obsidian/src/utils.ts",
+					"kind": "import-statement",
+					"original": "../utils"
+				}
+			],
 			"format": "esm"
 		},
 		"inline-worker:__inline-worker": {
@@ -31,7 +2354,7 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchWorker/search.worker.ts": {
-			"bytes": 369247,
+			"bytes": 368600,
 			"imports": [
 				{
 					"path": "inline-worker:__inline-worker",
@@ -42,12 +2365,12 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/SearchUI.ts": {
-			"bytes": 2582,
+			"bytes": 2996,
 			"imports": [
 				{
-					"path": "./searchWorker/SearchWorkerRPCConfig",
+					"path": "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig.ts",
 					"kind": "import-statement",
-					"external": true
+					"original": "./searchWorker/SearchWorkerRPCConfig"
 				},
 				{
 					"path": "packages/obsidian/src/rpc/RPC.ts",
@@ -55,9 +2378,24 @@
 					"original": "./rpc/RPC"
 				},
 				{
+					"path": "packages/obsidian/src/searchUI/SearchUIComponent.svelte",
+					"kind": "import-statement",
+					"original": "./searchUI/SearchUIComponent.svelte"
+				},
+				{
+					"path": "node_modules/svelte/src/index-client.js",
+					"kind": "import-statement",
+					"original": "svelte"
+				},
+				{
 					"path": "packages/obsidian/src/searchWorker/search.worker.ts",
 					"kind": "import-statement",
 					"original": "./searchWorker/search.worker"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
 				}
 			],
 			"format": "esm"
@@ -74,12 +2412,17 @@
 					"path": "packages/obsidian/src/SearchUI.ts",
 					"kind": "import-statement",
 					"original": "./SearchUI"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
 				}
 			],
 			"format": "esm"
 		},
 		"packages/obsidian/src/main.ts": {
-			"bytes": 3334,
+			"bytes": 3483,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -92,22 +2435,17 @@
 					"original": "./settings/Settings"
 				},
 				{
-					"path": "packages/lemons-search-ui/pkg/lemons_search_ui.js",
-					"kind": "import-statement",
-					"original": "../../lemons-search-ui/pkg"
-				},
-				{
-					"path": "wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm",
-					"kind": "import-statement",
-					"original": "../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm"
-				},
-				{
 					"path": "packages/obsidian/src/SearchModal.ts",
 					"kind": "import-statement",
 					"original": "./SearchModal"
 				},
 				{
-					"path": "./SearchUI",
+					"path": "packages/obsidian/src/SearchUI.ts",
+					"kind": "import-statement",
+					"original": "./SearchUI"
+				},
+				{
+					"path": "<runtime>",
 					"kind": "import-statement",
 					"external": true
 				}
@@ -133,34 +2471,154 @@
 			"entryPoint": "packages/obsidian/src/main.ts",
 			"inputs": {
 				"packages/obsidian/src/main.ts": {
-					"bytesInOutput": 1483
+					"bytesInOutput": 1537
 				},
 				"packages/obsidian/src/settings/Settings.ts": {
-					"bytesInOutput": 34
-				},
-				"packages/lemons-search-ui/pkg/lemons_search_ui.js": {
-					"bytesInOutput": 16240
-				},
-				"wasm-binary:/home/lemon/src/obsidian-lemons-search-plugin/packages/lemons-search-ui/pkg/lemons_search_ui_bg.wasm": {
-					"bytesInOutput": 375204
+					"bytesInOutput": 35
 				},
 				"packages/obsidian/src/SearchModal.ts": {
-					"bytesInOutput": 311
+					"bytesInOutput": 351
 				},
 				"packages/obsidian/src/rpc/RPC.ts": {
-					"bytesInOutput": 236
+					"bytesInOutput": 271
+				},
+				"node_modules/svelte/src/version.js": {
+					"bytesInOutput": 11
+				},
+				"node_modules/svelte/src/internal/disclose-version.js": {
+					"bytesInOutput": 87
+				},
+				"node_modules/svelte/src/constants.js": {
+					"bytesInOutput": 85
+				},
+				"node_modules/svelte/src/internal/client/index.js": {
+					"bytesInOutput": 0
+				},
+				"node_modules/svelte/src/internal/client/warnings.js": {
+					"bytesInOutput": 341
+				},
+				"node_modules/svelte/src/internal/shared/utils.js": {
+					"bytesInOutput": 323
+				},
+				"node_modules/svelte/src/internal/client/constants.js": {
+					"bytesInOutput": 67
+				},
+				"node_modules/svelte/src/internal/client/reactivity/equality.js": {
+					"bytesInOutput": 160
+				},
+				"node_modules/svelte/src/internal/client/errors.js": {
+					"bytesInOutput": 2779
+				},
+				"node_modules/svelte/src/internal/flags/index.js": {
+					"bytesInOutput": 10
+				},
+				"node_modules/svelte/src/internal/client/reactivity/sources.js": {
+					"bytesInOutput": 922
+				},
+				"node_modules/svelte/src/internal/client/reactivity/deriveds.js": {
+					"bytesInOutput": 756
+				},
+				"node_modules/svelte/src/internal/client/reactivity/effects.js": {
+					"bytesInOutput": 2703
+				},
+				"node_modules/svelte/src/internal/client/dom/task.js": {
+					"bytesInOutput": 342
+				},
+				"node_modules/svelte/src/internal/client/dev/ownership.js": {
+					"bytesInOutput": 1032
+				},
+				"node_modules/svelte/src/internal/shared/errors.js": {
+					"bytesInOutput": 214
+				},
+				"node_modules/svelte/src/internal/client/runtime.js": {
+					"bytesInOutput": 5421
+				},
+				"node_modules/svelte/src/internal/client/proxy.js": {
+					"bytesInOutput": 2408
+				},
+				"node_modules/svelte/src/internal/client/dev/equality.js": {
+					"bytesInOutput": 587
+				},
+				"node_modules/svelte/src/internal/client/dom/operations.js": {
+					"bytesInOutput": 940
+				},
+				"node_modules/svelte/src/internal/client/dom/hydration.js": {
+					"bytesInOutput": 323
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/misc.js": {
+					"bytesInOutput": 209
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/bindings/shared.js": {
+					"bytesInOutput": 188
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/events.js": {
+					"bytesInOutput": 858
+				},
+				"node_modules/svelte/src/internal/client/dom/blocks/svelte-head.js": {
+					"bytesInOutput": 31
+				},
+				"node_modules/svelte/src/internal/client/dom/reconciler.js": {
+					"bytesInOutput": 87
+				},
+				"node_modules/svelte/src/internal/client/dom/template.js": {
+					"bytesInOutput": 556
+				},
+				"node_modules/svelte/src/utils.js": {
+					"bytesInOutput": 466
+				},
+				"node_modules/svelte/src/internal/client/render.js": {
+					"bytesInOutput": 1401
+				},
+				"node_modules/svelte/src/internal/client/dom/blocks/await.js": {
+					"bytesInOutput": 653
+				},
+				"node_modules/svelte/src/internal/client/dom/blocks/if.js": {
+					"bytesInOutput": 298
+				},
+				"node_modules/svelte/src/internal/client/dom/blocks/each.js": {
+					"bytesInOutput": 2950
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/actions.js": {
+					"bytesInOutput": 215
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/attributes.js": {
+					"bytesInOutput": 1149
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/class.js": {
+					"bytesInOutput": 141
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/bindings/input.js": {
+					"bytesInOutput": 392
+				},
+				"node_modules/svelte/src/index-client.js": {
+					"bytesInOutput": 256
+				},
+				"node_modules/svelte/src/legacy/legacy-client.js": {
+					"bytesInOutput": 1156
+				},
+				"node_modules/svelte/src/internal/client/dom/elements/custom-element.js": {
+					"bytesInOutput": 2642
+				},
+				"node_modules/svelte/src/internal/shared/validate.js": {
+					"bytesInOutput": 0
+				},
+				"packages/obsidian/src/utils.ts": {
+					"bytesInOutput": 33
+				},
+				"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
+					"bytesInOutput": 4002
 				},
 				"inline-worker:__inline-worker": {
-					"bytesInOutput": 132
+					"bytesInOutput": 133
 				},
 				"packages/obsidian/src/searchWorker/search.worker.ts": {
-					"bytesInOutput": 369112
+					"bytesInOutput": 368459
 				},
 				"packages/obsidian/src/SearchUI.ts": {
-					"bytesInOutput": 1211
+					"bytesInOutput": 1478
 				}
 			},
-			"bytes": 765871
+			"bytes": 411495
 		}
 	}
 }

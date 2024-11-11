@@ -5,10 +5,9 @@ use nucleo_matcher::{
     pattern::{CaseMatching, Normalization, Pattern},
     Config, Matcher, Utf32Str,
 };
-use speedy::Writable;
 use utils::SearchResult;
 use wasm_bindgen::prelude::*;
-use web_sys::js_sys::Uint8Array;
+use web_sys::js_sys;
 
 const MAX_RESULTS: usize = 50;
 
@@ -48,7 +47,7 @@ impl Search {
         }
     }
 
-    pub fn search(&mut self, search_string: &str) -> Uint8Array {
+    pub fn search(&mut self, search_string: &str) -> js_sys::Array {
         // log(&format!("{:?}", file_paths));
 
         let pattern = match &mut self.pattern {
@@ -84,9 +83,11 @@ impl Search {
             })
             .collect_vec();
 
-        let data = results.write_to_vec().unwrap();
-
-        Uint8Array::from(data.as_slice())
+        let js_results = js_sys::Array::new();
+        for result in results {
+            js_results.push(&result.to_js_object());
+        }
+        js_results
     }
 
     pub fn add_file(&mut self, path: String) {
