@@ -4,6 +4,8 @@
     import { SearchUI } from "../SearchUI";
 	import type { SearchResult } from "../searchWorker/SearchWorkerRPCConfig";
 	import { mod } from "../utils";
+	import { getPreview, PreviewType, type Preview } from "./Preview";
+	import MarkdownRenderer from "./MarkdownRenderer.svelte";
 
     interface Props {
         search: SearchUI;
@@ -11,86 +13,27 @@
         closeSearch: () => void;
     }
 
-    enum PreviewType {
-        MARKDOWN,
-        TEXT,
-        EMPTY_TEXT,
-        IMAGE,
-        FILE_NOT_FOUND,
-        UNSUPPORTED,
-        NONE,
-    }
-
-    type Preview = {
-        type: PreviewType.MARKDOWN;
-        content: string;
-    } | {
-        type: PreviewType.TEXT;
-        content: string;
-    } | {
-        type: PreviewType.EMPTY_TEXT;
-    } | {
-        type: PreviewType.IMAGE;
-        content: string;
-    } | {
-        type: PreviewType.FILE_NOT_FOUND;
-    } | {
-        type: PreviewType.UNSUPPORTED;
-    } | {
-        type: PreviewType.NONE;
-    };
-
     let {
         search,
         plugin,
         closeSearch
     }: Props = $props();
 
-    const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
-
+    
     let searchString = $state('');
     let selection = $state(0);
     let results: SearchResult[] = $state([]);
 
     let boundedSelection = $derived(results.length !== 0 ? mod(selection, results.length) : undefined);
     let selectedElement = $derived(boundedSelection !== undefined ? results[boundedSelection] : undefined);
-    let preview = $derived.by(async (): Promise<Preview> => {
-        if (selectedElement === undefined) {
-            return { type: PreviewType.NONE };
-        }
 
-        const path = selectedElement.path;
-
-        if (path.endsWith(".md")) {
-            const content = await plugin.readFile(path);
-            if (content === undefined) {
-                return { type: PreviewType.FILE_NOT_FOUND };
-            }
-            if (content === "") {
-                return { type: PreviewType.EMPTY_TEXT };
-            }
-            return { type: PreviewType.MARKDOWN, content };
-        } else if (path.endsWith(".txt")) {
-            const content = await plugin.readFile(path);
-
-            if (content === undefined) {
-                return { type: PreviewType.FILE_NOT_FOUND };
-            }
-            if (content === "") {
-                return { type: PreviewType.EMPTY_TEXT };
-            }
-            return { type: PreviewType.TEXT, content };
-        } else if (IMAGE_EXTENSIONS.some(ext => path.endsWith(ext))) {
-            const content = plugin.getResourcePath(path);
-
-            if (content === undefined) {
-                return { type: PreviewType.FILE_NOT_FOUND };
-            }
-            return { type: PreviewType.IMAGE, content };
-        } else {
-            return { type: PreviewType.UNSUPPORTED };
+    let __selectedPath: string | undefined = $state();
+    $effect(() => {
+        if (selectedElement?.path !== __selectedPath) {
+            __selectedPath = selectedElement?.path;
         }
     });
+    let preview = $derived(getPreview(__selectedPath, plugin));
 
     $effect(() => {
         search.search(searchString);
@@ -201,7 +144,7 @@
         {:then p}
             {#if p.type === PreviewType.MARKDOWN}
                 <div class="preview-text">
-                    {p.content}
+                    <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedElement!.path}></MarkdownRenderer>
                 </div>
             {:else if p.type === PreviewType.TEXT}
                 <div class="preview-text">
@@ -213,7 +156,7 @@
                 </div>
             {:else if p.type === PreviewType.IMAGE}
                 <div class="preview-img">
-                    <img src={p.content} alt="Preview" />
+                    <img src={p.source} alt="Preview" />
                 </div>
             {:else if p.type === PreviewType.FILE_NOT_FOUND}
                 <div class="preview-empty">
