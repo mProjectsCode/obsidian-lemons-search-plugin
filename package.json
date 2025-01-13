@@ -1,6 +1,6 @@
 {
 	"name": "lemons-search",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"description": "A blazingly fast fuzzy finder with file preview.",
 	"main": "main.js",
 	"scripts": {
