@@ -106,7 +106,7 @@ export default class LemonsSearchPlugin extends Plugin {
 
 	async readFileTruncated(path: string): Promise<string | undefined> {
 		const content = await this.readFile(path);
-		if (!content) {
+		if (content === undefined) {
 			return undefined;
 		}
 		if (content.length < CONTENT_SLICE_LENGTH) {

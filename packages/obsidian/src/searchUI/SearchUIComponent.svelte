@@ -27,13 +27,13 @@
     let boundedSelection = $derived(results.length !== 0 ? mod(selection, results.length) : undefined);
     let selectedElement = $derived(boundedSelection !== undefined ? results[boundedSelection] : undefined);
 
-    let __selectedPath: string | undefined = $state();
+    let selectedPath: string | undefined = $state();
     $effect(() => {
-        if (selectedElement?.path !== __selectedPath) {
-            __selectedPath = selectedElement?.path;
+        if (selectedElement?.path !== selectedPath) {
+            selectedPath = selectedElement?.path;
         }
     });
-    let preview = $derived(getPreview(__selectedPath, plugin));
+    let preview = $derived(getPreview(selectedPath, plugin));
 
     $effect(() => {
         search.search(searchString);
@@ -144,7 +144,7 @@
         {:then p}
             {#if p.type === PreviewType.MARKDOWN}
                 <div class="preview-text">
-                    <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedElement!.path}></MarkdownRenderer>
+                    <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedPath ?? ""}></MarkdownRenderer>
                 </div>
             {:else if p.type === PreviewType.TEXT}
                 <div class="preview-text">

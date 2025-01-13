@@ -28,6 +28,8 @@
 
     $effect(() => {
         component?.unload();
+        element?.empty();
+        
         component = new Component();
         component.load();
         void MarkdownRenderer.render(app, markdown, element!, sourcePath, component);
