@@ -22,33 +22,33 @@ movie Star\ Wars
 
 Search atoms can be modified using special characters to change their behavior.
 
--   **Substring**: prefix with `'`
-    -   will require search results to contain the search atom as a continuous sequence
-    -   e.g. `'foo` will only match `yummy food` but not `funny doodle`
-    -   use `!` to negate, e.g. `!foo`
--   **Prefix**: prefix with `^`
-    -   will require search results to have the search atom as a prefix
-    -   e.g. `^foo` will only match `food` but not `yummy food`
-    -   use `!^` to negate, e.g. `!^foo`
--   **Postfix**: postfix with `$`
-    -   will require search results to have the search atom as a postfix
-    -   e.g. `.md$` will only match `foo.md` but not `foo.txt`
-    -   use `!<search atom>$` to negate, e.g. `!.md$`
--   **Exact**: prefix with `^` and postfix with `$`
-    -   will require search results to equal the search atom
-    -   e.g. `^foo.md$` will **only** match `foo.md` and nothing else
-    -   use `!^<search atom>$` to negate, e.g. `!^foo.md$`
+- **Substring**: prefix with `'`
+    - will require search results to contain the search atom as a continuous sequence
+    - e.g. `'foo` will only match `yummy food` but not `funny doodle`
+    - use `!` to negate, e.g. `!foo`
+- **Prefix**: prefix with `^`
+    - will require search results to have the search atom as a prefix
+    - e.g. `^foo` will only match `food` but not `yummy food`
+    - use `!^` to negate, e.g. `!^foo`
+- **Postfix**: postfix with `$`
+    - will require search results to have the search atom as a postfix
+    - e.g. `.md$` will only match `foo.md` but not `foo.txt`
+    - use `!<search atom>$` to negate, e.g. `!.md$`
+- **Exact**: prefix with `^` and postfix with `$`
+    - will require search results to equal the search atom
+    - e.g. `^foo.md$` will **only** match `foo.md` and nothing else
+    - use `!^<search atom>$` to negate, e.g. `!^foo.md$`
 
 ## Keyboard Navigation
 
 While the input field is focused, you can use the following special actions.
 
--   `uparrow` Move selection up by one
--   `downarrow` Move selection down by one
--   `enter` Open selection
--   `tab` Copy the current selection into the search bar
+- `uparrow` Move selection up by one
+- `downarrow` Move selection down by one
+- `enter` Open selection
+- `tab` Copy the current selection into the search bar
 
 ## Mouse Navigation
 
--   Clicking on a suggestion that is not selected will select the clicked suggestion
--   Clicking on the selected suggestion will open the suggestion
+- Clicking on a suggestion that is not selected will select the clicked suggestion
+- Clicking on the selected suggestion will open the suggestion

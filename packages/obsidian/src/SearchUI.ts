@@ -102,7 +102,7 @@ export class SearchUI {
 	destroy(): void {
 		this.plugin.unregisterSearchUI(this);
 		this.worker.terminate();
-		unmount(this.searchComponent);
+		void unmount(this.searchComponent);
 		this.targetEl.empty();
 	}
 }

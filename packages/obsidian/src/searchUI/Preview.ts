@@ -45,7 +45,6 @@ export async function getPreview(path: string | undefined, plugin: LemonsSearchP
 	}
 
 	console.log('getPreview', path);
-	
 
 	if (path.endsWith('.md')) {
 		const content = await plugin.readFileTruncated(path);
