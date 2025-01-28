@@ -1,8 +1,10 @@
-import { Plugin, TFile } from 'obsidian';
+import { parseFrontMatterAliases, Plugin, TFile } from 'obsidian';
 // import init, { type InitInput, RustPlugin, setup } from '../../lemons-search-ui/pkg';
 // import wasmbin from '../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm';
 import { SearchModal } from 'packages/obsidian/src/SearchModal';
-import type { SearchUI } from 'packages/obsidian/src/SearchUI';
+import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/PreviewSearchUIAdapter';
+import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
+import type { SearchData } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 
@@ -13,62 +15,34 @@ const CONTENT_SLICE_LENGTH = 5000;
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
 	settings: LemonsSearchSettings;
-	// rustPlugin!: RustPlugin;
-
-	searchUIs = new Map<string, SearchUI>();
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
-
-		// await init({ module_or_path: wasmbin as unknown as InitInput });
-
-		// setup();
-
-		// this.rustPlugin = new RustPlugin(this);
-
-		// this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		this.addCommand({
 			id: 'open-search',
 			name: 'Open search',
 			callback: () => {
-				new SearchModal(this).open();
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter(), this.getFileData());
+				searchController.onSubmit(data => {
+					this.openFile(data.data);
+				});
+
+				new SearchModal(this, searchController).open();
 			},
 		});
 
-		this.app.workspace.onLayoutReady(() => {
-			this.registerEvent(
-				this.app.vault.on('create', file => {
-					if (file instanceof TFile) {
-						for (const searchUI of this.searchUIs.values()) {
-							searchUI.RPC.call('onFileCreate', file.path);
-						}
-						// this.checkIndexConsistency();
-					}
-				}),
-			);
+		this.addCommand({
+			id: 'open-alias-search',
+			name: 'Open alias search',
+			callback: () => {
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter(), this.getFileAliasData());
+				searchController.onSubmit(data => {
+					this.openFile(data.data);
+				});
 
-			this.registerEvent(
-				this.app.vault.on('delete', file => {
-					if (file instanceof TFile) {
-						for (const searchUI of this.searchUIs.values()) {
-							searchUI.RPC.call('onFileDelete', file.path);
-						}
-						// this.checkIndexConsistency();
-					}
-				}),
-			);
-
-			this.registerEvent(
-				this.app.vault.on('rename', (file, oldPath) => {
-					if (file instanceof TFile) {
-						for (const searchUI of this.searchUIs.values()) {
-							searchUI.RPC.call('onFileRename', oldPath, file.path);
-						}
-						// this.checkIndexConsistency();
-					}
-				}),
-			);
+				new SearchModal(this, searchController).open();
+			},
 		});
 	}
 
@@ -82,11 +56,20 @@ export default class LemonsSearchPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	getFilePaths(): string[] {
-		return this.app.vault
-			.getAllLoadedFiles()
-			.filter(file => file instanceof TFile)
-			.map(file => file.path);
+	getFiles(): TFile[] {
+		return this.app.vault.getAllLoadedFiles().filter(file => file instanceof TFile);
+	}
+
+	getFileData(): SearchData<string>[] {
+		return this.getFiles().map(file => ({ content: file.path, data: file.path }));
+	}
+
+	getFileAliasData(): SearchData<string>[] {
+		return this.getFiles().flatMap(file => {
+			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
+			const aliases = [file.basename, ...(parseFrontMatterAliases(metadata) ?? [])];
+			return aliases.map(alias => ({ content: alias, subText: file.path, data: file.path }));
+		});
 	}
 
 	// checkIndexConsistency(): void {
@@ -109,6 +92,9 @@ export default class LemonsSearchPlugin extends Plugin {
 		if (content === undefined) {
 			return undefined;
 		}
+		if (content.trim() === '') {
+			return '';
+		}
 		if (content.length < CONTENT_SLICE_LENGTH) {
 			return content;
 		}
@@ -126,13 +112,5 @@ export default class LemonsSearchPlugin extends Plugin {
 		}
 
 		return this.app.vault.getResourcePath(file);
-	}
-
-	registerSearchUI(searchUI: SearchUI): void {
-		this.searchUIs.set(searchUI.uuid, searchUI);
-	}
-
-	unregisterSearchUI(searchUI: SearchUI): void {
-		this.searchUIs.delete(searchUI.uuid);
 	}
 }

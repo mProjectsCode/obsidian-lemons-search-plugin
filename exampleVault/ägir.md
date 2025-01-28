@@ -1,0 +1,6 @@
+---
+aliases:
+  - aegir
+---
+
+Hello o/

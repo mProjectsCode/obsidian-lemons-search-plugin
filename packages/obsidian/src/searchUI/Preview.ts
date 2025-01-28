@@ -1,4 +1,4 @@
-import type LemonsSearchPlugin from '../main';
+import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 
 export enum PreviewType {
 	MARKDOWN,
@@ -44,7 +44,7 @@ export async function getPreview(path: string | undefined, plugin: LemonsSearchP
 		return { type: PreviewType.NONE };
 	}
 
-	console.log('getPreview', path);
+	// console.log('getPreview', path);
 
 	if (path.endsWith('.md')) {
 		const content = await plugin.readFileTruncated(path);

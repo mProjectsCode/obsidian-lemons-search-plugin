@@ -44,6 +44,10 @@ body {
 	overflow-y: auto;
 }
 
+.lemons-search-modal .suggestion-sub-text {
+	color: var(--text-faint);
+}
+
 /* .lemons-search-modal .modal-content .prompt-results .suggestion-title {
 	color: var(--text-muted);
 

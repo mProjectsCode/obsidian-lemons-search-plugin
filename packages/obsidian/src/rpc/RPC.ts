@@ -25,6 +25,15 @@ export class RPCController<THandlers extends RPCConfig, TMethods extends RPCConf
 		this.post = post;
 	}
 
+	static toWorker<THandlers extends RPCConfig, TMethods extends RPCConfig>(
+		worker: Worker,
+		handlers: RPCMethods<THandlers>,
+	): RPCController<THandlers, TMethods> {
+		const controller = new RPCController(handlers, message => worker.postMessage(message));
+		worker.onmessage = (e: MessageEvent): void => controller.handle(e.data);
+		return controller;
+	}
+
 	/**
 	 * Calls a method on the other side.
 	 *

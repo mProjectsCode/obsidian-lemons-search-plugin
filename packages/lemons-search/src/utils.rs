@@ -40,11 +40,12 @@ impl HighlightRange {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchResult {
     pub path: String,
+    pub index: usize,
     pub highlights: Vec<(String, bool)>,
 }
 
 impl SearchResult {
-    pub fn new(path: String, indices: Vec<u32>) -> Self {
+    pub fn new(path: String, index: usize, indices: Vec<u32>) -> Self {
         let highlight_ranges = HighlightRange::from_highlights(&indices);
         let chars = path.chars().collect_vec();
         let mut highlights: Vec<(String, bool)> = Vec::new();
@@ -60,12 +61,15 @@ impl SearchResult {
         }
         highlights.push((chars[current..].iter().collect(), false));
 
-        SearchResult { path, highlights }
+        SearchResult {
+            path,
+            index,
+            highlights,
+        }
     }
 
     pub fn to_js_object(&self) -> js_sys::Object {
         let obj = js_sys::Object::new();
-        let _ = js_sys::Reflect::set(&obj, &"path".into(), &self.path.clone().into());
         let arr = js_sys::Array::new();
         for (highlight, is_highlight) in &self.highlights {
             let highlight_obj = js_sys::Object::new();
@@ -79,6 +83,7 @@ impl SearchResult {
         }
 
         let _ = js_sys::Reflect::set(&obj, &"highlights".into(), &arr.into());
+        let _ = js_sys::Reflect::set(&obj, &"index".into(), &self.index.into());
 
         obj
     }

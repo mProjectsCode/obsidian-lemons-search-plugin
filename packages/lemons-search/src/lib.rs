@@ -24,7 +24,7 @@ pub fn setup() {
 
 #[wasm_bindgen]
 pub struct Search {
-    data: Vec<String>,
+    data: Vec<NumberedString>,
     matcher: Matcher,
     pattern: Option<Pattern>,
 }
@@ -71,7 +71,7 @@ impl Search {
             .take(MAX_RESULTS)
             .map(|result| {
                 let mut vec = Vec::<char>::new();
-                let haystack = Utf32Str::new(result.0, &mut vec);
+                let haystack = Utf32Str::new(&result.0.string, &mut vec);
                 let mut indices = Vec::<u32>::new();
 
                 _ = pattern.indices(haystack, &mut self.matcher, &mut indices);
@@ -79,7 +79,7 @@ impl Search {
                 indices.sort_unstable();
                 indices.dedup();
 
-                SearchResult::new(result.0.clone(), indices)
+                SearchResult::new(result.0.string.clone(), result.0.index, indices)
             })
             .collect_vec();
 
@@ -90,28 +90,28 @@ impl Search {
         js_results
     }
 
-    pub fn add_file(&mut self, path: String) {
-        self.data.push(path);
-    }
-
-    pub fn remove_file(&mut self, path: &str) {
-        self.data.retain(|x| x != path);
-    }
-
-    pub fn rename_file(&mut self, old_path: &str, new_path: String) {
-        self.data.retain(|x| x != old_path);
-        self.data.push(new_path);
-    }
-
     pub fn update_index(&mut self, data: Vec<String>) {
-        self.data = data;
+        self.data = data
+            .into_iter()
+            .enumerate()
+            .map(|(i, s)| NumberedString::new(i, s))
+            .collect();
     }
+}
 
-    pub fn clear_index(&mut self) {
-        self.data = Vec::new();
+struct NumberedString {
+    index: usize,
+    string: String,
+}
+
+impl NumberedString {
+    fn new(index: usize, string: String) -> Self {
+        NumberedString { index, string }
     }
+}
 
-    pub fn check_index_consistency(&self, data: Vec<String>) -> bool {
-        self.data == data
+impl AsRef<str> for NumberedString {
+    fn as_ref(&self) -> &str {
+        &self.string
     }
 }

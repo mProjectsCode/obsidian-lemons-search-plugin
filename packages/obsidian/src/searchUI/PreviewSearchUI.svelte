@@ -1,57 +1,51 @@
 <script lang="ts">
-	import { onDestroy } from "svelte";
 	import type LemonsSearchPlugin from "../main";
-    import { SearchUI } from "../SearchUI";
-	import type { SearchResult } from "../searchWorker/SearchWorkerRPCConfig";
+	import type { NiceSearchResult, SearchData } from "../searchWorker/SearchWorkerRPCConfig";
 	import { mod } from "../utils";
-	import { getPreview, PreviewType, type Preview } from "./Preview";
+	import { getPreview, PreviewType } from "./Preview";
 	import MarkdownRenderer from "./MarkdownRenderer.svelte";
 
     interface Props {
-        search: SearchUI;
+        search: (s: string) => void;
         plugin: LemonsSearchPlugin;
-        closeSearch: () => void;
+        onCancel: () => void;
+        onSubmit: (data: SearchData<string>) => void;
     }
 
     let {
         search,
         plugin,
-        closeSearch
+        onCancel,
+        onSubmit,
     }: Props = $props();
 
     
     let searchString = $state('');
     let selection = $state(0);
-    let results: SearchResult[] = $state([]);
+    let results: NiceSearchResult<string>[] = $state([]);
 
     let boundedSelection = $derived(results.length !== 0 ? mod(selection, results.length) : undefined);
     let selectedElement = $derived(boundedSelection !== undefined ? results[boundedSelection] : undefined);
 
-    let selectedPath: string | undefined = $state();
+    let selectedValue: string | undefined = $state();
     $effect(() => {
-        if (selectedElement?.path !== selectedPath) {
-            selectedPath = selectedElement?.path;
+        if (selectedElement?.data.data !== selectedValue) {
+            selectedValue = selectedElement?.data.data;
         }
     });
-    let preview = $derived(getPreview(selectedPath, plugin));
+    let preview = $derived(getPreview(selectedValue, plugin));
 
     $effect(() => {
-        search.search(searchString);
+        search(searchString);
         selection = 0;
     });
 
-    let interval = window.setInterval(() => {
-        if (search.hasResults()) {
-            results = search.getResults();
-        }
-    }, 50);
-
-    onDestroy(() => {
-        window.clearInterval(interval);
-    });
+    export function onSearchResults(r: NiceSearchResult<string>[]) {
+        results = r;
+    }
 
     const keybindMap: Record<string, () => void> = {
-        "Enter": openSelected,
+        "Enter": submit,
         "ArrowUp": () => {
             selection = mod(selection - 1, results.length);
         },
@@ -64,9 +58,9 @@
         "End": () => {
             selection = -1;
         },
-        "Escape": closeSearch,
+        "Escape": onCancel,
         "Tab": () => {
-            searchString = selectedElement?.path ?? "";
+            searchString = selectedElement?.data.content ?? "";
         }
     }
 
@@ -79,16 +73,15 @@
         }
     }
 
-    function openSelected() {
+    function submit() {
         if (selectedElement !== undefined) {
-            plugin.openFile(selectedElement.path);
-            closeSearch();
+            onSubmit(selectedElement.data);
         }
     }
 
     function onClickSuggestion(index: number) {
         if (index === boundedSelection) {
-            openSelected();
+            submit();
         } else {
             selection = index;
         }
@@ -133,6 +126,9 @@
                                 {/if}
                             {/each}
                         </div>
+                        {#if result.data.subText}
+                            <small class="suggestion-sub-text">{result.data.subText}</small>
+                        {/if}
                     </div>
                 </div>
             {/each}
@@ -144,7 +140,7 @@
         {:then p}
             {#if p.type === PreviewType.MARKDOWN}
                 <div class="preview-text">
-                    <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedPath ?? ""}></MarkdownRenderer>
+                    <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedValue ?? ""}></MarkdownRenderer>
                 </div>
             {:else if p.type === PreviewType.TEXT}
                 <div class="preview-text">

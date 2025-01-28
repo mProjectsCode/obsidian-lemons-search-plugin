@@ -1,7 +1,7 @@
 {
 	"inputs": {
 		"packages/obsidian/src/rpc/RPC.ts": {
-			"bytes": 1714,
+			"bytes": 2051,
 			"imports": [
 				{
 					"path": "<runtime>",
@@ -2523,12 +2523,12 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchUI/Preview.ts": {
-			"bytes": 1698,
+			"bytes": 1736,
 			"imports": [],
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchUI/MarkdownRenderer.svelte": {
-			"bytes": 2770,
+			"bytes": 2782,
 			"imports": [
 				{
 					"path": "node_modules/svelte/src/internal/disclose-version.js",
@@ -2553,8 +2553,8 @@
 			],
 			"format": "esm"
 		},
-		"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
-			"bytes": 21221,
+		"packages/obsidian/src/searchUI/PreviewSearchUI.svelte": {
+			"bytes": 21451,
 			"imports": [
 				{
 					"path": "node_modules/svelte/src/internal/disclose-version.js",
@@ -2565,16 +2565,6 @@
 					"path": "node_modules/svelte/src/internal/client/index.js",
 					"kind": "import-statement",
 					"original": "svelte/internal/client"
-				},
-				{
-					"path": "node_modules/svelte/src/index-client.js",
-					"kind": "import-statement",
-					"original": "svelte"
-				},
-				{
-					"path": "packages/obsidian/src/SearchUI.ts",
-					"kind": "import-statement",
-					"original": "../SearchUI"
 				},
 				{
 					"path": "packages/obsidian/src/utils.ts",
@@ -2600,7 +2590,7 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchWorker/search.worker.ts": {
-			"bytes": 376479,
+			"bytes": 374314,
 			"imports": [
 				{
 					"path": "inline-worker:__inline-worker",
@@ -2610,8 +2600,8 @@
 			],
 			"format": "esm"
 		},
-		"packages/obsidian/src/SearchUI.ts": {
-			"bytes": 3115,
+		"packages/obsidian/src/searchUI/SearchController.ts": {
+			"bytes": 3319,
 			"imports": [
 				{
 					"path": "packages/obsidian/src/rpc/RPC.ts",
@@ -2619,9 +2609,9 @@
 					"original": "packages/obsidian/src/rpc/RPC"
 				},
 				{
-					"path": "packages/obsidian/src/searchUI/SearchUIComponent.svelte",
+					"path": "packages/obsidian/src/searchUI/PreviewSearchUI.svelte",
 					"kind": "import-statement",
-					"original": "packages/obsidian/src/searchUI/SearchUIComponent.svelte"
+					"original": "packages/obsidian/src/searchUI/PreviewSearchUI.svelte"
 				},
 				{
 					"path": "packages/obsidian/src/searchWorker/search.worker.ts",
@@ -2642,7 +2632,7 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/SearchModal.ts": {
-			"bytes": 640,
+			"bytes": 799,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -2650,9 +2640,9 @@
 					"external": true
 				},
 				{
-					"path": "packages/obsidian/src/SearchUI.ts",
+					"path": "packages/obsidian/src/searchUI/SearchController.ts",
 					"kind": "import-statement",
-					"original": "packages/obsidian/src/SearchUI"
+					"original": "packages/obsidian/src/searchUI/SearchController"
 				},
 				{
 					"path": "<runtime>",
@@ -2667,8 +2657,29 @@
 			"imports": [],
 			"format": "esm"
 		},
+		"packages/obsidian/src/searchUI/PreviewSearchUIAdapter.ts": {
+			"bytes": 928,
+			"imports": [
+				{
+					"path": "node_modules/svelte/src/index-client.js",
+					"kind": "import-statement",
+					"original": "svelte"
+				},
+				{
+					"path": "packages/obsidian/src/searchUI/PreviewSearchUI.svelte",
+					"kind": "import-statement",
+					"original": "./PreviewSearchUI.svelte"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
+				}
+			],
+			"format": "esm"
+		},
 		"packages/obsidian/src/main.ts": {
-			"bytes": 3601,
+			"bytes": 3498,
 			"imports": [
 				{
 					"path": "obsidian",
@@ -2681,9 +2692,19 @@
 					"original": "packages/obsidian/src/SearchModal"
 				},
 				{
+					"path": "packages/obsidian/src/searchUI/SearchController.ts",
+					"kind": "import-statement",
+					"original": "packages/obsidian/src/searchUI/SearchController"
+				},
+				{
 					"path": "packages/obsidian/src/settings/Settings.ts",
 					"kind": "import-statement",
 					"original": "packages/obsidian/src/settings/Settings"
+				},
+				{
+					"path": "packages/obsidian/src/searchUI/PreviewSearchUIAdapter.ts",
+					"kind": "import-statement",
+					"original": "./searchUI/PreviewSearchUIAdapter"
 				},
 				{
 					"path": "<runtime>",
@@ -2720,10 +2741,10 @@
 					"bytesInOutput": 1537
 				},
 				"packages/obsidian/src/SearchModal.ts": {
-					"bytesInOutput": 351
+					"bytesInOutput": 397
 				},
 				"packages/obsidian/src/rpc/RPC.ts": {
-					"bytesInOutput": 271
+					"bytesInOutput": 370
 				},
 				"node_modules/svelte/src/version.js": {
 					"bytesInOutput": 11
@@ -2771,7 +2792,7 @@
 					"bytesInOutput": 1905
 				},
 				"node_modules/svelte/src/internal/client/dom/hydration.js": {
-					"bytesInOutput": 323
+					"bytesInOutput": 322
 				},
 				"node_modules/svelte/src/internal/client/dev/ownership.js": {
 					"bytesInOutput": 1032
@@ -2789,7 +2810,7 @@
 					"bytesInOutput": 896
 				},
 				"node_modules/svelte/src/internal/client/reactivity/effects.js": {
-					"bytesInOutput": 2924
+					"bytesInOutput": 2925
 				},
 				"node_modules/svelte/src/internal/client/dom/task.js": {
 					"bytesInOutput": 342
@@ -2828,10 +2849,10 @@
 					"bytesInOutput": 362
 				},
 				"node_modules/svelte/src/internal/client/dom/blocks/each.js": {
-					"bytesInOutput": 3040
+					"bytesInOutput": 3043
 				},
 				"node_modules/svelte/src/internal/client/dom/elements/actions.js": {
-					"bytesInOutput": 215
+					"bytesInOutput": 216
 				},
 				"node_modules/svelte/src/internal/client/dom/elements/attributes.js": {
 					"bytesInOutput": 1278
@@ -2840,10 +2861,10 @@
 					"bytesInOutput": 141
 				},
 				"node_modules/svelte/src/internal/client/dom/elements/bindings/input.js": {
-					"bytesInOutput": 604
+					"bytesInOutput": 605
 				},
 				"node_modules/svelte/src/internal/client/dom/elements/bindings/this.js": {
-					"bytesInOutput": 268
+					"bytesInOutput": 269
 				},
 				"node_modules/svelte/src/index-client.js": {
 					"bytesInOutput": 256
@@ -2852,7 +2873,7 @@
 					"bytesInOutput": 1167
 				},
 				"node_modules/svelte/src/internal/client/dom/elements/custom-element.js": {
-					"bytesInOutput": 2642
+					"bytesInOutput": 2643
 				},
 				"node_modules/svelte/src/internal/shared/validate.js": {
 					"bytesInOutput": 0
@@ -2866,23 +2887,26 @@
 				"packages/obsidian/src/searchUI/MarkdownRenderer.svelte": {
 					"bytesInOutput": 334
 				},
-				"packages/obsidian/src/searchUI/SearchUIComponent.svelte": {
-					"bytesInOutput": 3622
+				"packages/obsidian/src/searchUI/PreviewSearchUI.svelte": {
+					"bytesInOutput": 3765
 				},
 				"inline-worker:__inline-worker": {
 					"bytesInOutput": 133
 				},
 				"packages/obsidian/src/searchWorker/search.worker.ts": {
-					"bytesInOutput": 376334
+					"bytesInOutput": 374169
 				},
-				"packages/obsidian/src/SearchUI.ts": {
-					"bytesInOutput": 1478
+				"packages/obsidian/src/searchUI/SearchController.ts": {
+					"bytesInOutput": 1413
 				},
 				"packages/obsidian/src/settings/Settings.ts": {
 					"bytesInOutput": 35
+				},
+				"packages/obsidian/src/searchUI/PreviewSearchUIAdapter.ts": {
+					"bytesInOutput": 265
 				}
 			},
-			"bytes": 425534
+			"bytes": 423864
 		}
 	}
 }

@@ -1,22 +1,13 @@
 import type { InitInput } from 'packages/lemons-search/pkg/lemons_search';
 import init, { setup, Search } from 'packages/lemons-search/pkg/lemons_search';
+import wasmbin from 'packages/lemons-search/pkg/lemons_search_bg.wasm';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchResult, SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
-import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm';
 
 let search: Search | undefined = undefined;
 
 const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
 	{
-		onFileCreate(name): void {
-			search?.add_file(name);
-		},
-		onFileDelete(name): void {
-			search?.remove_file(name);
-		},
-		onFileRename(oldName, newName): void {
-			search?.rename_file(oldName, newName);
-		},
 		updateIndex(files): void {
 			search?.update_index(files);
 		},
@@ -30,7 +21,7 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 	m => postMessage(m),
 );
 
-void init(wasmbin as unknown as InitInput).then(() => {
+void init({ module_or_path: wasmbin as unknown as InitInput }).then(() => {
 	setup();
 
 	search = new Search();

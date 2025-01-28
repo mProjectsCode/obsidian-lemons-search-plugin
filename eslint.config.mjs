@@ -3,6 +3,7 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import only_warn from 'eslint-plugin-only-warn';
+import no_relative_import_paths from 'eslint-plugin-no-relative-import-paths';
 import * as plugin_import from 'eslint-plugin-import';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
 
@@ -29,6 +30,7 @@ export default tseslint.config(
 		plugins: {
 			// @ts-ignore
 			'only-warn': only_warn,
+			'no-relative-import-paths': no_relative_import_paths,
 			import: plugin_import,
 		},
 		rules: {
@@ -51,6 +53,8 @@ export default tseslint.config(
 
 			'@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
 			'@typescript-eslint/restrict-template-expressions': 'off',
+
+			'no-relative-import-paths/no-relative-import-paths': ['warn', { allowSameFolder: false }],
 
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/no-empty-function': 'off',

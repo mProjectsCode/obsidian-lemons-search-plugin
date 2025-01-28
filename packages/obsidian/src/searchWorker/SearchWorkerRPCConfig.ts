@@ -3,9 +3,6 @@
 
 export type SearchWorkerRPCHandlersWorker = {
 	updateIndex: [string[]];
-	onFileCreate: [string];
-	onFileDelete: [string];
-	onFileRename: [string, string];
 
 	search: [string];
 };
@@ -16,6 +13,17 @@ export type SearchWorkerRPCHandlersMain = {
 };
 
 export interface SearchResult {
-	path: string;
+	index: number;
+	highlights: { text: string; highlight: boolean }[];
+}
+
+export interface SearchData<T> {
+	content: string;
+	subText?: string;
+	data: T;
+}
+
+export interface NiceSearchResult<T> {
+	data: SearchData<T>;
 	highlights: { text: string; highlight: boolean }[];
 }

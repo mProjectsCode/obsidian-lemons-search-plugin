@@ -1,30 +1,34 @@
 import { Modal } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
-import { SearchUI } from 'packages/obsidian/src/SearchUI';
+import type { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 
-export class SearchModal extends Modal {
+export class SearchModal<T> extends Modal {
 	plugin: LemonsSearchPlugin;
-	searchUI: SearchUI | undefined;
+	searchController: SearchController<T>;
 
-	constructor(plugin: LemonsSearchPlugin) {
+	constructor(plugin: LemonsSearchPlugin, searchController: SearchController<T>) {
 		super(plugin.app);
 
 		this.plugin = plugin;
+		this.searchController = searchController;
+
+		searchController.onSubmit(() => {
+			this.close();
+		});
+		searchController.onCancel(() => {
+			this.close();
+		});
 	}
 
 	onOpen(): void {
-		const { contentEl } = this;
-
 		this.modalEl.addClass('lemons-search-modal');
 
-		this.searchUI = new SearchUI(this.plugin, contentEl, () => this.close());
+		this.searchController.create(this.contentEl);
 	}
 
 	onClose(): void {
-		const { contentEl } = this;
+		this.searchController.destroy();
 
-		this.searchUI?.destroy();
-
-		contentEl.empty();
+		this.contentEl.empty();
 	}
 }
