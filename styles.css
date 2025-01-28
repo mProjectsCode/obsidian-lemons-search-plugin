@@ -26,7 +26,6 @@ body {
 
 .lemons-search-modal .lemons-search-wrapper .lemons-search-preview {
 	flex: 2;
-	white-space: pre;
 	text-wrap: wrap;
 	overflow-y: auto;
 }

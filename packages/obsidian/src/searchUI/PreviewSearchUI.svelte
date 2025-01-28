@@ -139,7 +139,7 @@
             <div class="preview-loading preview-empty">Loading...</div>
         {:then p}
             {#if p.type === PreviewType.MARKDOWN}
-                <div class="preview-text">
+                <div class="preview-text markdown-rendered markdown-preview-view">
                     <MarkdownRenderer app={plugin.app} markdown={p.content} sourcePath={selectedValue ?? ""}></MarkdownRenderer>
                 </div>
             {:else if p.type === PreviewType.TEXT}

@@ -2559,7 +2559,7 @@
 			"format": "esm"
 		},
 		"packages/obsidian/src/searchUI/PreviewSearchUI.svelte": {
-			"bytes": 21451,
+			"bytes": 21547,
 			"imports": [
 				{
 					"path": "node_modules/svelte/src/internal/disclose-version.js",
@@ -2870,7 +2870,7 @@
 					"bytesInOutput": 334
 				},
 				"packages/obsidian/src/searchUI/PreviewSearchUI.svelte": {
-					"bytesInOutput": 3765
+					"bytesInOutput": 3805
 				},
 				"packages/obsidian/src/searchUI/PreviewSearchUIAdapter.ts": {
 					"bytesInOutput": 265
@@ -2891,7 +2891,7 @@
 					"bytesInOutput": 35
 				}
 			},
-			"bytes": 423864
+			"bytes": 423904
 		}
 	}
 }
