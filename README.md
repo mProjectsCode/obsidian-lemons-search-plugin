@@ -12,9 +12,9 @@ This ensures that the majority of the computational load is taken off the main t
 
 ## Commands
 
-- `Lemons Search: Open search`: A quick switcher that lets you all files in your vault by file path.
-- `Lemons Search: Open alias search`: A quick switcher that lets you all files in your vault by file names and aliases.
-- `Lemons Search: Command palette`: A command palette.
+- `Lemons Search: Open search` A quick switcher that lets you all files in your vault by file path.
+- `Lemons Search: Open alias search` A quick switcher that lets you all files in your vault by file names and aliases.
+- `Lemons Search: Command palette` A command palette.
 
 ## Special Search Commands
 
@@ -62,4 +62,4 @@ While the input field is focused, you can use the following special actions.
 
 - Clicking on a suggestion that is not selected will select the clicked suggestion
 - Clicking on the selected suggestion will open the suggestion in the same tab
-- Ctrl-Clicking on the selected suggestion will open the suggestion in a new tab
+- Ctrl-clicking on the selected suggestion will open the suggestion in a new tab
