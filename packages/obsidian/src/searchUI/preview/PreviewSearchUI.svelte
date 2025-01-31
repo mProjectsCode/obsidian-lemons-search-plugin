@@ -1,25 +1,31 @@
 <script lang="ts">
-	import type LemonsSearchPlugin from "../main";
-	import type { NiceSearchResult, SearchData } from "../searchWorker/SearchWorkerRPCConfig";
-	import { mod } from "../utils";
-	import { getPreview, PreviewType } from "./Preview";
-	import MarkdownRenderer from "./MarkdownRenderer.svelte";
+	import type LemonsSearchPlugin from "packages/obsidian/src/main";
+	import type { NiceSearchResult, SearchData } from "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig";
+	import { getEventModifiers, mod } from "packages/obsidian/src/utils";
+	import { getPreview, PreviewType } from "packages/obsidian/src/searchUI/preview/Preview";
+	import MarkdownRenderer from "packages/obsidian/src/searchUI/MarkdownRenderer.svelte";
+	import { onMount } from "svelte";
+	import type { Modifier, Scope } from "obsidian";
 
     interface Props {
-        search: (s: string) => void;
         plugin: LemonsSearchPlugin;
+        scope: Scope;
+        searchPlaceholder: string;
+        search: (s: string) => void;
         onCancel: () => void;
-        onSubmit: (data: SearchData<string>) => void;
+        onSubmit: (data: SearchData<string>, modifiers: Modifier[]) => void;
     }
 
     let {
-        search,
         plugin,
+        scope,
+        searchPlaceholder,
+        search,
         onCancel,
         onSubmit,
     }: Props = $props();
-
     
+    let inputEl: HTMLInputElement | undefined;
     let searchString = $state('');
     let selection = $state(0);
     let results: NiceSearchResult<string>[] = $state([]);
@@ -44,44 +50,15 @@
         results = r;
     }
 
-    const keybindMap: Record<string, () => void> = {
-        "Enter": submit,
-        "ArrowUp": () => {
-            selection = mod(selection - 1, results.length);
-        },
-        "ArrowDown": () => {
-            selection = mod(selection + 1, results.length);
-        },
-        "Home": () => {
-            selection = 0;
-        },
-        "End": () => {
-            selection = -1;
-        },
-        "Escape": onCancel,
-        "Tab": () => {
-            searchString = selectedElement?.data.content ?? "";
-        }
-    }
-
-    function onSearchKeyDown(event: KeyboardEvent) {
-        const fn = keybindMap[event.key];
-        if (fn !== undefined) {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-            fn();
-        }
-    }
-
-    function submit() {
+    function submit(modifiers: Modifier[]) {
         if (selectedElement !== undefined) {
-            onSubmit(selectedElement.data);
+            onSubmit(selectedElement.data, modifiers);
         }
     }
 
-    function onClickSuggestion(index: number) {
+    function onClickSuggestion(e: MouseEvent, index: number) {
         if (index === boundedSelection) {
-            submit();
+            submit(getEventModifiers(e));
         } else {
             selection = index;
         }
@@ -95,15 +72,66 @@
             }
         })
     }
+
+    onMount(() => {
+        inputEl?.focus();
+
+        scope.register(null, "Enter", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            submit(getEventModifiers(e));
+        });
+        scope.register(null, "ArrowUp", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            selection = mod(selection - 1, results.length);
+        });
+        scope.register(null, "ArrowDown", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            selection = mod(selection + 1, results.length);
+        });
+        scope.register(null, "Home", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            selection = 0;
+        });
+        scope.register(null, "End", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            selection = -1;
+        });
+        scope.register(null, "Escape", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            onCancel();
+        });
+        scope.register(null, "Tab", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            searchString = selectedElement?.data.content ?? "";
+        });
+    });
 </script>
 
-<div class="lemons-search-wrapper">
-    <div class="lemons-search-search">
-        <input 
-            type="text" 
-            placeholder="Search for files..." 
-            onkeydown={e => onSearchKeyDown(e)}
-            bind:value={searchString} 
+<div class="lemons-search lemons-search--preview-search">
+    <div class="lemons-search--search">
+        <input
+            class="prompt-input"
+            type="text"
+            autocapitalize="off" 
+            spellcheck="false" 
+            enterkeyhint="done"
+            placeholder={searchPlaceholder}
+            bind:value={searchString}
+            bind:this={inputEl}
         />
         <div class="prompt-results">
             {#each results as result, index}
@@ -113,7 +141,7 @@
                     class="suggestion-item mod-complex" 
                     class:is-selected={boundedSelection === index}
                     use:scrollToSelection={index}
-                    onclick={() => onClickSuggestion(index)}
+                    onclick={(e) => onClickSuggestion(e, index)}
                     role="button"
                 >
                     <div class="suggestion-content">
@@ -134,7 +162,7 @@
             {/each}
         </div>
     </div>
-    <div class="lemons-search-preview">
+    <div class="lemons-search--preview">
         {#await preview}
             <div class="preview-loading preview-empty">Loading...</div>
         {:then p}

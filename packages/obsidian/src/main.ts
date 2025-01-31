@@ -1,8 +1,11 @@
-import { parseFrontMatterAliases, Plugin, TFile } from 'obsidian';
+import type { Command, Hotkey, Modifier } from 'obsidian';
+import { parseFrontMatterAliases, Platform, Plugin, TFile } from 'obsidian';
 // import init, { type InitInput, RustPlugin, setup } from '../../lemons-search-ui/pkg';
 // import wasmbin from '../../lemons-search-ui/pkg/lemons_search_ui_bg.wasm';
+import { PromptModal } from 'packages/obsidian/src/PromptModal';
 import { SearchModal } from 'packages/obsidian/src/SearchModal';
-import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/PreviewSearchUIAdapter';
+import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
+import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/preview/PreviewSearchUIAdapter';
 import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchData } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
@@ -11,6 +14,32 @@ import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 // const DEBUG = true;
 
 const CONTENT_SLICE_LENGTH = 5000;
+
+const KEY_MAP: Record<string, string> = {
+	ArrowLeft: '←',
+	ArrowRight: '→',
+	ArrowUp: '↑',
+	ArrowDown: '↓',
+	' ': 'Space',
+};
+
+const MODIFIER_KEY_MAP: Record<Modifier, string> = Platform.isMacOS
+	? {
+			Mod: '⌘',
+			Ctrl: '⌃',
+			Meta: '⌘',
+			Alt: '⌥',
+			Shift: '⇧',
+		}
+	: {
+			Mod: 'Ctrl',
+			Ctrl: 'Ctrl',
+			Meta: 'Win',
+			Alt: 'Alt',
+			Shift: 'Shift',
+		};
+
+const HOTKEY_SEPARATOR = ' + ';
 
 export default class LemonsSearchPlugin extends Plugin {
 	// @ts-ignore defined in on load;
@@ -23,9 +52,9 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-search',
 			name: 'Open search',
 			callback: () => {
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter(), this.getFileData());
-				searchController.onSubmit(data => {
-					this.openFile(data.data);
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), this.getFileData());
+				searchController.onSubmit((data, modifiers) => {
+					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
 				new SearchModal(this, searchController).open();
@@ -36,12 +65,25 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-alias-search',
 			name: 'Open alias search',
 			callback: () => {
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter(), this.getFileAliasData());
-				searchController.onSubmit(data => {
-					this.openFile(data.data);
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), this.getFileAliasData());
+				searchController.onSubmit((data, modifiers) => {
+					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
 				new SearchModal(this, searchController).open();
+			},
+		});
+
+		this.addCommand({
+			id: 'open-command-palette',
+			name: 'Open command palette',
+			callback: () => {
+				const searchController = new SearchController(this, new BasicSearchUIAdapter<Command>('Select a command...'), this.getCommandData());
+				searchController.onSubmit(data => {
+					this.app.commands.executeCommand(data.data);
+				});
+
+				new PromptModal(this, searchController).open();
 			},
 		});
 	}
@@ -68,15 +110,42 @@ export default class LemonsSearchPlugin extends Plugin {
 		return this.getFiles().flatMap(file => {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
 			const aliases = [file.basename, ...(parseFrontMatterAliases(metadata) ?? [])];
-			return aliases.map(alias => ({ content: alias, subText: file.path, data: file.path }));
+			return aliases.map(alias => {
+				return {
+					content: alias,
+					subText: file.path,
+					data: file.path,
+				};
+			});
 		});
 	}
 
-	// checkIndexConsistency(): void {
-	// 	if (DEBUG && !this.rustPlugin.check_index_consistency(this.getFilePaths())) {
-	// 		console.error('Index is inconsistent');
-	// 	}
-	// }
+	getCommandData(): SearchData<Command>[] {
+		return this.app.commands.listCommands().map(command => {
+			const keys = command.hotkeys?.map(hotkey => this.mapHotkey(hotkey));
+
+			return {
+				content: command.name,
+				keys: keys,
+				subText: command.id,
+				data: command,
+			};
+		});
+	}
+
+	mapHotkey(hotkey: Hotkey): string {
+		const key = this.mapKey(hotkey.key);
+		if (hotkey.modifiers.length === 0) {
+			return key;
+		}
+
+		const modifiers = hotkey.modifiers.map(modifier => MODIFIER_KEY_MAP[modifier]);
+		return modifiers.join(HOTKEY_SEPARATOR) + HOTKEY_SEPARATOR + key;
+	}
+
+	mapKey(key: string): string {
+		return KEY_MAP[key] ?? key;
+	}
 
 	async readFile(path: string): Promise<string | undefined> {
 		const file = this.app.vault.getFileByPath(path);
@@ -101,8 +170,8 @@ export default class LemonsSearchPlugin extends Plugin {
 		return content.slice(0, CONTENT_SLICE_LENGTH) + '\n\n...';
 	}
 
-	openFile(path: string): void {
-		void this.app.workspace.openLinkText(path, '', true);
+	openFile(path: string, newTab: boolean = true): void {
+		void this.app.workspace.openLinkText(path, '', newTab);
 	}
 
 	getResourcePath(path: string): string | undefined {

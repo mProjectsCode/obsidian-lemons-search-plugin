@@ -39,7 +39,6 @@ export type Preview =
 const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
 
 export async function getPreview(path: string | undefined, plugin: LemonsSearchPlugin): Promise<Preview> {
-	// todo: add memoization
 	if (path === undefined) {
 		return { type: PreviewType.NONE };
 	}

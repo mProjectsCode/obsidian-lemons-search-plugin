@@ -18,7 +18,8 @@
 		"moduleDetection": "force",
 		"sourceMap": true,
 		"lib": ["DOM", "ESNext"],
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"types": ["obsidian-typings", "bun"]
 	},
 	"include": ["packages/obsidian/src/**/*.ts", "packages/obsidian/src/**/*.svelte", "tests/**/*.ts"]
 }

@@ -20,6 +20,10 @@ export interface SearchResult {
 export interface SearchData<T> {
 	content: string;
 	subText?: string;
+	/**
+	 * Used to display the keyboard shortcut in the command palette.
+	 */
+	keys?: string[];
 	data: T;
 }
 

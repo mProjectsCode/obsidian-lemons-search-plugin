@@ -2,7 +2,7 @@ import { Modal } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import type { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 
-export class SearchModal<T> extends Modal {
+export class PromptModal<T> extends Modal {
 	plugin: LemonsSearchPlugin;
 	searchController: SearchController<T>;
 
@@ -21,15 +21,12 @@ export class SearchModal<T> extends Modal {
 	}
 
 	onOpen(): void {
-		this.modalEl.addClass('lemons-search--modal');
-		this.titleEl.remove();
+		this.modalEl.remove();
 
-		this.searchController.create(this.contentEl, this.scope);
+		this.searchController.create(this.containerEl, this.scope);
 	}
 
 	onClose(): void {
 		this.searchController.destroy();
-
-		this.contentEl.empty();
 	}
 }

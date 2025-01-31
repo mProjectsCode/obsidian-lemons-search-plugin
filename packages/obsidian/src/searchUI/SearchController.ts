@@ -1,3 +1,4 @@
+import type { Modifier, Scope } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
@@ -16,7 +17,7 @@ export class SearchController<T> {
 
 	worker?: Worker;
 	targetEl?: HTMLElement;
-	onSubmitCBs: ((data: SearchData<T>) => void)[];
+	onSubmitCBs: ((data: SearchData<T>, modifiers: Modifier[]) => void)[];
 	onCancelCBs: (() => void)[];
 	RPC?: RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>;
 	data: SearchData<T>[];
@@ -38,7 +39,7 @@ export class SearchController<T> {
 		this.uuid = crypto.randomUUID();
 	}
 
-	onSubmit(cb: (data: SearchData<T>) => void): void {
+	onSubmit(cb: (data: SearchData<T>, modifiers: Modifier[]) => void): void {
 		this.onSubmitCBs.push(cb);
 	}
 
@@ -46,14 +47,15 @@ export class SearchController<T> {
 		this.onCancelCBs.push(cb);
 	}
 
-	create(targetEl: HTMLElement): void {
+	create(targetEl: HTMLElement, scope: Scope): void {
 		this.targetEl = targetEl;
 		this.ui.create(
 			this.plugin,
 			this.targetEl,
+			scope,
 			s => this.search(s),
-			data => {
-				this.onSubmitCBs.forEach(cb => cb(data));
+			(data, modifiers) => {
+				this.onSubmitCBs.forEach(cb => cb(data, modifiers));
 			},
 			() => {
 				this.onCancelCBs.forEach(cb => cb());
