@@ -27,6 +27,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 		this.component = mount(BasicSearchUI, {
 			target: targetEl,
 			props: {
+				plugin,
 				scope,
 				searchPlaceholder: this.searchPlaceholder,
 				search,

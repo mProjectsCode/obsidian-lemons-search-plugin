@@ -3,8 +3,11 @@
 	import type { NiceSearchResult, SearchData } from "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig";
 	import { getEventModifiers, mod } from "packages/obsidian/src/utils";
 	import { onMount } from "svelte";
+	import { registerHotkeys, type HotkeyFunctionMap } from "../../settings/Hotkeys";
+	import type LemonsSearchPlugin from "../../main";
 
     interface Props {
+        plugin: LemonsSearchPlugin,
         scope: Scope;
         searchPlaceholder: string;
         search: (s: string) => void;
@@ -13,6 +16,7 @@
     }
 
     let {
+        plugin,
         scope,
         searchPlaceholder,
         search,
@@ -54,49 +58,31 @@
 
     onMount(() => {
         inputEl?.focus();
-        
-        scope.register(null, "Enter", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
 
-            submit(getEventModifiers(e));
-        });
-        scope.register(null, "ArrowUp", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        const map: HotkeyFunctionMap = new Map();
+        map.set("hotkeySearchSelectionUp", () => {
             selection = mod(selection - 1, results.length);
         });
-        scope.register(null, "ArrowDown", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionDown", () => {
             selection = mod(selection + 1, results.length);
         });
-        scope.register(null, "Home", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionFirst", () => {
             selection = 0;
         });
-        scope.register(null, "End", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionLast", () => {
             selection = -1;
         });
-        scope.register(null, "Escape", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            onCancel();
-        });
-        scope.register(null, "Tab", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchFillSelection", () => {
             searchString = selectedElement?.data.content ?? "";
         });
+        map.set([{ modifiers: [], key: "Enter" }], (e) => {
+            submit(e);
+        });
+        map.set([{ modifiers: [], key: "Esc" }], (e) => {
+            onCancel();
+        });
+
+        registerHotkeys(plugin, scope, map);
     });
 </script>
 

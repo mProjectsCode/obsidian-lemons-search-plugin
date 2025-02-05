@@ -6,6 +6,7 @@
 	import MarkdownRenderer from "packages/obsidian/src/searchUI/MarkdownRenderer.svelte";
 	import { onMount } from "svelte";
 	import type { Modifier, Scope } from "obsidian";
+	import { registerHotkeys, type HotkeyFunctionMap } from "../../settings/Hotkeys";
 
     interface Props {
         plugin: LemonsSearchPlugin;
@@ -76,48 +77,30 @@
     onMount(() => {
         inputEl?.focus();
 
-        scope.register(null, "Enter", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            submit(getEventModifiers(e));
-        });
-        scope.register(null, "ArrowUp", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        const map: HotkeyFunctionMap = new Map();
+        map.set("hotkeySearchSelectionUp", () => {
             selection = mod(selection - 1, results.length);
         });
-        scope.register(null, "ArrowDown", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionDown", () => {
             selection = mod(selection + 1, results.length);
         });
-        scope.register(null, "Home", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionFirst", () => {
             selection = 0;
         });
-        scope.register(null, "End", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchSelectionLast", () => {
             selection = -1;
         });
-        scope.register(null, "Escape", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            onCancel();
-        });
-        scope.register(null, "Tab", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
+        map.set("hotkeySearchFillSelection", () => {
             searchString = selectedElement?.data.content ?? "";
         });
+        map.set([{ modifiers: [], key: "Enter" }], (e) => {
+            submit(e);
+        });
+        map.set([{ modifiers: [], key: "Esc" }], (e) => {
+            onCancel();
+        });
+
+        registerHotkeys(plugin, scope, map);
     });
 </script>
 
