@@ -27,7 +27,6 @@ export interface SearchData<T> {
 	data: T;
 }
 
-export interface NiceSearchResult<T> {
-	data: SearchData<T>;
+export type NiceSearchResult<T> = SearchData<T> & {
 	highlights: { text: string; highlight: boolean }[];
-}
+};

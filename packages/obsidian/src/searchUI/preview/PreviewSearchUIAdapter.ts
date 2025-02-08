@@ -1,8 +1,7 @@
-import type { Modifier, Scope } from 'obsidian';
-import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import PreviewSearchUI from 'packages/obsidian/src/searchUI/preview/PreviewSearchUI.svelte';
+import type { SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import type { NiceSearchResult, SearchData } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import type { NiceSearchResult } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 import { mount, unmount } from 'svelte';
 
 /**
@@ -17,24 +16,10 @@ export class PreviewSearchUIAdapter implements SearchUI<string> {
 		this.searchPlaceholder = searchPlaceholder;
 	}
 
-	create(
-		plugin: LemonsSearchPlugin,
-		targetEl: HTMLElement,
-		scope: Scope,
-		search: (s: string) => void,
-		onSubmit: (data: SearchData<string>, modifiers: Modifier[]) => void,
-		onCancel: () => void,
-	): void {
+	create(props: SearchUIProps<string>): void {
 		this.component = mount(PreviewSearchUI, {
-			target: targetEl,
-			props: {
-				plugin,
-				scope,
-				searchPlaceholder: this.searchPlaceholder,
-				search,
-				onSubmit,
-				onCancel,
-			},
+			target: props.targetEl,
+			props: { ...props, searchPlaceholder: this.searchPlaceholder },
 		});
 	}
 

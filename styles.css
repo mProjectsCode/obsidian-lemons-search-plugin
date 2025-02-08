@@ -24,9 +24,6 @@ body {
 
 .lemons-search--preview-search .lemons-search--search {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: var(--size-4-3);
 }
 
 .lemons-search--preview-search .lemons-search--search input {
@@ -58,6 +55,15 @@ body {
 }
 
 .lemons-search .suggestion-sub-text {
+	color: var(--text-faint);
+}
+
+.lemons-search .lemons-search--suggestion-group-header {
+	padding: var(--size-2-3);
+}
+
+.lemons-search .lemons-search--suggestion-empty {
+	padding: var(--size-2-3) var(--size-4-3);
 	color: var(--text-faint);
 }
 

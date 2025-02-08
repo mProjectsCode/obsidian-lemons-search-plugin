@@ -11,6 +11,53 @@ import type {
 	SearchData,
 } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 
+export interface SearchPlaceholderData<T> {
+	title: string;
+	data: SearchData<T>[];
+}
+
+export interface IndexedPlaceholderData<T> {
+	title: string;
+	data: [number, SearchData<T>][];
+}
+
+export function processSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchData<T>[], IndexedPlaceholderData<T>[]] {
+	const indexedData = [];
+	const flatData = [];
+
+	for (const placeholder of data) {
+		const indexedDatum: IndexedPlaceholderData<T> = {
+			title: placeholder.title,
+			data: [],
+		};
+
+		for (const searchData of placeholder.data) {
+			indexedDatum.data.push([flatData.length, searchData]);
+			flatData.push(searchData);
+		}
+
+		indexedData.push(indexedDatum);
+	}
+
+	return [flatData, indexedData];
+}
+
+export interface SearchUIProps<T> {
+	plugin: LemonsSearchPlugin;
+	targetEl: HTMLElement;
+	scope: Scope;
+	placeholderData: SearchPlaceholderData<T>[];
+	search: (s: string) => void;
+	onSubmit: (data: SearchData<T>, modifiers: Modifier[]) => void;
+	onCancel: () => void;
+}
+
+export type FullSearchUIProps<T> = SearchUIProps<T> & {
+	searchPlaceholder: string;
+	onSelectedElementChange?: (selected: T | undefined) => void;
+	cssClasses?: string;
+};
+
 export class SearchController<T> {
 	plugin: LemonsSearchPlugin;
 	uuid: string;
@@ -21,6 +68,7 @@ export class SearchController<T> {
 	onCancelCBs: (() => void)[];
 	RPC?: RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>;
 	data: SearchData<T>[];
+	placeholderData: SearchPlaceholderData<T>[];
 	ui: SearchUI<T>;
 
 	searchQueueSlot: string | undefined;
@@ -29,11 +77,12 @@ export class SearchController<T> {
 
 	// searchComponent: ReturnType<typeof SearchUIComponent>;
 
-	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>[]) {
+	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>[], placeholderData: SearchPlaceholderData<T>[] = []) {
 		this.plugin = plugin;
 		this.onSubmitCBs = [];
 		this.onCancelCBs = [];
 		this.data = data;
+		this.placeholderData = placeholderData;
 		this.ui = ui;
 
 		this.uuid = crypto.randomUUID();
@@ -49,18 +98,19 @@ export class SearchController<T> {
 
 	create(targetEl: HTMLElement, scope: Scope): void {
 		this.targetEl = targetEl;
-		this.ui.create(
-			this.plugin,
-			this.targetEl,
+		this.ui.create({
+			plugin: this.plugin,
+			targetEl: this.targetEl,
 			scope,
-			s => this.search(s),
-			(data, modifiers) => {
+			placeholderData: this.placeholderData,
+			search: (s: string) => this.search(s),
+			onSubmit: (data: SearchData<T>, modifiers: Modifier[]) => {
 				this.onSubmitCBs.forEach(cb => cb(data, modifiers));
 			},
-			() => {
+			onCancel: () => {
 				this.onCancelCBs.forEach(cb => cb());
 			},
-		);
+		});
 
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		this.worker = new SearchWorker() as Worker;
@@ -106,7 +156,7 @@ export class SearchController<T> {
 
 		this.ui.onSearchResults(
 			result.map(r => ({
-				data: this.data[r.index],
+				...this.data[r.index],
 				highlights: r.highlights,
 			})),
 		);

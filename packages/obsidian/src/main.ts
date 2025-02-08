@@ -10,24 +10,41 @@ import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settin
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import { LemonsSearchSettingsTab } from 'packages/obsidian/src/settings/SettingTab';
 import { mapHotkey } from 'packages/obsidian/src/utils';
+import { SearchMemo } from 'packages/obsidian/src/utils/SearchMemo';
 
 // const DEBUG = true;
 
 const CONTENT_SLICE_LENGTH = 5000;
 
 export default class LemonsSearchPlugin extends Plugin {
-	// @ts-ignore defined in on load;
+	// @ts-ignore defined in on load
 	settings: LemonsSearchSettings;
+
+	// @ts-ignore defined in on load
+	fileMemo: SearchMemo<string>;
+	// @ts-ignore defined in on load;
+	commandMemo: SearchMemo<string>;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
+
+		this.fileMemo = new SearchMemo<string>();
+		this.commandMemo = new SearchMemo<string>();
 
 		this.addCommand({
 			id: 'open-search',
 			name: 'Open search',
 			callback: () => {
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), this.getFileData());
+				const data = this.getFileData();
+				const searchPlaceholders = [
+					{
+						title: 'Recently opened',
+						data: this.fileMemo.getMatching(data, (memo, data) => memo === data.data),
+					},
+				];
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data, searchPlaceholders);
 				searchController.onSubmit((data, modifiers) => {
+					this.fileMemo.add(data.data);
 					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
@@ -39,8 +56,16 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-alias-search',
 			name: 'Open alias search',
 			callback: () => {
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), this.getFileAliasData());
+				const data = this.getFileAliasData();
+				const searchPlaceholders = [
+					{
+						title: 'Recently opened',
+						data: this.fileMemo.getMatching(data, (memo, data) => memo === data.data),
+					},
+				];
+				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data, searchPlaceholders);
 				searchController.onSubmit((data, modifiers) => {
+					this.fileMemo.add(data.data);
 					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
@@ -52,8 +77,16 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-command-palette',
 			name: 'Open command palette',
 			callback: () => {
-				const searchController = new SearchController(this, new BasicSearchUIAdapter<Command>('Select a command...'), this.getCommandData());
+				const data = this.getCommandData();
+				const searchPlaceholders = [
+					{
+						title: 'Recently used',
+						data: this.commandMemo.getMatching(data, (memo, data) => memo === data.data.id),
+					},
+				];
+				const searchController = new SearchController(this, new BasicSearchUIAdapter<Command>('Select a command...'), data, searchPlaceholders);
 				searchController.onSubmit(data => {
+					this.fileMemo.add(data.data.id);
 					this.app.commands.executeCommand(data.data);
 				});
 
