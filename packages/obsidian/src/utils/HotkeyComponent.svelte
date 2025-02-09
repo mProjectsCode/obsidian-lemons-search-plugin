@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { icon } from "../utils";
+	import { icon } from "../utils/utils";
 
     const {
         hotkey = '',

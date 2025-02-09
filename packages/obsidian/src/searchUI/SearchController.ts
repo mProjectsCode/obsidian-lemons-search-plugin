@@ -44,7 +44,7 @@ export interface IndexedPlaceholderData<T> {
 	}[];
 }
 
-export function processSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchDatum<T>[], IndexedPlaceholderData<T>[]] {
+export function indexSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchDatum<T>[], IndexedPlaceholderData<T>[]] {
 	const indexedData = [];
 	const flatData = [];
 

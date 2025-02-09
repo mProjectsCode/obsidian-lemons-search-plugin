@@ -1,11 +1,11 @@
 <script lang="ts" generics="T">
 	import type { Modifier } from "obsidian";
 	import type { SearchResultDatum } from "packages/obsidian/src/searchUI/SearchController";
-	import { getEventModifiers, mod } from "packages/obsidian/src/utils";
 	import { onMount, untrack } from "svelte";
-	import { registerHotkeys, type HotkeyFunctionMap } from "../settings/Hotkeys";
-	import { processSearchPlaceholderData, type FullSearchUIProps } from "./SearchController";
+	import { indexSearchPlaceholderData, type FullSearchUIProps } from "./SearchController";
 	import SuggestionContentComponent from "./SuggestionContentComponent.svelte";
+	import type { HotkeyFunctionMap } from "../utils/Hotkeys";
+	import { mod } from "../utils/utils";
 
     let props: FullSearchUIProps<T> = $props();
     
@@ -13,7 +13,7 @@
     let searchString = $state('');
     let selection = $state(0);
     let results: SearchResultDatum<T>[] = $state([]);
-    let [placeholderData, indexedPlaceholderData] = processSearchPlaceholderData(props.placeholderData);
+    let [placeholderData, indexedPlaceholderData] = indexSearchPlaceholderData(props.placeholderData);
 
     let showPlaceholderData = $derived(searchString.length === 0 && indexedPlaceholderData.length > 0);
     let resultLength = $derived.by(() => {
@@ -94,14 +94,14 @@
         map.set("hotkeySearchFillSelection", () => {
             searchString = selectedElement?.content ?? "";
         });
-        map.set([{ modifiers: [], key: "Enter" }], (e) => {
-            submit(e);
+        map.set([{ modifiers: [], key: "Enter" }], (m) => {
+            submit(m);
         });
-        map.set([{ modifiers: [], key: "Esc" }], (e) => {
+        map.set([{ modifiers: [], key: "Esc" }], () => {
             props.onCancel();
         });
 
-        registerHotkeys(props.plugin, props.scope, map);
+        props.plugin.hotkeyHelper.registerHotkeysToScope(props.scope, map);
     });
 </script>
 
@@ -134,7 +134,7 @@
                     <div 
                         class="suggestion-item mod-complex"
                         class:is-selected={boundedSelection === datum.index}
-                        onclick={(e) => submit(getEventModifiers(e))}
+                        onclick={(e) => submit(props.plugin.hotkeyHelper.getEventModifiers(e))}
                         onmouseenter={() => selection = datum.index}
                         use:scrollToSelection={datum.index}
                         role="button"
@@ -154,7 +154,7 @@
                 <div 
                     class="suggestion-item mod-complex"
                     class:is-selected={boundedSelection === index}
-                    onclick={(e) => submit(getEventModifiers(e))}
+                    onclick={(e) => submit(props.plugin.hotkeyHelper.getEventModifiers(e))}
                     onmouseenter={() => selection = index}
                     use:scrollToSelection={index}
                     role="button"

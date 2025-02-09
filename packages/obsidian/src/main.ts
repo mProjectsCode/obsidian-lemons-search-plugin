@@ -1,17 +1,15 @@
-import type { Command, Hotkey, KeymapInfo } from 'obsidian';
-import { parseFrontMatterAliases, Plugin, TFile } from 'obsidian';
-import type { BookmarkItem } from 'obsidian-typings';
-import { PromptModal } from 'packages/obsidian/src/PromptModal';
-import { SearchModal } from 'packages/obsidian/src/SearchModal';
+import type { Command } from 'obsidian';
+import { Plugin, TFile } from 'obsidian';
+import { PromptModal } from 'packages/obsidian/src/modals/PromptModal';
+import { SearchModal } from 'packages/obsidian/src/modals/SearchModal';
+import { SearchDataHelper } from 'packages/obsidian/src/SearchDataHelper';
 import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
 import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/preview/PreviewSearchUIAdapter';
-import type { SearchData, SearchDatum, SearchPlaceholderData } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import { LemonsSearchSettingsTab } from 'packages/obsidian/src/settings/SettingTab';
-import { mapHotkey } from 'packages/obsidian/src/utils';
-import { SearchMemo } from 'packages/obsidian/src/utils/SearchMemo';
+import { HotkeyHelper } from 'packages/obsidian/src/utils/Hotkeys';
 
 // const DEBUG = true;
 
@@ -27,25 +25,25 @@ export default class LemonsSearchPlugin extends Plugin {
 	settings: LemonsSearchSettings;
 
 	// @ts-ignore defined in on load
-	fileMemo: SearchMemo<string>;
-	// @ts-ignore defined in on load;
-	commandMemo: SearchMemo<string>;
+	hotkeyHelper: HotkeyHelper;
+	// @ts-ignore defined in on load
+	searchData: SearchDataHelper;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		this.fileMemo = new SearchMemo<string>();
-		this.commandMemo = new SearchMemo<string>();
+		this.hotkeyHelper = new HotkeyHelper(this);
+		this.searchData = new SearchDataHelper(this);
 
 		this.addCommand({
 			id: 'open-search',
 			name: 'Open search',
 			callback: () => {
-				const rawData = this.getRawFileSearchData();
-				const data = this.getFileSearchData(rawData);
+				const rawData = this.searchData.getRawFiles();
+				const data = this.searchData.getFiles(rawData);
 				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data);
 				searchController.onSubmit((data, modifiers) => {
-					this.fileMemo.add(data.data);
+					this.searchData.onFileOpen(data);
 					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
@@ -57,11 +55,11 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-alias-search',
 			name: 'Open alias search',
 			callback: () => {
-				const rawData = this.getRawFileAliasSearchData();
-				const data = this.getFileSearchData(rawData);
+				const rawData = this.searchData.getRawFileAliases();
+				const data = this.searchData.getFiles(rawData);
 				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data);
 				searchController.onSubmit((data, modifiers) => {
-					this.fileMemo.add(data.data);
+					this.searchData.onFileOpen(data);
 					this.openFile(data.data, modifiers.includes('Mod'));
 				});
 
@@ -73,14 +71,11 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-command-palette',
 			name: 'Open command palette',
 			callback: () => {
-				const rawData = this.getCommandData();
-				const data = {
-					data: rawData,
-					placeholders: [this.getRecentCommandsSearchPlaceholderData(rawData)],
-				};
+				const rawData = this.searchData.getRawCommands();
+				const data = this.searchData.getCommands(rawData);
 				const searchController = new SearchController(this, new BasicSearchUIAdapter<Command>('Select a command...'), data);
 				searchController.onSubmit(data => {
-					this.commandMemo.add(data.data.id);
+					this.searchData.onCommandExecute(data);
 					this.app.commands.executeCommand(data.data);
 				});
 
@@ -103,86 +98,6 @@ export default class LemonsSearchPlugin extends Plugin {
 
 	getFiles(): TFile[] {
 		return this.app.vault.getAllLoadedFiles().filter(file => file instanceof TFile);
-	}
-
-	getRawFileSearchData(): SearchDatum<string>[] {
-		return this.getFiles().map(file => ({ content: file.path, data: file.path }));
-	}
-
-	getRawFileAliasSearchData(): SearchDatum<string>[] {
-		return this.getFiles().flatMap(file => {
-			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			const aliases = [file.basename, ...(parseFrontMatterAliases(metadata) ?? [])];
-			return aliases.map(alias => {
-				return {
-					content: alias,
-					subText: file.path,
-					data: file.path,
-				};
-			});
-		});
-	}
-
-	getBookmarkSearchPlaceholderData(data: SearchDatum<string>[]): SearchPlaceholderData<string> | undefined {
-		const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
-		if (!bookmarksPlugin) {
-			return undefined;
-		}
-
-		const bookmarks = bookmarksPlugin.instance.getBookmarks();
-		const matchingBookmarks = [];
-
-		for (const bookmark of bookmarks) {
-			if (bookmark.type !== 'file') {
-				continue;
-			}
-
-			const path = (bookmark as BookmarkItem & { path: string }).path;
-			const datum = data.find(d => d.data === path);
-			if (datum) {
-				matchingBookmarks.push(datum);
-			}
-		}
-
-		return {
-			title: 'Bookmarks',
-			data: matchingBookmarks,
-		};
-	}
-
-	getRecentFilesSearchPlaceholderData(data: SearchDatum<string>[]): SearchPlaceholderData<string> {
-		return {
-			title: 'Recently opened',
-			data: this.fileMemo.getMatching(data, (memo, data) => memo === data.data),
-		};
-	}
-
-	getFileSearchData(rawData: SearchDatum<string>[]): SearchData<string> {
-		return {
-			data: rawData,
-			placeholders: [this.getRecentFilesSearchPlaceholderData(rawData), this.getBookmarkSearchPlaceholderData(rawData)].filter(x => x !== undefined),
-		};
-	}
-
-	getCommandData(): SearchDatum<Command>[] {
-		return this.app.commands.listCommands().map(command => {
-			const commandManagerKeys = this.app.hotkeyManager.getHotkeys(command.id) as (KeymapInfo | Hotkey)[] | undefined;
-			const keys = commandManagerKeys?.map(hotkey => mapHotkey(hotkey)) ?? command.hotkeys?.map(hotkey => mapHotkey(hotkey));
-
-			return {
-				content: command.name,
-				hotKeys: keys,
-				subText: command.id,
-				data: command,
-			};
-		});
-	}
-
-	getRecentCommandsSearchPlaceholderData(data: SearchDatum<Command>[]): SearchPlaceholderData<Command> {
-		return {
-			title: 'Recently used',
-			data: this.commandMemo.getMatching(data, (memo, data) => memo === data.data.id),
-		};
 	}
 
 	async readFile(path: string): Promise<string | undefined> {

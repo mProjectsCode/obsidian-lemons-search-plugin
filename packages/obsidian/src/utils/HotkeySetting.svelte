@@ -1,10 +1,12 @@
 <script lang="ts">
 	import SettingComponent from './SettingComponent.svelte';
 	import HotkeyComponent from './HotkeyComponent.svelte';
-	import { areObjectsEqual, getModifiersFromKeyMapCtx, icon, mapHotkey, MODIFIERS } from '../utils';
-	import type { Hotkey, KeymapEventHandler, Modifier, Scope } from 'obsidian';
+	import type { Hotkey, KeymapEventHandler, Scope } from 'obsidian';
+	import type LemonsSearchPlugin from '../main';
+	import { areObjectsEqual, icon } from './utils';
 
 	let {
+		plugin,
 		name = '',
 		description = '',
         hotkeys: _hotkeys,
@@ -12,6 +14,7 @@
         onUpdate,
 		scope,
 	}: {
+		plugin: LemonsSearchPlugin;
 		name?: string;
 		description?: string;
         hotkeys: Hotkey[];
@@ -35,12 +38,10 @@
 		listener = scope.register(null, null, (e, ctx) => {
 			e.stopPropagation();
 			e.preventDefault();
+			const hotkey = plugin.hotkeyHelper.keymapCtxToHotkey(ctx);
 
-			if (ctx && ctx.key && ctx.key !== 'Escape') {
-				hotkeys.push({
-					modifiers: getModifiersFromKeyMapCtx(ctx),
-					key: ctx.key,
-				});
+			if (hotkey && hotkey.key !== 'Escape') {
+				hotkeys.push(hotkey);
 				onUpdate($state.snapshot(hotkeys));
 			}
 			
@@ -63,7 +64,7 @@
 <SettingComponent name={name} description={description}>
     <span class="setting-command-hotkeys">
         {#each hotkeys as h, i}
-            <HotkeyComponent hotkey={mapHotkey(h)} onDelete={() => deleteHotkey(i)}></HotkeyComponent>
+            <HotkeyComponent hotkey={plugin.hotkeyHelper.stringifyHotkey(h)} onDelete={() => deleteHotkey(i)}></HotkeyComponent>
 		{:else}
 			{#if !recordingHotkey}
 				<span class="setting-hotkey mod-empty">Blank</span>

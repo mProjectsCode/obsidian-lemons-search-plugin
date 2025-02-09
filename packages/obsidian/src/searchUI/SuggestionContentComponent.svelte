@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-	import type { SearchDatum, SearchResultDatum } from './SearchController';
+	import type { SearchResultDatum } from './SearchController';
 
     interface Props {
         datum: SearchResultDatum<T>;
