@@ -38,6 +38,7 @@ const build = await esbuild.build({
 	outfile: 'main.js',
 	minify: true,
 	metafile: true,
+	conditions: ['browser', 'production'],
 	define: {
 		MB_GLOBAL_CONFIG_DEV_BUILD: 'false',
 	},

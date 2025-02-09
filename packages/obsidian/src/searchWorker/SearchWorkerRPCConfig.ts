@@ -12,21 +12,10 @@ export type SearchWorkerRPCHandlersMain = {
 	onInitialized: [];
 };
 
+/**
+ * A search result returned by Rust.
+ */
 export interface SearchResult {
 	index: number;
 	highlights: { text: string; highlight: boolean }[];
 }
-
-export interface SearchData<T> {
-	content: string;
-	subText?: string;
-	/**
-	 * Used to display the keyboard shortcut in the command palette.
-	 */
-	keys?: string[];
-	data: T;
-}
-
-export type NiceSearchResult<T> = SearchData<T> & {
-	highlights: { text: string; highlight: boolean }[];
-};

@@ -58,6 +58,10 @@ body {
 	color: var(--text-faint);
 }
 
+.lemons-search .suggestion-item.is-selected .suggestion-sub-text {
+	color: var(--text-muted);
+}
+
 .lemons-search .lemons-search--suggestion-group-header {
 	padding: var(--size-2-3);
 }
@@ -65,6 +69,10 @@ body {
 .lemons-search .lemons-search--suggestion-empty {
 	padding: var(--size-2-3) var(--size-4-3);
 	color: var(--text-faint);
+}
+
+.lemons-search .suggestion-item {
+	white-space: initial;
 }
 
 /* .lemons-search-modal .modal-content .prompt-results .suggestion-title {

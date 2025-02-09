@@ -1,4 +1,4 @@
-import type { SearchData } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import type { SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
 
 export const MAX_MEMO_SIZE = 10;
 
@@ -13,12 +13,12 @@ export class SearchMemo<T> {
 		return this.memo;
 	}
 
-	getMatching<U>(list: SearchData<U>[], matches: (memo: T, data: SearchData<U>) => boolean): SearchData<U>[] {
-		const matching: SearchData<U>[] = [];
+	getMatching<U>(data: SearchDatum<U>[], matches: (memo: T, datum: SearchDatum<U>) => boolean): SearchDatum<U>[] {
+		const matching: SearchDatum<U>[] = [];
 		for (const memo of this.memo) {
-			for (const data of list) {
-				if (matches(memo, data)) {
-					matching.push(data);
+			for (const datum of data) {
+				if (matches(memo, datum)) {
+					matching.push(datum);
 					break;
 				}
 			}

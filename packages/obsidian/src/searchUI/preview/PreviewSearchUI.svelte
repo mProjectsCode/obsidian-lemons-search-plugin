@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { NiceSearchResult } from "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig";
 	import { getPreview, PreviewType } from "packages/obsidian/src/searchUI/preview/Preview";
 	import MarkdownRenderer from "packages/obsidian/src/searchUI/MarkdownRenderer.svelte";
-	import type { FullSearchUIProps } from "../SearchController";
+	import type { FullSearchUIProps, SearchResultDatum } from "../SearchController";
 	import SearchComponent from "../SearchComponent.svelte";
 
     let props: FullSearchUIProps<string> = $props();
@@ -12,7 +11,7 @@
     let preview = $derived(getPreview(selectedValue, props.plugin));
     let search: ReturnType<typeof SearchComponent<string>> | undefined;
 
-    export function onSearchResults(r: NiceSearchResult<string>[]) {
+    export function onSearchResults(r: SearchResultDatum<string>[]) {
         search?.onSearchResults(r);
     }
 </script>

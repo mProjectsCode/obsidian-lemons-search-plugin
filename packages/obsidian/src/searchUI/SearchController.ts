@@ -4,24 +4,47 @@ import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
 // @ts-expect-error
 import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker';
-import type {
-	SearchWorkerRPCHandlersMain,
-	SearchWorkerRPCHandlersWorker,
-	SearchResult,
-	SearchData,
-} from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker, SearchResult } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+
+export interface SearchData<T> {
+	data: SearchDatum<T>[];
+	placeholders: SearchPlaceholderData<T>[];
+}
+
+/**
+ * A data point for the search.
+ */
+export interface SearchDatum<T> {
+	content: string;
+	subText?: string;
+	/**
+	 * Used to display the keyboard shortcut in the command palette.
+	 */
+	hotKeys?: string[];
+	data: T;
+}
+
+/**
+ * A search datum with highlights.
+ */
+export type SearchResultDatum<T> = SearchDatum<T> & {
+	highlights?: { text: string; highlight: boolean }[];
+};
 
 export interface SearchPlaceholderData<T> {
 	title: string;
-	data: SearchData<T>[];
+	data: SearchDatum<T>[];
 }
 
 export interface IndexedPlaceholderData<T> {
 	title: string;
-	data: [number, SearchData<T>][];
+	data: {
+		d: SearchDatum<T>;
+		index: number;
+	}[];
 }
 
-export function processSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchData<T>[], IndexedPlaceholderData<T>[]] {
+export function processSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchDatum<T>[], IndexedPlaceholderData<T>[]] {
 	const indexedData = [];
 	const flatData = [];
 
@@ -32,7 +55,10 @@ export function processSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]
 		};
 
 		for (const searchData of placeholder.data) {
-			indexedDatum.data.push([flatData.length, searchData]);
+			indexedDatum.data.push({
+				d: searchData,
+				index: flatData.length,
+			});
 			flatData.push(searchData);
 		}
 
@@ -48,7 +74,7 @@ export interface SearchUIProps<T> {
 	scope: Scope;
 	placeholderData: SearchPlaceholderData<T>[];
 	search: (s: string) => void;
-	onSubmit: (data: SearchData<T>, modifiers: Modifier[]) => void;
+	onSubmit: (data: SearchDatum<T>, modifiers: Modifier[]) => void;
 	onCancel: () => void;
 }
 
@@ -64,11 +90,10 @@ export class SearchController<T> {
 
 	worker?: Worker;
 	targetEl?: HTMLElement;
-	onSubmitCBs: ((data: SearchData<T>, modifiers: Modifier[]) => void)[];
+	onSubmitCBs: ((data: SearchDatum<T>, modifiers: Modifier[]) => void)[];
 	onCancelCBs: (() => void)[];
 	RPC?: RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>;
-	data: SearchData<T>[];
-	placeholderData: SearchPlaceholderData<T>[];
+	data: SearchData<T>;
 	ui: SearchUI<T>;
 
 	searchQueueSlot: string | undefined;
@@ -77,18 +102,17 @@ export class SearchController<T> {
 
 	// searchComponent: ReturnType<typeof SearchUIComponent>;
 
-	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>[], placeholderData: SearchPlaceholderData<T>[] = []) {
+	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>) {
 		this.plugin = plugin;
 		this.onSubmitCBs = [];
 		this.onCancelCBs = [];
 		this.data = data;
-		this.placeholderData = placeholderData;
 		this.ui = ui;
 
 		this.uuid = crypto.randomUUID();
 	}
 
-	onSubmit(cb: (data: SearchData<T>, modifiers: Modifier[]) => void): void {
+	onSubmit(cb: (data: SearchDatum<T>, modifiers: Modifier[]) => void): void {
 		this.onSubmitCBs.push(cb);
 	}
 
@@ -102,9 +126,9 @@ export class SearchController<T> {
 			plugin: this.plugin,
 			targetEl: this.targetEl,
 			scope,
-			placeholderData: this.placeholderData,
+			placeholderData: this.data.placeholders,
 			search: (s: string) => this.search(s),
-			onSubmit: (data: SearchData<T>, modifiers: Modifier[]) => {
+			onSubmit: (data: SearchDatum<T>, modifiers: Modifier[]) => {
 				this.onSubmitCBs.forEach(cb => cb(data, modifiers));
 			},
 			onCancel: () => {
@@ -121,7 +145,7 @@ export class SearchController<T> {
 				this.searchWorkerInitialized = true;
 				this.RPC?.call(
 					'updateIndex',
-					this.data.map(d => d.content),
+					this.data.data.map(d => d.content),
 				);
 				this.startSearch();
 			},
@@ -156,7 +180,7 @@ export class SearchController<T> {
 
 		this.ui.onSearchResults(
 			result.map(r => ({
-				...this.data[r.index],
+				...this.data.data[r.index],
 				highlights: r.highlights,
 			})),
 		);

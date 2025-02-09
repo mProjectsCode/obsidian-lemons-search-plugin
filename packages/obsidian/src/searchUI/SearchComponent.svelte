@@ -1,17 +1,18 @@
 <script lang="ts" generics="T">
 	import type { Modifier } from "obsidian";
-	import type { NiceSearchResult } from "packages/obsidian/src/searchWorker/SearchWorkerRPCConfig";
+	import type { SearchResultDatum } from "packages/obsidian/src/searchUI/SearchController";
 	import { getEventModifiers, mod } from "packages/obsidian/src/utils";
-	import { onMount } from "svelte";
+	import { onMount, untrack } from "svelte";
 	import { registerHotkeys, type HotkeyFunctionMap } from "../settings/Hotkeys";
 	import { processSearchPlaceholderData, type FullSearchUIProps } from "./SearchController";
+	import SuggestionContentComponent from "./SuggestionContentComponent.svelte";
 
     let props: FullSearchUIProps<T> = $props();
     
     let inputEl: HTMLInputElement | undefined;
     let searchString = $state('');
     let selection = $state(0);
-    let results: NiceSearchResult<T>[] = $state([]);
+    let results: SearchResultDatum<T>[] = $state([]);
     let [placeholderData, indexedPlaceholderData] = processSearchPlaceholderData(props.placeholderData);
 
     let showPlaceholderData = $derived(searchString.length === 0 && indexedPlaceholderData.length > 0);
@@ -42,15 +43,18 @@
 
     let selectedValue: T | undefined = $state();
     $effect(() => {
-        if (selectedElement?.data !== selectedValue) {
-            selectedValue = selectedElement?.data;
-        }
+        const selected = selectedElement?.data;
+        untrack(() => {
+            if (selected !== selectedValue) {
+                selectedValue = selected;
+            }
+        });
     });
     $effect(() => {
         props.onSelectedElementChange?.(selectedValue);
     });
 
-    export function onSearchResults(r: NiceSearchResult<T>[]) {
+    export function onSearchResults(r: SearchResultDatum<T>[]) {
         results = r;
     }
 
@@ -72,7 +76,6 @@
     onMount(() => {
         console.log(placeholderData, indexedPlaceholderData);
         
-
         inputEl?.focus();
 
         const map: HotkeyFunctionMap = new Map();
@@ -125,23 +128,18 @@
                 <div class="lemons-search--suggestion-group-header">
                     <strong>{indexedPlaceholder.title}</strong>
                 </div>
-                {#each indexedPlaceholder.data as d}
-                    {@const [index, data] = d}
+                {#each indexedPlaceholder.data as datum}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_interactive_supports_focus -->
                     <div 
-                        class="suggestion-item mod-simple"
-                        class:is-selected={boundedSelection === index}
+                        class="suggestion-item mod-complex"
+                        class:is-selected={boundedSelection === datum.index}
                         onclick={(e) => submit(getEventModifiers(e))}
-                        onmouseenter={() => selection = index}
-                        use:scrollToSelection={index}
+                        onmouseenter={() => selection = datum.index}
+                        use:scrollToSelection={datum.index}
                         role="button"
                     >
-                        <div class="suggestion-content">
-                            <div class="suggestion-title">
-                                {data.content}
-                            </div>
-                        </div>
+                        <SuggestionContentComponent datum={datum.d}></SuggestionContentComponent>
                     </div>
                 {:else}
                     <div class="lemons-search--suggestion-empty">
@@ -150,7 +148,7 @@
                 {/each}
             {/each}
         {:else}
-            {#each results as result, index}
+            {#each results as datum, index}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <div 
@@ -161,27 +159,7 @@
                     use:scrollToSelection={index}
                     role="button"
                 >
-                    <div class="suggestion-content">
-                        <div class="suggestion-title">
-                            {#each result.highlights as h}
-                                {#if h.highlight}
-                                    <span class="suggestion-highlight">{h.text}</span>
-                                {:else}
-                                    <span>{h.text}</span>
-                                {/if}
-                            {/each}
-                        </div>
-                        {#if result.subText}
-                            <small class="suggestion-sub-text">{result.subText}</small>
-                        {/if}
-                    </div>
-                    {#if result.keys && result.keys.length > 0}
-                        <div class="suggestion-aux">
-                            {#each result.keys as key}
-                                <kbd class="suggestion-hotkey">{key}</kbd>
-                            {/each}
-                        </div>
-                    {/if}
+                    <SuggestionContentComponent datum={datum}></SuggestionContentComponent>
                 </div>
             {:else}
                 <div class="lemons-search--suggestion-empty">

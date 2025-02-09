@@ -1,7 +1,6 @@
 import SearchComponent from 'packages/obsidian/src/searchUI/SearchComponent.svelte';
-import type { FullSearchUIProps, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
+import type { FullSearchUIProps, SearchResultDatum, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import type { NiceSearchResult } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 import { mount, unmount } from 'svelte';
 
 /**
@@ -32,7 +31,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 		}
 	}
 
-	onSearchResults(results: NiceSearchResult<T>[]): void {
+	onSearchResults(results: SearchResultDatum<T>[]): void {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		this.component?.onSearchResults(results);
 	}

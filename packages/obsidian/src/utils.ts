@@ -1,4 +1,4 @@
-import type { Hotkey, KeymapContext, Modifier } from 'obsidian';
+import type { Hotkey, KeymapContext, KeymapInfo, Modifier } from 'obsidian';
 import { Platform, setIcon } from 'obsidian';
 
 export function mod(n: number, m: number): number {
@@ -72,13 +72,14 @@ export const MODIFIERS: Modifier[] = ['Mod', 'Ctrl', 'Meta', 'Alt', 'Shift'];
 
 export const HOTKEY_SEPARATOR = ' + ';
 
-export function mapHotkey(hotkey: Hotkey): string {
-	const key = mapKey(hotkey.key);
-	if (hotkey.modifiers.length === 0) {
+export function mapHotkey(hotkey: KeymapInfo | Hotkey): string {
+	const key = mapKey(hotkey.key ?? 'None');
+	if (!hotkey.modifiers || hotkey.modifiers.length === 0) {
 		return key;
 	}
 
-	const modifiers = hotkey.modifiers.map(modifier => MODIFIER_KEY_MAP[modifier]);
+	const rawModifiers = parseModifiers(hotkey.modifiers);
+	const modifiers = rawModifiers.map(modifier => MODIFIER_KEY_MAP[modifier]);
 	return modifiers.join(HOTKEY_SEPARATOR) + HOTKEY_SEPARATOR + key;
 }
 
@@ -91,7 +92,22 @@ export function icon(node: HTMLElement, name: string): void {
 }
 
 export function getModifiersFromKeyMapCtx(ctx: KeymapContext): Modifier[] {
-	return (ctx.modifiers?.split(',').filter(x => MODIFIERS.contains(x as Modifier)) ?? []) as Modifier[];
+	return parseModifiers(ctx.modifiers);
+}
+
+export function parseModifiers(modifiers: string | string[] | null | undefined): Modifier[] {
+	if (!modifiers) {
+		return [];
+	}
+
+	let modifiersArray: string[] = [];
+	if (typeof modifiers === 'string') {
+		modifiersArray = modifiers.split(',').map(m => m.trim() as Modifier);
+	} else {
+		modifiersArray = modifiers;
+	}
+
+	return modifiersArray.filter(m => MODIFIERS.contains(m as Modifier)) as Modifier[];
 }
 
 export function areObjectsEqual(obj1: unknown, obj2: unknown): boolean {
