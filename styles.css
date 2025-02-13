@@ -20,10 +20,13 @@ body {
 	flex-direction: row;
 	gap: var(--size-4-3);
 	height: var(--lsearch-height);
+	overflow-y: hidden;
 }
 
 .lemons-search--preview-search .lemons-search--search {
 	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 .lemons-search--preview-search .lemons-search--search input {
