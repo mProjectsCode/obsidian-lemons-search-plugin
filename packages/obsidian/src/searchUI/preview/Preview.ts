@@ -64,6 +64,8 @@ export async function getPreview(path: string | undefined, plugin: LemonsSearchP
 			return { type: PreviewType.EMPTY_TEXT };
 		}
 		return { type: PreviewType.TEXT, content };
+	} else if (path.endsWith('.pdf')) {
+		return { type: PreviewType.MARKDOWN, content: `![[${path}]]` };
 	} else if (IMAGE_EXTENSIONS.some(ext => path.endsWith(ext))) {
 		const content = plugin.getResourcePath(path);
 

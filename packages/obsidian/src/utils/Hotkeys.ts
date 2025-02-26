@@ -102,7 +102,7 @@ export class HotkeyHelper {
 		}
 
 		const modifiers = this.parseModifiers(hotkey.modifiers);
-		return key + HOTKEY_SEPARATOR + this.stringifyModifiers(modifiers);
+		return this.stringifyModifiers(modifiers) + HOTKEY_SEPARATOR + key;
 	}
 
 	stringifyHotkeys(hotkeys: (KeymapInfo | Hotkey | null | undefined)[] | null | undefined): string[] | undefined {
