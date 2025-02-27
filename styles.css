@@ -8,6 +8,7 @@ body {
 
 .lemons-search--modal {
 	min-width: 80%;
+	min-height: 80%;
 	padding: revert;
 }
 

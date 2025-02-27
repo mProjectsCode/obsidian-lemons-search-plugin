@@ -14,7 +14,7 @@ default = ["console_error_panic_hook"]
 wasm-bindgen = "=0.2.100"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 nucleo-matcher = "0.3.1"
-itertools = "0.13.0"
+itertools = "0.14.0"
 web-sys = { version = "0.3.77", features = ["Worker"] }
 
 [dev-dependencies]
