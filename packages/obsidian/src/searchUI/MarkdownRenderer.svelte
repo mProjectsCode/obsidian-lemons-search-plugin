@@ -6,12 +6,14 @@
         markdown: string;
         sourcePath: string;
         app: App;
+        inert: boolean;
     }
 
     let { 
         markdown, 
         sourcePath,
-        app
+        app,
+        inert
     }: Props = $props();
 
     let component: Component | undefined = undefined;
@@ -36,4 +38,4 @@
     })
 </script>
 
-<div bind:this={element}></div>
+<div inert={inert} bind:this={element}></div>

@@ -29,7 +29,12 @@
         {:then p}
             {#if p.type === PreviewType.MARKDOWN}
                 <div class="preview-text markdown-rendered markdown-preview-view">
-                    <MarkdownRenderer app={props.plugin.app} markdown={p.content} sourcePath={selectedValue ?? ""}></MarkdownRenderer>
+                    <MarkdownRenderer 
+                        app={props.plugin.app} 
+                        markdown={p.content} 
+                        sourcePath={selectedValue ?? ""} 
+                        inert={true}
+                    ></MarkdownRenderer>
                 </div>
             {:else if p.type === PreviewType.TEXT}
                 <div class="preview-text">
