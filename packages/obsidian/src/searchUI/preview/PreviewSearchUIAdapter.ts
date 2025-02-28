@@ -10,16 +10,16 @@ import { mount, unmount } from 'svelte';
  */
 export class PreviewSearchUIAdapter implements SearchUI<string> {
 	component?: ReturnType<typeof PreviewSearchUI>;
-	searchPlaceholder: string;
+	prompt: string;
 
-	constructor(searchPlaceholder: string) {
-		this.searchPlaceholder = searchPlaceholder;
+	constructor(prompt: string) {
+		this.prompt = prompt;
 	}
 
 	create(props: SearchUIProps<string>): void {
 		this.component = mount(PreviewSearchUI, {
 			target: props.targetEl,
-			props: { ...props, searchPlaceholder: this.searchPlaceholder },
+			props: { ...props, prompt: this.prompt },
 		});
 	}
 

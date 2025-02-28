@@ -79,7 +79,7 @@ export interface SearchUIProps<T> {
 }
 
 export type FullSearchUIProps<T> = SearchUIProps<T> & {
-	searchPlaceholder: string;
+	prompt: string;
 	onSelectedElementChange?: (selected: T | undefined) => void;
 	cssClasses?: string;
 };

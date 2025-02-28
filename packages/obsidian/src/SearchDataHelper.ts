@@ -5,6 +5,15 @@ import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import type { SearchData, SearchDatum, SearchPlaceholderData } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchMemo } from 'packages/obsidian/src/utils/SearchMemo';
 
+export interface FileSearchPlaceholders {
+	recentFiles: boolean;
+	bookmarks: boolean;
+}
+
+export interface CommandSearchPlaceholders {
+	recentCommands: boolean;
+}
+
 export class SearchDataHelper {
 	plugin: LemonsSearchPlugin;
 
@@ -70,15 +79,18 @@ export class SearchDataHelper {
 		};
 	}
 
-	getFiles(rawData: SearchDatum<string>[]): SearchData<string> {
+	getFiles(rawData: SearchDatum<string>[], placeholders: FileSearchPlaceholders | undefined): SearchData<string> {
 		return {
 			data: rawData,
-			placeholders: [this.getPlaceholderRecentFiles(rawData), this.getPlaceholderBookmark(rawData)].filter(x => x !== undefined),
+			placeholders: [
+				placeholders?.recentFiles ? this.getPlaceholderRecentFiles(rawData) : undefined,
+				placeholders?.bookmarks ? this.getPlaceholderBookmark(rawData) : undefined,
+			].filter(x => x !== undefined),
 		};
 	}
 
-	onFileOpen(datum: SearchDatum<string>): void {
-		this.fileMemo.add(datum.data);
+	pushRecentFile(filePath: string): void {
+		this.fileMemo.add(filePath);
 	}
 
 	getRawCommands(): SearchDatum<Command>[] {
@@ -102,14 +114,14 @@ export class SearchDataHelper {
 		};
 	}
 
-	getCommands(rawData: SearchDatum<Command>[]): SearchData<Command> {
+	getCommands(rawData: SearchDatum<Command>[], placeholders?: CommandSearchPlaceholders): SearchData<Command> {
 		return {
 			data: rawData,
-			placeholders: [this.getPlaceholderRecentCommands(rawData)],
+			placeholders: [placeholders?.recentCommands ? this.getPlaceholderRecentCommands(rawData) : undefined].filter(x => x !== undefined),
 		};
 	}
 
-	onCommandExecute(datum: SearchDatum<Command>): void {
-		this.commandMemo.add(datum.data.id);
+	pushRecentCommand(commandId: string): void {
+		this.commandMemo.add(commandId);
 	}
 }

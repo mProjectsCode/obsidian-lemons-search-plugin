@@ -1,11 +1,6 @@
-import type { Command } from 'obsidian';
 import { Plugin, TFile } from 'obsidian';
-import { PromptModal } from 'packages/obsidian/src/modals/PromptModal';
-import { SearchModal } from 'packages/obsidian/src/modals/SearchModal';
+import { API, FileSearchType, SearchUIType } from 'packages/obsidian/src/API';
 import { SearchDataHelper } from 'packages/obsidian/src/SearchDataHelper';
-import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
-import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/preview/PreviewSearchUIAdapter';
-import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import { LemonsSearchSettingsTab } from 'packages/obsidian/src/settings/SettingTab';
@@ -28,26 +23,31 @@ export default class LemonsSearchPlugin extends Plugin {
 	hotkeyHelper: HotkeyHelper;
 	// @ts-ignore defined in on load
 	searchData: SearchDataHelper;
+	// @ts-ignore defined in on load
+	api: API;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
 		this.hotkeyHelper = new HotkeyHelper(this);
 		this.searchData = new SearchDataHelper(this);
+		this.api = new API(this);
 
 		this.addCommand({
 			id: 'open-search',
 			name: 'Open search',
 			callback: () => {
-				const rawData = this.searchData.getRawFiles();
-				const data = this.searchData.getFiles(rawData);
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data);
-				searchController.onSubmit((data, modifiers) => {
-					this.searchData.onFileOpen(data);
-					this.openFile(data.data, modifiers.includes('Mod'));
+				this.api.searchFiles({
+					ui: SearchUIType.Preview,
+					type: FileSearchType.FilePath,
+					placeholders: {
+						recentFiles: true,
+						bookmarks: true,
+					},
+					onSubmit: (data, modifiers) => {
+						this.openFile(data.data, modifiers.includes('Mod'));
+					},
 				});
-
-				new SearchModal(this, searchController).open();
 			},
 		});
 
@@ -55,15 +55,17 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-alias-search',
 			name: 'Open alias search',
 			callback: () => {
-				const rawData = this.searchData.getRawFileAliases();
-				const data = this.searchData.getFiles(rawData);
-				const searchController = new SearchController(this, new PreviewSearchUIAdapter('Find a note...'), data);
-				searchController.onSubmit((data, modifiers) => {
-					this.searchData.onFileOpen(data);
-					this.openFile(data.data, modifiers.includes('Mod'));
+				this.api.searchFiles({
+					ui: SearchUIType.Preview,
+					type: FileSearchType.Alias,
+					placeholders: {
+						recentFiles: true,
+						bookmarks: true,
+					},
+					onSubmit: (data, modifiers) => {
+						this.openFile(data.data, modifiers.includes('Mod'));
+					},
 				});
-
-				new SearchModal(this, searchController).open();
 			},
 		});
 
@@ -71,15 +73,14 @@ export default class LemonsSearchPlugin extends Plugin {
 			id: 'open-command-palette',
 			name: 'Open command palette',
 			callback: () => {
-				const rawData = this.searchData.getRawCommands();
-				const data = this.searchData.getCommands(rawData);
-				const searchController = new SearchController(this, new BasicSearchUIAdapter<Command>('Select a command...'), data);
-				searchController.onSubmit(data => {
-					this.searchData.onCommandExecute(data);
-					this.app.commands.executeCommand(data.data);
+				this.api.searchCommands({
+					placeholders: {
+						recentCommands: true,
+					},
+					onSubmit: (data, _) => {
+						this.app.commands.executeCommand(data.data);
+					},
 				});
-
-				new PromptModal(this, searchController).open();
 			},
 		});
 

@@ -8,10 +8,10 @@ import { mount, unmount } from 'svelte';
  */
 export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 	component?: ReturnType<typeof SearchComponent>;
-	searchPlaceholder: string;
+	prompt: string;
 
-	constructor(searchPlaceholder: string) {
-		this.searchPlaceholder = searchPlaceholder;
+	constructor(prompt: string) {
+		this.prompt = prompt;
 	}
 
 	create(props: SearchUIProps<T>): void {
@@ -19,7 +19,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 			target: props.targetEl,
 			props: {
 				...props,
-				searchPlaceholder: this.searchPlaceholder,
+				prompt: this.prompt,
 				cssClasses: 'prompt lemons-search',
 			} as FullSearchUIProps<unknown>,
 		});

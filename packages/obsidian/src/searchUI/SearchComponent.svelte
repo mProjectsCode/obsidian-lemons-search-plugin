@@ -113,7 +113,7 @@
             autocapitalize="off" 
             spellcheck="false" 
             enterkeyhint="done"  
-            placeholder={props.searchPlaceholder}
+            placeholder={props.prompt}
             bind:value={searchString}
             bind:this={inputEl}
         >
