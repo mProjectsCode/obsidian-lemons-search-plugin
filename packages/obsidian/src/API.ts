@@ -1,5 +1,6 @@
 import type { Command, Modifier } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
+import { PromptModal } from 'packages/obsidian/src/modals/PromptModal';
 import { SearchModal } from 'packages/obsidian/src/modals/SearchModal';
 import type { CommandSearchPlaceholders, FileSearchPlaceholders } from 'packages/obsidian/src/SearchDataHelper';
 import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
@@ -86,25 +87,10 @@ export class API {
 	 * @param options See {@link FileSearchOptions}.
 	 */
 	public searchFiles(options: FileSearchOptions): void {
-		let rawData;
-		if (options.type === FileSearchType.FilePath) {
-			rawData = this.plugin.searchData.getRawFiles();
-		} else if (options.type === FileSearchType.Alias) {
-			rawData = this.plugin.searchData.getRawFileAliases();
-		} else {
-			throw new Error('Invalid file search type');
-		}
-
-		let searchUI: SearchUI<string>;
-		if (options.ui === SearchUIType.Basic) {
-			searchUI = new BasicSearchUIAdapter(options.prompt ?? 'Find a note...');
-		} else if (options.ui === SearchUIType.Preview) {
-			searchUI = new PreviewSearchUIAdapter(options.prompt ?? 'Find a note...');
-		} else {
-			throw new Error('Invalid search UI type');
-		}
-
+		const rawData = this.plugin.searchData.getRawFileData(options.type);
 		const data = this.plugin.searchData.getFiles(rawData, options.placeholders);
+
+		const searchUI = this.getUIAdapterForFileSearch(options.ui, options.prompt ?? 'Select a file...');
 		const searchController = new SearchController<string>(this.plugin, searchUI, data);
 		searchController.onSubmit((data, modifiers) => {
 			if (options.placeholders?.recentFiles) {
@@ -113,7 +99,7 @@ export class API {
 			options.onSubmit(data, modifiers);
 		});
 
-		new SearchModal(this.plugin, searchController).open();
+		this.openModal(options.ui, searchController);
 	}
 
 	/**
@@ -124,6 +110,7 @@ export class API {
 	public searchCommands(options: CommandSearchOptions): void {
 		const rawData = this.plugin.searchData.getRawCommands();
 		const data = this.plugin.searchData.getCommands(rawData, options.placeholders);
+
 		const searchUI = new BasicSearchUIAdapter<Command>(options.prompt ?? 'Select a command...');
 		const searchController = new SearchController<Command>(this.plugin, searchUI, data);
 		searchController.onSubmit((data, modifiers) => {
@@ -133,6 +120,26 @@ export class API {
 			options.onSubmit(data, modifiers);
 		});
 
-		new SearchModal(this.plugin, searchController).open();
+		this.openModal(SearchUIType.Basic, searchController);
+	}
+
+	public openModal<T>(uiType: SearchUIType, controller: SearchController<T>): void {
+		if (uiType === SearchUIType.Basic) {
+			new PromptModal(this.plugin, controller).open();
+		} else if (uiType === SearchUIType.Preview) {
+			new SearchModal(this.plugin, controller).open();
+		} else {
+			throw new Error('Invalid search UI type');
+		}
+	}
+
+	public getUIAdapterForFileSearch(uiType: SearchUIType, prompt: string): SearchUI<string> {
+		if (uiType === SearchUIType.Basic) {
+			return new BasicSearchUIAdapter(prompt);
+		} else if (uiType === SearchUIType.Preview) {
+			return new PreviewSearchUIAdapter(prompt);
+		} else {
+			throw new Error('Invalid search UI type');
+		}
 	}
 }

@@ -1,6 +1,7 @@
 import type { Command } from 'obsidian';
 import { parseFrontMatterAliases } from 'obsidian';
 import type { BookmarkItem } from 'obsidian-typings';
+import { FileSearchType } from 'packages/obsidian/src/API';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import type { SearchData, SearchDatum, SearchPlaceholderData } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchMemo } from 'packages/obsidian/src/utils/SearchMemo';
@@ -25,6 +26,16 @@ export class SearchDataHelper {
 
 		this.fileMemo = new SearchMemo<string>();
 		this.commandMemo = new SearchMemo<string>();
+	}
+
+	getRawFileData(searchType: FileSearchType): SearchDatum<string>[] {
+		if (searchType === FileSearchType.FilePath) {
+			return this.getRawFiles();
+		} else if (searchType === FileSearchType.Alias) {
+			return this.getRawFileAliases();
+		} else {
+			throw new Error('Invalid file search type');
+		}
 	}
 
 	getRawFiles(): SearchDatum<string>[] {

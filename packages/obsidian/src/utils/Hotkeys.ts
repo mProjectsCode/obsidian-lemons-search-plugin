@@ -76,12 +76,14 @@ export class HotkeyHelper {
 			}
 
 			for (const hotkey of hotkeys) {
-				scope.register(hotkey.modifiers, hotkey.key, (e, ctx) => {
+				const keyModifiers = hotkey.modifiers.length > 0 ? hotkey.modifiers : null;
+				scope.register(keyModifiers, hotkey.key, (e, ctx) => {
 					e.stopPropagation();
 					e.preventDefault();
 
-					const modifiers = this.parseModifiers(ctx.modifiers);
-					cb(modifiers);
+					const pressedModifiers = this.parseModifiers(ctx.modifiers);
+					console.log('Hotkey pressed:', this.stringifyHotkey(hotkey), pressedModifiers);
+					cb(pressedModifiers);
 				});
 			}
 		}
@@ -128,6 +130,16 @@ export class HotkeyHelper {
 		}
 
 		const modifiersArray: string[] = Array.isArray(modifiers) ? modifiers : modifiers.split(',').map(m => m.trim() as Modifier);
+
+		if (Platform.isMacOS) {
+			if (modifiersArray.includes('Meta')) {
+				modifiersArray.push('Mod');
+			}
+		} else {
+			if (modifiersArray.includes('Ctrl')) {
+				modifiersArray.push('Mod');
+			}
+		}
 
 		return modifiersArray.filter(m => MODIFIERS.contains(m as Modifier)) as Modifier[];
 	}

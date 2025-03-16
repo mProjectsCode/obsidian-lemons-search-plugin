@@ -74,8 +74,6 @@
     }
 
     onMount(() => {
-        console.log(placeholderData, indexedPlaceholderData);
-        
         inputEl?.focus();
 
         const map: HotkeyFunctionMap = new Map();
