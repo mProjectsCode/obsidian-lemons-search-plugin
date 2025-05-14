@@ -2,25 +2,36 @@ import type { Modifier, Scope } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-// @ts-expect-error
 import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker';
-import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker, SearchResult } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+// @ts-expect-error
 
 export interface SearchData<T> {
 	data: SearchDatum<T>[];
-	placeholders: SearchPlaceholderData<T>[];
+	placeholders: SearchPlaceholderCategory<T>[];
 }
 
 /**
  * A data point for the search.
  */
 export interface SearchDatum<T> {
+	/**
+	 * The text that the search acts on.
+	 */
 	content: string;
+	/**
+	 * Smaller text to display below the highlighted content.
+	 * This is not used in the search.
+	 */
 	subText?: string;
 	/**
 	 * Used to display the keyboard shortcut in the command palette.
 	 */
 	hotKeys?: string[];
+	/**
+	 * Some extra data associated with the search datum.
+	 * This is passed to the `onSubmit` callback when the user selects the search datum.
+	 */
 	data: T;
 }
 
@@ -31,48 +42,69 @@ export type SearchResultDatum<T> = SearchDatum<T> & {
 	highlights?: { text: string; highlight: boolean }[];
 };
 
-export interface SearchPlaceholderData<T> {
+/**
+ * A search result returned by Rust.
+ * To minimize the amount of data that is transferred between the worker and the main thread,
+ * we only send the index of the search datum and the highlights.
+ */
+export interface SearchResult {
+	index: number;
+	highlights: { text: string; highlight: boolean }[];
+}
+
+export interface SearchPlaceholderCategory<T> {
 	title: string;
 	data: SearchDatum<T>[];
 }
 
-export interface IndexedPlaceholderData<T> {
+export interface IndexedPlaceholderCategory {
 	title: string;
-	data: {
-		d: SearchDatum<T>;
-		index: number;
-	}[];
+	startIndex: number;
+	endIndex: number;
 }
 
-export function indexSearchPlaceholderData<T>(data: SearchPlaceholderData<T>[]): [SearchDatum<T>[], IndexedPlaceholderData<T>[]] {
-	const indexedData = [];
-	const flatData = [];
+export class IndexedPlaceholderCategories<T> {
+	data: SearchDatum<T>[];
+	categories: IndexedPlaceholderCategory[];
 
-	for (const placeholder of data) {
-		const indexedDatum: IndexedPlaceholderData<T> = {
-			title: placeholder.title,
-			data: [],
-		};
+	constructor(data: SearchPlaceholderCategory<T>[]) {
+		this.data = [];
+		this.categories = [];
 
-		for (const searchData of placeholder.data) {
-			indexedDatum.data.push({
-				d: searchData,
-				index: flatData.length,
+		let index = 0;
+		for (const category of data) {
+			this.categories.push({
+				title: category.title,
+				startIndex: index,
+				endIndex: index + category.data.length,
 			});
-			flatData.push(searchData);
+			index += category.data.length;
+			this.data.push(...category.data);
 		}
-
-		indexedData.push(indexedDatum);
 	}
 
-	return [flatData, indexedData];
+	hasData(): boolean {
+		return this.data.length > 0;
+	}
+
+	totalDataCount(): number {
+		return this.data.length;
+	}
+
+	get(index: number): SearchDatum<T> | undefined {
+		return this.data[index];
+	}
+
+	getDataForCategory(category: IndexedPlaceholderCategory): SearchDatum<T>[] {
+		return this.data.slice(category.startIndex, category.endIndex);
+	}
 }
 
 export interface SearchUIProps<T> {
 	plugin: LemonsSearchPlugin;
 	targetEl: HTMLElement;
 	scope: Scope;
-	placeholderData: SearchPlaceholderData<T>[];
+	placeholderData: SearchPlaceholderCategory<T>[];
 	search: (s: string) => void;
 	onSubmit: (data: SearchDatum<T>, modifiers: Modifier[]) => void;
 	onCancel: () => void;

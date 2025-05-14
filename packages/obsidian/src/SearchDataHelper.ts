@@ -3,7 +3,7 @@ import { parseFrontMatterAliases } from 'obsidian';
 import type { BookmarkItem } from 'obsidian-typings';
 import { FileSearchType } from 'packages/obsidian/src/API';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
-import type { SearchData, SearchDatum, SearchPlaceholderData } from 'packages/obsidian/src/searchUI/SearchController';
+import type { SearchData, SearchDatum, SearchPlaceholderCategory } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchMemo } from 'packages/obsidian/src/utils/SearchMemo';
 
 export interface FileSearchPlaceholders {
@@ -56,7 +56,7 @@ export class SearchDataHelper {
 		});
 	}
 
-	getPlaceholderBookmark(data: SearchDatum<string>[]): SearchPlaceholderData<string> | undefined {
+	getPlaceholderBookmark(data: SearchDatum<string>[]): SearchPlaceholderCategory<string> | undefined {
 		const bookmarksPlugin = this.plugin.app.internalPlugins.plugins.bookmarks;
 		if (!bookmarksPlugin) {
 			return undefined;
@@ -83,7 +83,7 @@ export class SearchDataHelper {
 		};
 	}
 
-	getPlaceholderRecentFiles(data: SearchDatum<string>[]): SearchPlaceholderData<string> {
+	getPlaceholderRecentFiles(data: SearchDatum<string>[]): SearchPlaceholderCategory<string> {
 		return {
 			title: 'Recently opened',
 			data: this.fileMemo.getMatching(data, (memo, data) => memo === data.data),
@@ -118,7 +118,7 @@ export class SearchDataHelper {
 		});
 	}
 
-	getPlaceholderRecentCommands(data: SearchDatum<Command>[]): SearchPlaceholderData<Command> {
+	getPlaceholderRecentCommands(data: SearchDatum<Command>[]): SearchPlaceholderCategory<Command> {
 		return {
 			title: 'Recently used',
 			data: this.commandMemo.getMatching(data, (memo, data) => memo === data.data.id),

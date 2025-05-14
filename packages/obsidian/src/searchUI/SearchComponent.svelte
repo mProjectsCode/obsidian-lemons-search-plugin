@@ -2,7 +2,7 @@
 	import type { Modifier } from "obsidian";
 	import type { SearchResultDatum } from "packages/obsidian/src/searchUI/SearchController";
 	import { onMount, untrack } from "svelte";
-	import { indexSearchPlaceholderData, type FullSearchUIProps } from "./SearchController";
+	import { IndexedPlaceholderCategories, type FullSearchUIProps } from "./SearchController";
 	import SuggestionContentComponent from "./SuggestionContentComponent.svelte";
 	import type { HotkeyFunctionMap } from "../utils/Hotkeys";
 	import { mod } from "../utils/utils";
@@ -13,12 +13,12 @@
     let searchString = $state('');
     let selection = $state(0);
     let results: SearchResultDatum<T>[] = $state([]);
-    let [placeholderData, indexedPlaceholderData] = indexSearchPlaceholderData(props.placeholderData);
+    let placeholderData = new IndexedPlaceholderCategories(props.placeholderData);
 
-    let showPlaceholderData = $derived(searchString.length === 0 && indexedPlaceholderData.length > 0);
+    let showPlaceholderData = $derived(searchString.length === 0 && placeholderData.hasData());
     let resultLength = $derived.by(() => {
         if (showPlaceholderData) {
-            return placeholderData.length;
+            return placeholderData.totalDataCount();
         } else {
             return results.length;
         }
@@ -30,7 +30,7 @@
         }
 
         if (showPlaceholderData) {
-            return placeholderData[boundedSelection];
+            return placeholderData.get(boundedSelection);
         } else {
             return results[boundedSelection];
         }
@@ -122,22 +122,23 @@
     </div>
     <div class="prompt-results">
         {#if showPlaceholderData}
-            {#each indexedPlaceholderData as indexedPlaceholder}
+            {#each placeholderData.categories as placeholderCategory}
                 <div class="lemons-search--suggestion-group-header">
-                    <strong>{indexedPlaceholder.title}</strong>
+                    <strong>{placeholderCategory.title}</strong>
                 </div>
-                {#each indexedPlaceholder.data as datum}
+                {#each placeholderData.getDataForCategory(placeholderCategory) as datum, i}
+                    {@const index = i + placeholderCategory.startIndex}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_interactive_supports_focus -->
                     <div 
                         class="suggestion-item mod-complex"
-                        class:is-selected={boundedSelection === datum.index}
+                        class:is-selected={boundedSelection === index}
                         onclick={(e) => submit(props.plugin.hotkeyHelper.getEventModifiers(e))}
-                        onmouseenter={() => selection = datum.index}
-                        use:scrollToSelection={datum.index}
+                        onmouseenter={() => selection = index}
+                        use:scrollToSelection={index}
                         role="button"
                     >
-                        <SuggestionContentComponent datum={datum.d}></SuggestionContentComponent>
+                        <SuggestionContentComponent datum={datum}></SuggestionContentComponent>
                     </div>
                 {:else}
                     <div class="lemons-search--suggestion-empty">
