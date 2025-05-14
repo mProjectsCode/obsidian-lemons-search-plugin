@@ -2,9 +2,10 @@ import type { Modifier, Scope } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker';
 import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 // @ts-expect-error
+// eslint-disable-next-line
+import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker';
 
 export interface SearchData<T> {
 	data: SearchDatum<T>[];
