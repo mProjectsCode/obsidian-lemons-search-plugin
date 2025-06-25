@@ -129,19 +129,18 @@ export class HotkeyHelper {
 			return [];
 		}
 
-		const modifiersArray: string[] = Array.isArray(modifiers) ? modifiers : modifiers.split(',').map(m => m.trim() as Modifier);
+		const modifiersArray: string[] = Array.isArray(modifiers) ? [...modifiers] : modifiers.split(',').map(m => m.trim() as Modifier);
 
-		if (Platform.isMacOS) {
-			if (modifiersArray.includes('Meta')) {
-				modifiersArray.push('Mod');
-			}
-		} else {
-			if (modifiersArray.includes('Ctrl')) {
-				modifiersArray.push('Mod');
-			}
-		}
-
-		return modifiersArray.filter(m => MODIFIERS.contains(m as Modifier)) as Modifier[];
+		return modifiersArray
+			.map(m => {
+				if (Platform.isMacOS && m === 'Meta') {
+					return 'Mod';
+				} else if (!Platform.isMacOS && m === 'Ctrl') {
+					return 'Mod';
+				}
+				return m;
+			})
+			.filter(m => MODIFIERS.contains(m as Modifier)) as Modifier[];
 	}
 
 	keymapCtxToHotkey(ctx: KeymapContext): Hotkey | undefined {
