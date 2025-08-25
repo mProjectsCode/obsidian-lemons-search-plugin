@@ -36,11 +36,18 @@ export interface SearchDatum<T> {
 	data: T;
 }
 
+export interface HighlightSegment {
+	// text
+	t: string;
+	// whether the text is highlighted
+	h: boolean;
+}
+
 /**
  * A search datum with highlights.
  */
 export type SearchResultDatum<T> = SearchDatum<T> & {
-	highlights?: { text: string; highlight: boolean }[];
+	highlights?: HighlightSegment[];
 };
 
 /**
@@ -50,7 +57,7 @@ export type SearchResultDatum<T> = SearchDatum<T> & {
  */
 export interface SearchResult {
 	index: number;
-	highlights: { text: string; highlight: boolean }[];
+	highlights: HighlightSegment[];
 }
 
 export interface SearchPlaceholderCategory<T> {

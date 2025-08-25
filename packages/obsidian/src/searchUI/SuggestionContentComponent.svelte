@@ -12,10 +12,10 @@
     <div class="suggestion-title">
         {#if datum.highlights}
             {#each datum.highlights as h}
-                {#if h.highlight}
-                    <span class="suggestion-highlight">{h.text}</span>
+                {#if h.h}
+                    <span class="suggestion-highlight">{h.t}</span>
                 {:else}
-                    <span>{h.text}</span>
+                    <span>{h.t}</span>
                 {/if}
             {/each}
         {:else}

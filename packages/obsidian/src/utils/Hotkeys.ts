@@ -82,7 +82,7 @@ export class HotkeyHelper {
 					e.preventDefault();
 
 					const pressedModifiers = this.parseModifiers(ctx.modifiers);
-					console.log('Hotkey pressed:', this.stringifyHotkey(hotkey), pressedModifiers);
+					// console.log('Hotkey pressed:', this.stringifyHotkey(hotkey), pressedModifiers);
 					cb(pressedModifiers);
 				});
 			}

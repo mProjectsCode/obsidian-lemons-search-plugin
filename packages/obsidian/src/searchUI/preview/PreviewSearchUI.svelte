@@ -3,15 +3,16 @@
 	import MarkdownRenderer from "packages/obsidian/src/searchUI/MarkdownRenderer.svelte";
 	import type { FullSearchUIProps, SearchResultDatum } from "../SearchController";
 	import SearchComponent from "../SearchComponent.svelte";
+	import type { TFile } from "obsidian";
 
-    let props: FullSearchUIProps<string> = $props();
+    let props: FullSearchUIProps<TFile> = $props();
 
-    let selectedValue: string | undefined = $state();
+    let selectedValue: TFile | undefined = $state();
     
     let preview = $derived(getPreview(selectedValue, props.plugin));
-    let search: ReturnType<typeof SearchComponent<string>> | undefined;
+    let search: ReturnType<typeof SearchComponent<TFile>> | undefined;
 
-    export function onSearchResults(r: SearchResultDatum<string>[]) {
+    export function onSearchResults(r: SearchResultDatum<TFile>[]) {
         search?.onSearchResults(r);
     }
 </script>
@@ -32,7 +33,7 @@
                     <MarkdownRenderer 
                         app={props.plugin.app} 
                         markdown={p.content} 
-                        sourcePath={selectedValue ?? ""} 
+                        sourcePath={selectedValue?.path ?? ""} 
                         inert={true}
                     ></MarkdownRenderer>
                 </div>

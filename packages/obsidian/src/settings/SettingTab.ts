@@ -1,5 +1,5 @@
 import type { App, Hotkey } from 'obsidian';
-import { PluginSettingTab, Scope } from 'obsidian';
+import { PluginSettingTab, Scope, Setting } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import HotkeySetting from 'packages/obsidian/src/utils/HotkeySetting.svelte';
@@ -31,6 +31,16 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 
 		this.scope = new Scope();
 		this.app.keymap.pushScope(this.scope);
+
+		new Setting(this.containerEl)
+			.setName('Ignore Excluded Files')
+			.setDesc('Whether this plugin should ignore files that have been excluded in Obsidians settings under "Files and links > Excluded Files".')
+			.addToggle(toggle => {
+				toggle.setValue(this.plugin.settings.ignoreExcludedFiles).onChange(value => {
+					this.plugin.settings.ignoreExcludedFiles = value;
+					void this.plugin.saveSettings();
+				});
+			});
 
 		this.addHotkeySetting({
 			name: 'Selection up',

@@ -1,3 +1,4 @@
+import type { TFile } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 
 export enum PreviewType {
@@ -36,17 +37,19 @@ export type Preview =
 			type: PreviewType.NONE;
 	  };
 
-const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'];
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+// File extensions that we render by embedding them in markdown via `![[<file_path>]]`
+const EMBED_EXTENSIONS = ['pdf', 'canvas', 'base'];
 
-export async function getPreview(path: string | undefined, plugin: LemonsSearchPlugin): Promise<Preview> {
-	if (path === undefined) {
+export async function getPreview(file: TFile | undefined, plugin: LemonsSearchPlugin): Promise<Preview> {
+	if (file === undefined) {
 		return { type: PreviewType.NONE };
 	}
 
 	// console.log('getPreview', path);
 
-	if (path.endsWith('.md')) {
-		const content = await plugin.readFileTruncated(path);
+	if (file.extension === 'md') {
+		const content = await plugin.readFileTruncated(file);
 		if (content === undefined) {
 			return { type: PreviewType.FILE_NOT_FOUND };
 		}
@@ -54,8 +57,8 @@ export async function getPreview(path: string | undefined, plugin: LemonsSearchP
 			return { type: PreviewType.EMPTY_TEXT };
 		}
 		return { type: PreviewType.MARKDOWN, content };
-	} else if (path.endsWith('.txt')) {
-		const content = await plugin.readFileTruncated(path);
+	} else if (file.extension === 'txt') {
+		const content = await plugin.readFileTruncated(file);
 
 		if (content === undefined) {
 			return { type: PreviewType.FILE_NOT_FOUND };
@@ -64,11 +67,10 @@ export async function getPreview(path: string | undefined, plugin: LemonsSearchP
 			return { type: PreviewType.EMPTY_TEXT };
 		}
 		return { type: PreviewType.TEXT, content };
-		// NOTE: disabled due to bug with embedded PDFs stealing focus from the search input
-	} else if (path.endsWith('.pdf')) {
-		return { type: PreviewType.MARKDOWN, content: `![[${path}]]` };
-	} else if (IMAGE_EXTENSIONS.some(ext => path.endsWith(ext))) {
-		const content = plugin.getResourcePath(path);
+	} else if (EMBED_EXTENSIONS.some(ext => file.extension === ext)) {
+		return { type: PreviewType.MARKDOWN, content: `![[${file.path}]]` };
+	} else if (IMAGE_EXTENSIONS.some(ext => file.extension === ext)) {
+		const content = plugin.app.vault.getResourcePath(file);
 
 		if (content === undefined) {
 			return { type: PreviewType.FILE_NOT_FOUND };

@@ -1,13 +1,16 @@
-import type { Command, Modifier } from 'obsidian';
+import type { Command, Modifier, TFile } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { PromptModal } from 'packages/obsidian/src/modals/PromptModal';
 import { SearchModal } from 'packages/obsidian/src/modals/SearchModal';
-import type { CommandSearchPlaceholders, FileSearchPlaceholders } from 'packages/obsidian/src/SearchDataHelper';
+import type { AbstractDataSource } from 'packages/obsidian/src/searchData/AbstractDataSource';
+import type { CommandDataPlaceholders } from 'packages/obsidian/src/searchData/CommandDataSource';
+import type { FileDataPlaceholders } from 'packages/obsidian/src/searchData/FileDataSource';
 import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
 import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/preview/PreviewSearchUIAdapter';
-import type { SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
+import type { SearchData, SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
+import { expectType } from 'packages/obsidian/src/utils/utils';
 
 export interface GenericSearchOptions<T> {
 	/**
@@ -26,13 +29,13 @@ export interface GenericSearchOptions<T> {
 /**
  * Options for searching for files.
  */
-export type FileSearchOptions = GenericSearchOptions<string> & {
+export type FileSearchOptions = GenericSearchOptions<TFile> & {
 	ui: SearchUIType;
 	type: FileSearchType;
 	/**
 	 * Placeholder data to show in the search UI when no search query is entered.
 	 */
-	placeholders?: FileSearchPlaceholders;
+	placeholders?: FileDataPlaceholders[];
 };
 
 /**
@@ -42,7 +45,7 @@ export type CommandSearchOptions = GenericSearchOptions<Command> & {
 	/**
 	 * Placeholder data to show in the search UI when no search query is entered.
 	 */
-	placeholders?: CommandSearchPlaceholders;
+	placeholders?: CommandDataPlaceholders[];
 };
 
 /**
@@ -81,21 +84,29 @@ export class API {
 		this.plugin = plugin;
 	}
 
+	public search<T>(data: SearchData<T>, options: GenericSearchOptions<T>): void {
+		const searchUI = new BasicSearchUIAdapter<T>(options.prompt ?? 'Search...');
+		const searchController = new SearchController<T>(this.plugin, searchUI, data);
+		searchController.onSubmit((data, modifiers) => {
+			options.onSubmit(data, modifiers);
+		});
+
+		this.openModal(SearchUIType.Basic, searchController);
+	}
+
 	/**
 	 * Search for files in the vault.
 	 *
 	 * @param options See {@link FileSearchOptions}.
 	 */
-	public searchFiles(options: FileSearchOptions): void {
-		const rawData = this.plugin.searchData.getRawFileData(options.type);
-		const data = this.plugin.searchData.getFiles(rawData, options.placeholders);
+	public async searchFiles(options: FileSearchOptions): Promise<void> {
+		const dataSource = this.getFileDataSource(options);
+		const data = await dataSource.getData(options.placeholders);
 
 		const searchUI = this.getUIAdapterForFileSearch(options.ui, options.prompt ?? 'Select a file...');
-		const searchController = new SearchController<string>(this.plugin, searchUI, data);
+		const searchController = new SearchController<TFile>(this.plugin, searchUI, data);
 		searchController.onSubmit((data, modifiers) => {
-			if (options.placeholders?.recentFiles) {
-				this.plugin.searchData.pushRecentFile(data.data);
-			}
+			dataSource.onSelect(data);
 			options.onSubmit(data, modifiers);
 		});
 
@@ -107,39 +118,53 @@ export class API {
 	 *
 	 * @param options See {@link CommandSearchOptions}.
 	 */
-	public searchCommands(options: CommandSearchOptions): void {
-		const rawData = this.plugin.searchData.getRawCommands();
-		const data = this.plugin.searchData.getCommands(rawData, options.placeholders);
+	public async searchCommands(options: CommandSearchOptions): Promise<void> {
+		const dataSource = this.plugin.data.command;
+		const data = await dataSource.getData(options.placeholders);
 
 		const searchUI = new BasicSearchUIAdapter<Command>(options.prompt ?? 'Select a command...');
 		const searchController = new SearchController<Command>(this.plugin, searchUI, data);
 		searchController.onSubmit((data, modifiers) => {
-			if (options.placeholders?.recentCommands) {
-				this.plugin.searchData.pushRecentCommand(data.data.id);
-			}
+			dataSource.onSelect(data);
 			options.onSubmit(data, modifiers);
 		});
 
 		this.openModal(SearchUIType.Basic, searchController);
 	}
 
-	public openModal<T>(uiType: SearchUIType, controller: SearchController<T>): void {
-		if (uiType === SearchUIType.Basic) {
-			new PromptModal(this.plugin, controller).open();
-		} else if (uiType === SearchUIType.Preview) {
-			new SearchModal(this.plugin, controller).open();
-		} else {
-			throw new Error('Invalid search UI type');
+	private getFileDataSource(options: FileSearchOptions): AbstractDataSource<TFile, string, FileDataPlaceholders> {
+		if (options.type === FileSearchType.FilePath) {
+			return this.plugin.data.file;
+		} else if (options.type === FileSearchType.Alias) {
+			return this.plugin.data.alias;
 		}
+
+		expectType<never>(options.type);
+
+		throw new Error('Invalid file search type');
 	}
 
-	public getUIAdapterForFileSearch(uiType: SearchUIType, prompt: string): SearchUI<string> {
+	private openModal<T>(uiType: SearchUIType, controller: SearchController<T>): void {
+		if (uiType === SearchUIType.Basic) {
+			new PromptModal(this.plugin, controller).open();
+			return;
+		} else if (uiType === SearchUIType.Preview) {
+			new SearchModal(this.plugin, controller).open();
+			return;
+		}
+
+		expectType<never>(uiType);
+		throw new Error('Invalid search UI type');
+	}
+
+	private getUIAdapterForFileSearch(uiType: SearchUIType, prompt: string): SearchUI<TFile> {
 		if (uiType === SearchUIType.Basic) {
 			return new BasicSearchUIAdapter(prompt);
 		} else if (uiType === SearchUIType.Preview) {
 			return new PreviewSearchUIAdapter(prompt);
-		} else {
-			throw new Error('Invalid search UI type');
 		}
+
+		expectType<never>(uiType);
+		throw new Error('Invalid search UI type');
 	}
 }

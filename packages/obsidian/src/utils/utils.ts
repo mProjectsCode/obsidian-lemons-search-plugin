@@ -60,3 +60,9 @@ export function areObjectsEqual(obj1: unknown, obj2: unknown): boolean {
 
 	return obj1 === obj2;
 }
+
+export type MaybePromise<T> = T | Promise<T>;
+
+export function expectType<T>(_: T): void {
+	// no-op
+}

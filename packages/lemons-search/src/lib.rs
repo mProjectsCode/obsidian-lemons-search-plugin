@@ -52,26 +52,27 @@ impl Search {
 
         let pattern = match &mut self.pattern {
             Some(pattern) => {
-                pattern.reparse(search_string, CaseMatching::Ignore, Normalization::Smart);
+                pattern.reparse(search_string, CaseMatching::Smart, Normalization::Smart);
                 pattern
             }
             None => {
                 self.pattern = Some(Pattern::parse(
                     search_string,
-                    CaseMatching::Ignore,
+                    CaseMatching::Smart,
                     Normalization::Smart,
                 ));
                 self.pattern.as_mut().unwrap()
             }
         };
 
+        let mut buf = Vec::<char>::new();
+
         let results = pattern
             .match_list(&self.data, &mut self.matcher)
             .into_iter()
             .take(MAX_RESULTS)
             .map(|result| {
-                let mut vec = Vec::<char>::new();
-                let haystack = Utf32Str::new(&result.0.string, &mut vec);
+                let haystack = Utf32Str::new(&result.0.string, &mut buf);
                 let mut indices = Vec::<u32>::new();
 
                 _ = pattern.indices(haystack, &mut self.matcher, &mut indices);
@@ -79,7 +80,7 @@ impl Search {
                 indices.sort_unstable();
                 indices.dedup();
 
-                SearchResult::new(result.0.string.clone(), result.0.index, indices)
+                SearchResult::new(&result.0.string, result.0.index, indices)
             })
             .collect_vec();
 
@@ -87,6 +88,7 @@ impl Search {
         for result in results {
             js_results.push(&result.to_js_object());
         }
+
         js_results
     }
 
