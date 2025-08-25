@@ -45,9 +45,11 @@ Search atoms can be modified using special characters to change their behavior.
     - e.g. `^foo.md$` will **only** match `foo.md` and nothing else
     - use `!^<search atom>$` to negate, e.g. `!^foo.md$`
 
+Lower case search atoms will ignore casing, but as soon as a search atom contains an upper case letter, it becomes case sensitive.
+
 ## Keyboard Navigation
 
-While the input field is focused, you can use the following special actions.
+While the input field is focused, you can use the following keyboard short-cuts.
 
 - `↑` Move selection up by one
 - `↓` Move selection down by one
@@ -57,6 +59,8 @@ While the input field is focused, you can use the following special actions.
 - `Ctrl + Enter` Open selection in a new Tab
 - `Tab` Copy the current selection into the search bar
 - `Escape` Cancel the search
+
+Some of these short-cuts can be configures in the plugin's settings.
 
 ## Mouse Navigation
 
