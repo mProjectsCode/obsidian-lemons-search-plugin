@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use nucleo_matcher::Utf32Str;
 use web_sys::js_sys;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,7 +13,7 @@ impl HighlightRange {
         Self { start, end }
     }
 
-    pub fn from_highlights(highlights: &Vec<u32>) -> Vec<Self> {
+    pub fn from_highlights(highlights: &[u32]) -> Vec<Self> {
         let mut result = Vec::new();
         let mut current: Self = Self::new(0, 0);
 
@@ -44,9 +45,9 @@ pub struct SearchResult {
 }
 
 impl SearchResult {
-    pub fn new(path: &str, index: usize, indices: Vec<u32>) -> Self {
-        let highlight_ranges = HighlightRange::from_highlights(&indices);
-        let chars = path.chars().collect_vec();
+    pub fn new(string: Utf32Str, index: usize, indices: &[u32]) -> Self {
+        let highlight_ranges = HighlightRange::from_highlights(indices);
+        let chars = string.chars().collect_vec();
         let mut highlights: Vec<(String, bool)> = Vec::new();
         let mut current = 0;
 
@@ -63,7 +64,7 @@ impl SearchResult {
         SearchResult { index, highlights }
     }
 
-    pub fn to_js_object(self) -> js_sys::Object {
+    pub fn into_js_object(self) -> js_sys::Object {
         let obj = js_sys::Object::new();
         let arr = js_sys::Array::new();
         for (highlight, is_highlight) in self.highlights {

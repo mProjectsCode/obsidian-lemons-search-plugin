@@ -3,7 +3,7 @@ mod utils;
 use itertools::Itertools;
 use nucleo_matcher::{
     pattern::{CaseMatching, Normalization, Pattern},
-    Config, Matcher, Utf32Str,
+    Config, Matcher, Utf32Str, Utf32String,
 };
 use utils::SearchResult;
 use wasm_bindgen::prelude::*;
@@ -50,43 +50,21 @@ impl Search {
     pub fn search(&mut self, search_string: &str) -> js_sys::Array {
         // log(&format!("{:?}", file_paths));
 
-        let pattern = match &mut self.pattern {
-            Some(pattern) => {
-                pattern.reparse(search_string, CaseMatching::Smart, Normalization::Smart);
-                pattern
-            }
-            None => {
-                self.pattern = Some(Pattern::parse(
-                    search_string,
-                    CaseMatching::Smart,
-                    Normalization::Smart,
-                ));
-                self.pattern.as_mut().unwrap()
-            }
-        };
+        if let Some(pattern) = &mut self.pattern {
+            pattern.reparse(search_string, CaseMatching::Smart, Normalization::Smart);
+        } else {
+            self.pattern = Some(Pattern::parse(
+                search_string,
+                CaseMatching::Smart,
+                Normalization::Smart,
+            ));
+        }
 
-        let mut buf = Vec::<char>::new();
-
-        let results = pattern
-            .match_list(&self.data, &mut self.matcher)
-            .into_iter()
-            .take(MAX_RESULTS)
-            .map(|result| {
-                let haystack = Utf32Str::new(&result.0.string, &mut buf);
-                let mut indices = Vec::<u32>::new();
-
-                _ = pattern.indices(haystack, &mut self.matcher, &mut indices);
-
-                indices.sort_unstable();
-                indices.dedup();
-
-                SearchResult::new(&result.0.string, result.0.index, indices)
-            })
-            .collect_vec();
+        let results = self.match_data();
 
         let js_results = js_sys::Array::new();
         for result in results {
-            js_results.push(&result.to_js_object());
+            js_results.push(&result.into_js_object());
         }
 
         js_results
@@ -101,19 +79,67 @@ impl Search {
     }
 }
 
+impl Search {
+    fn match_data(&mut self) -> Vec<SearchResult> {
+        let Some(pattern) = &self.pattern else {
+            return Vec::new();
+        };
+
+        let items: Vec<_> = if pattern.atoms.is_empty() {
+            self.data.iter().map(|item| (item, 0)).collect()
+        } else {
+            let mut items: Vec<_> = self
+                .data
+                .iter()
+                .filter_map(|item| {
+                    pattern
+                        .score(item.utf32.slice(..), &mut self.matcher)
+                        .map(|score| (item, score))
+                })
+                .collect();
+
+            items.sort_by_key(|(_, score)| std::cmp::Reverse(*score));
+
+            items
+        };
+
+        let mut indices = Vec::<u32>::new();
+
+        items
+            .into_iter()
+            .take(MAX_RESULTS)
+            .map(|(string, _)| {
+                let utf32_str = string.as_utf32_str();
+
+                indices.clear();
+                _ = pattern.indices(utf32_str, &mut self.matcher, &mut indices);
+
+                indices.sort_unstable();
+                indices.dedup();
+
+                SearchResult::new(utf32_str, string.index, &indices)
+            })
+            .collect_vec()
+    }
+}
+
 struct NumberedString {
     index: usize,
-    string: String,
+    utf32: Utf32String,
 }
 
 impl NumberedString {
     fn new(index: usize, string: String) -> Self {
-        NumberedString { index, string }
+        NumberedString {
+            index,
+            utf32: Utf32String::from(string),
+        }
     }
-}
 
-impl AsRef<str> for NumberedString {
-    fn as_ref(&self) -> &str {
-        &self.string
+    fn as_utf32_str<'a>(&'a self) -> Utf32Str<'a> {
+        match &self.utf32 {
+            Utf32String::Ascii(bytes) => Utf32Str::Ascii(bytes.as_bytes()),
+            Utf32String::Unicode(codepoints) => Utf32Str::Unicode(codepoints),
+        }
     }
 }
