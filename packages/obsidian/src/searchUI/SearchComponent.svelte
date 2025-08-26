@@ -73,6 +73,11 @@
         })
     }
 
+    async function onFocusLost() {
+        await new Promise(r => setTimeout(r, 0));
+        inputEl?.focus();
+    }
+
     onMount(() => {
         inputEl?.focus();
 
@@ -114,6 +119,7 @@
             placeholder={props.prompt}
             bind:value={searchString}
             bind:this={inputEl}
+            onblur={() => onFocusLost()}
         >
         <div class="prompt-input-cta"></div>
         <!-- svelte-ignore a11y_interactive_supports_focus -->
@@ -147,7 +153,7 @@
                 {/each}
             {/each}
         {:else}
-            {#each results as datum, index}
+            {#each results as datum, index (index)}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_interactive_supports_focus -->
                 <div 
