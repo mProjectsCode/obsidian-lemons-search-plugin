@@ -12,4 +12,5 @@ export type SearchWorkerRPCHandlersWorker = {
 export type SearchWorkerRPCHandlersMain = {
 	onSearchFinished: [SearchResult[]];
 	onInitialized: [];
+	onInitializationFailed: [string];
 };

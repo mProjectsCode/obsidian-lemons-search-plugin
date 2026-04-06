@@ -23,15 +23,20 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 	m => postMessage(m),
 );
 
-void init({ module_or_path: wasmbin as unknown as InitInput }).then(() => {
-	setup();
+void init({ module_or_path: wasmbin as unknown as InitInput })
+	.then(() => {
+		setup();
 
-	search = new Search();
+		search = new Search();
 
-	// console.log('search worker initialized');
+		// console.log('search worker initialized');
 
-	RPC.call('onInitialized');
-});
+		RPC.call('onInitialized');
+	})
+	.catch((e: unknown) => {
+		const message = e instanceof Error ? e.message : String(e);
+		RPC.call('onInitializationFailed', message);
+	});
 
 onmessage = (e): void => {
 	RPC.handle(e.data);

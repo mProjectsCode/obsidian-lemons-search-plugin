@@ -1,4 +1,5 @@
 import type { Modifier, Scope } from 'obsidian';
+import { Notice } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
@@ -139,6 +140,7 @@ export class SearchController<T> {
 	searchQueueSlot: string | undefined;
 	searchWorkerRunning: boolean = false;
 	searchWorkerInitialized: boolean = false;
+	workerFailed: boolean = false;
 
 	// searchComponent: ReturnType<typeof SearchUIComponent>;
 
@@ -189,6 +191,15 @@ export class SearchController<T> {
 				);
 				this.startSearch();
 			},
+			onInitializationFailed: (message): void => {
+				this.workerFailed = true;
+				this.searchWorkerInitialized = false;
+				this.searchWorkerRunning = false;
+				this.searchQueueSlot = undefined;
+				this.ui.onSearchResults([]);
+				console.error('Failed to initialize Lemons Search worker:', message);
+				new Notice('Lemons Search failed to initialize. Check console for details.');
+			},
 		});
 	}
 
@@ -202,7 +213,7 @@ export class SearchController<T> {
 		// if there is no search in the queue, we have nothing to do
 		// if the worker is not initialized, we cannot start a search
 		// if the worker is already running, a new search will be started when the current search is finished
-		if (this.searchQueueSlot === undefined || this.searchWorkerRunning || !this.searchWorkerInitialized) {
+		if (this.searchQueueSlot === undefined || this.searchWorkerRunning || !this.searchWorkerInitialized || this.workerFailed) {
 			return;
 		}
 

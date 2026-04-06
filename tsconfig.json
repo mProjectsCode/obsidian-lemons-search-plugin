@@ -1,6 +1,8 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
+		"paths": {
+			"packages/*": ["./packages/*"]
+		},
 		"module": "ESNext",
 		"target": "ESNext",
 		"allowJs": true,
@@ -9,7 +11,7 @@
 		"strict": true,
 		"strictNullChecks": true,
 		"noImplicitReturns": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"importHelpers": true,
 		"isolatedModules": true,
 		"skipLibCheck": true,

@@ -2,7 +2,7 @@ import builtins from 'builtin-modules';
 import esbuild from 'esbuild';
 import esbuildSvelte from 'esbuild-svelte';
 import { sveltePreprocess } from 'svelte-preprocess';
-import { getBuildBanner } from 'build/buildBanner';
+import { getBuildBanner } from './buildBanner';
 import { wasmPlugin } from './wasmPlugin';
 import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
 

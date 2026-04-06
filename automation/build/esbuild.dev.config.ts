@@ -1,9 +1,9 @@
 import esbuild from 'esbuild';
 import copy from 'esbuild-plugin-copy-watch';
-import manifest from '../../manifest.json' assert { type: 'json' };
+import manifest from '../../manifest.json' with { type: 'json' };
 import esbuildSvelte from 'esbuild-svelte';
 import { sveltePreprocess } from 'svelte-preprocess';
-import { getBuildBanner } from 'build/buildBanner';
+import { getBuildBanner } from './buildBanner';
 import { wasmPlugin } from './wasmPlugin';
 import inlineWorkerPlugin from 'esbuild-plugin-inline-worker';
 

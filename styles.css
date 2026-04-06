@@ -1,5 +1,6 @@
 .lemons-search {
 	/* marker class */
+	contain: paint;
 }
 
 .lemons-search--modal {
@@ -36,6 +37,7 @@
 }
 
 .lemons-search--preview-search .lemons-search--preview {
+	contain: paint;
 	text-wrap: wrap;
 	overflow-y: auto;
 }
@@ -52,9 +54,8 @@
 	max-width: 100%;
 }
 
-.lemons-search .modal-content .prompt-results {
-	padding: 0;
-	overflow-y: auto;
+.lemons-search .lemons-search--search .prompt-results {
+	contain: paint;
 }
 
 .lemons-search .suggestion-sub-text {
@@ -63,6 +64,14 @@
 
 .lemons-search .suggestion-item.is-selected .suggestion-sub-text {
 	color: var(--text-muted);
+}
+
+.lemons-search .suggestion-item.is-keyboard-selected {
+	/* hook class retained for user customization */
+}
+
+.lemons-search .suggestion-item.is-mouse-selected {
+	/* hook class retained for user customization */
 }
 
 .lemons-search .lemons-search--suggestion-group-header {

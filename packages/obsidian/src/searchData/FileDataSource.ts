@@ -16,6 +16,7 @@ export function getBookmarkPlaceholder(plugin: LemonsSearchPlugin, data: SearchD
 	}
 
 	const bookmarks = bookmarksPlugin.instance.getBookmarks();
+	const dataByPath = new Map(data.map(datum => [datum.data.path, datum]));
 	const matchingBookmarks = [];
 
 	for (const bookmark of bookmarks) {
@@ -24,7 +25,7 @@ export function getBookmarkPlaceholder(plugin: LemonsSearchPlugin, data: SearchD
 		}
 
 		const path = (bookmark as BookmarkItem & { path: string }).path;
-		const datum = data.find(d => d.data.path === path);
+		const datum = dataByPath.get(path);
 		if (datum) {
 			matchingBookmarks.push(datum);
 		}
