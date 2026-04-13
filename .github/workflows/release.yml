@@ -14,9 +14,9 @@ jobs:
         runs-on: ubuntu-latest
 
         permissions:
-          contents: write
-          id-token: write
-          attestations: write
+            contents: write
+            id-token: write
+            attestations: write
 
         steps:
             - name: Checkout
@@ -62,12 +62,12 @@ jobs:
             - name: Attest build provenance
               uses: actions/attest-build-provenance@v1
               with:
-                subject-path: |
-                  main.js
-                  manifest.json
-                  styles.css
-                  ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.zip
-                output-path: ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.intoto.jsonl
+                  subject-path: |
+                      main.js
+                      manifest.json
+                      styles.css
+                      ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.zip
+                  output-path: ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.intoto.jsonl
 
             - name: Release
               id: release
@@ -76,8 +76,8 @@ jobs:
                   prerelease: ${{ steps.status.outputs.prerelease }}
                   token: ${{ secrets.GITHUB_TOKEN }}
                   files: |
-                    main.js
-                    manifest.json
-                    styles.css
-                    ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.zip
-                    ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.intoto.jsonl
+                      main.js
+                      manifest.json
+                      styles.css
+                      ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.zip
+                      ${{ env.PLUGIN_NAME }}-${{ github.ref_name }}.intoto.jsonl
