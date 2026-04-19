@@ -8,7 +8,7 @@ import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settin
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import { LemonsSearchSettingsTab } from 'packages/obsidian/src/settings/SettingTab';
 import { HotkeyHelper } from 'packages/obsidian/src/utils/Hotkeys';
-import "packages/obsidian/src/styles.css";
+import 'packages/obsidian/src/styles.css';
 
 const CONTENT_SLICE_LENGTH = 5000;
 

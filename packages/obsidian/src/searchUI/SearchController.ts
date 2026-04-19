@@ -3,8 +3,8 @@ import { Notice } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker?worker&inline';
+import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 
 export interface SearchData<T> {
 	data: SearchDatum<T>[];
@@ -176,8 +176,8 @@ export class SearchController<T> {
 			},
 		});
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		this.worker = new SearchWorker() as Worker;
+		 
+		this.worker = new SearchWorker();
 
 		this.RPC = RPCController.toWorker<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(this.worker, {
 			onSearchFinished: (result): void => this.onSearchFinished(result),

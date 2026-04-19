@@ -21,9 +21,7 @@ export default defineConfig(({ mode }) => {
 				content: getBuildBanner(prod ? 'Release Build' : 'Dev Build', version => version),
 			}),
 			viteStaticCopy({
-				targets: [
-					{ src: 'manifest.json', dest: outDir },
-				],
+				targets: [{ src: 'manifest.json', dest: outDir }],
 			}),
 		],
 		resolve: {
