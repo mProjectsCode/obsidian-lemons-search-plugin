@@ -176,7 +176,6 @@ export class SearchController<T> {
 			},
 		});
 
-		 
 		this.worker = new SearchWorker();
 
 		this.RPC = RPCController.toWorker<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(this.worker, {
