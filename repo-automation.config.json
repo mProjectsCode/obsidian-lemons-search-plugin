@@ -1,0 +1,14 @@
+{
+    "devBranch": "master",
+    "releaseBranch": "release",
+    "github": "https://github.com/mProjectsCode/obsidian-lemons-search-plugin",
+    "preconditions": [
+        "bun run typecheck",
+        "bun run format",
+        "bun run lint:fix",
+        "bun run test",
+        "bun run wasm:fmt",
+        "bun run wasm:lint",
+        "bun run wasm:test"
+    ]
+}

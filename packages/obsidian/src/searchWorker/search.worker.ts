@@ -4,7 +4,7 @@ import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchResult } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 // eslint-disable-next-line
-import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm';
+import wasmbin from '../../../lemons-search/pkg/lemons_search_bg.wasm?url';
 
 let search: Search | undefined = undefined;
 
