@@ -64,13 +64,12 @@ export class HotkeyHelper {
 				hotkeys = key;
 			} else {
 				hotkeys = this.plugin.settings[key];
+				if (hotkeys == null) {
+					console.warn(`No hotkeys found for key "${key}". Or there is some error in the hotkeys map.`);
+					continue;
+				}
 			}
 
-			if (hotkeys == null) {
-				// eslint-disable-next-line @typescript-eslint/no-base-to-string
-				console.warn(`No hotkeys found for key ${key}. Or there is some error in the hotkeys map.`);
-				continue;
-			}
 			if (hotkeys.length === 0) {
 				continue;
 			}

@@ -21,7 +21,8 @@
 		"sourceMap": true,
 		"lib": ["DOM", "ESNext"],
 		"allowSyntheticDefaultImports": true,
-		"types": ["obsidian-typings", "bun", "vite/client"]
+		"types": ["obsidian-typings", "bun", "vite/client"],
+		"noEmit": true
 	},
 	"include": ["packages/obsidian/src/**/*.ts", "packages/obsidian/src/**/*.svelte", "tests/**/*.ts"]
 }

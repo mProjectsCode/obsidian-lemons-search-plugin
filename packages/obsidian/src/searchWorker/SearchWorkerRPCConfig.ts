@@ -1,16 +1,13 @@
-/* eslint-disable */
-// eslint turns them into interfaces which causes TS errors
+import type { SearchResult } from 'packages/obsidian/src/searchUI/SearchController';
 
-import type { SearchResult } from '../searchUI/SearchController';
-
-export type SearchWorkerRPCHandlersWorker = {
+export interface SearchWorkerRPCHandlersWorker {
 	updateIndex: [string[]];
 
 	search: [string];
-};
+}
 
-export type SearchWorkerRPCHandlersMain = {
+export interface SearchWorkerRPCHandlersMain {
 	onSearchFinished: [SearchResult[]];
 	onInitialized: [];
 	onInitializationFailed: [string];
-};
+}

@@ -1,6 +1,8 @@
-export type RPCConfig = Record<string, unknown[]>;
+export type RPCConfig<TConfig = unknown> = {
+	[K in keyof TConfig]: unknown[];
+};
 
-export type RPCMethods<TConfig extends RPCConfig> = {
+export type RPCMethods<TConfig extends RPCConfig<TConfig>> = {
 	[K in keyof TConfig]: (...args: TConfig[K]) => void;
 };
 
@@ -10,7 +12,7 @@ export type RPCMethods<TConfig extends RPCConfig> = {
  * @template THandlers - The configuration of the methods that this side handles.
  * @template TMethods - The configuration of the methods that can be called.
  */
-export class RPCController<THandlers extends RPCConfig, TMethods extends RPCConfig> {
+export class RPCController<THandlers extends RPCConfig<THandlers>, TMethods extends RPCConfig<TMethods>> {
 	private handlers: RPCMethods<THandlers>;
 	private post: (message: unknown) => void;
 
@@ -25,7 +27,7 @@ export class RPCController<THandlers extends RPCConfig, TMethods extends RPCConf
 		this.post = post;
 	}
 
-	static toWorker<THandlers extends RPCConfig, TMethods extends RPCConfig>(
+	static toWorker<THandlers extends RPCConfig<THandlers>, TMethods extends RPCConfig<TMethods>>(
 		worker: Worker,
 		handlers: RPCMethods<THandlers>,
 	): RPCController<THandlers, TMethods> {
