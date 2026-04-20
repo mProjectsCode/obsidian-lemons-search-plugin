@@ -3,11 +3,15 @@ import type { FullSearchUIProps, SearchResultDatum, SearchUIProps } from 'packag
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
 import { mount, unmount } from 'svelte';
 
+interface SearchComponentExports<T> {
+	onSearchResults(results: SearchResultDatum<T>[]): void;
+}
+
 /**
  * Adapter for the basic search UI.
  */
 export class BasicSearchUIAdapter<T> implements SearchUI<T> {
-	component?: ReturnType<typeof SearchComponent>;
+	component?: SearchComponentExports<T>;
 	prompt: string;
 
 	constructor(prompt: string) {
@@ -22,7 +26,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 				prompt: this.prompt,
 				cssClasses: 'prompt lemons-search',
 			} as FullSearchUIProps<unknown>,
-		});
+		}) as SearchComponentExports<T>;
 	}
 
 	destroy(): void {
@@ -32,7 +36,6 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 	}
 
 	onSearchResults(results: SearchResultDatum<T>[]): void {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		this.component?.onSearchResults(results);
 	}
 }

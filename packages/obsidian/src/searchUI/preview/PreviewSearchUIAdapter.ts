@@ -5,12 +5,16 @@ import type { SearchResultDatum } from 'packages/obsidian/src/searchUI/SearchCon
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
 import { mount, unmount } from 'svelte';
 
+interface PreviewSearchUIExports {
+	onSearchResults(results: SearchResultDatum<TFile>[]): void;
+}
+
 /**
  * Adapter for the preview search UI.
  * Asserts that the data type is a TFile representing the vault relative file path.
  */
 export class PreviewSearchUIAdapter implements SearchUI<TFile> {
-	component?: ReturnType<typeof PreviewSearchUI>;
+	component?: PreviewSearchUIExports;
 	prompt: string;
 
 	constructor(prompt: string) {
@@ -21,7 +25,7 @@ export class PreviewSearchUIAdapter implements SearchUI<TFile> {
 		this.component = mount(PreviewSearchUI, {
 			target: props.targetEl,
 			props: { ...props, prompt: this.prompt },
-		});
+		}) as PreviewSearchUIExports;
 	}
 
 	destroy(): void {
@@ -31,7 +35,6 @@ export class PreviewSearchUIAdapter implements SearchUI<TFile> {
 	}
 
 	onSearchResults(results: SearchResultDatum<TFile>[]): void {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		this.component?.onSearchResults(results);
 	}
 }
