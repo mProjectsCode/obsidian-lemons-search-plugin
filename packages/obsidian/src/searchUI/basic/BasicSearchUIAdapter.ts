@@ -1,5 +1,5 @@
 import SearchComponent from 'packages/obsidian/src/searchUI/SearchComponent.svelte';
-import type { FullSearchUIProps, SearchResultDatum, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
+import type { SearchResultDatum, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
 import { mount, unmount } from 'svelte';
 
@@ -25,7 +25,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 				...props,
 				prompt: this.prompt,
 				cssClasses: 'prompt lemons-search',
-			} as FullSearchUIProps<unknown>,
+			},
 		}) as SearchComponentExports<T>;
 	}
 
