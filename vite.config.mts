@@ -4,7 +4,7 @@ import { defineConfig, type UserConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import banner from 'vite-plugin-banner';
-import { getBuildBanner } from 'lemons-obsidian-plugin-helpers/repo-automation';
+import { getBuildBanner } from '@lemons_dev/lemons-obsidian-plugin-automation';
 import manifest from './manifest.json' with { type: 'json' };
 
 const entryFile = 'packages/obsidian/src/main.ts';
