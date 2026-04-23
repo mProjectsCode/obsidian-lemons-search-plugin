@@ -23,6 +23,10 @@ impl NumberedString {
     pub fn utf32srt(&self) -> Utf32Str<'_> {
         self.utf32.slice(..)
     }
+
+    pub fn string(&self) -> String {
+        self.utf32.to_string()
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -63,7 +67,7 @@ impl PartialOrd for ScoredIndex {
 impl Ord for ScoredIndex {
     #[inline]
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.0.cmp(&other.0)
+        self.0.cmp(&other.0).reverse()
     }
 }
 

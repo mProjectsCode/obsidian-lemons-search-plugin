@@ -90,24 +90,9 @@
     });
 
     export function onSearchResults(r: SearchResultDatum<T>[]) {
-        const previouslySelectedData = keyboardSelectedElement?.data;
         results = r;
         clearMouseSelection();
-
-        if (r.length === 0) {
-            keyboardSelection = 0;
-            return;
-        }
-
-        if (previouslySelectedData !== undefined) {
-            const preservedIndex = r.findIndex(datum => datum.data === previouslySelectedData);
-            if (preservedIndex !== -1) {
-                keyboardSelection = preservedIndex;
-                return;
-            }
-        }
-
-        keyboardSelection = mod(keyboardSelection, r.length);
+        keyboardSelection = 0;
     }
 
     function submitSelection(modifiers: Modifier[]) {

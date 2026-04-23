@@ -13,6 +13,7 @@ use web_sys::js_sys;
 use crate::utils::{NumberedString, ScoredIndex};
 
 const DEFAULT_MAX_RESULTS: usize = 200;
+const DEBUG: bool = false;
 
 #[wasm_bindgen]
 extern "C" {
@@ -195,6 +196,7 @@ impl Search {
         let mut indices = Vec::<u32>::new();
 
         scored
+            .into_sorted_vec()
             .into_iter()
             .map(|scored_idx| {
                 let item = &self.data[scored_idx.idx()];
@@ -203,6 +205,14 @@ impl Search {
                 _ = pattern.indices(item.utf32srt(), &mut self.matcher, &mut indices);
                 indices.sort_unstable();
                 indices.dedup();
+
+                if DEBUG {
+                    log(&format!(
+                        "Matched: '{}', score: {}",
+                        item.string(),
+                        scored_idx.score(),
+                    ));
+                }
 
                 SearchResult::new_from_highlight_ranges(item.index(), &indices)
             })
