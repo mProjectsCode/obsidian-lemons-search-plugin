@@ -22,7 +22,9 @@
 		"wasm:fmt": "cd packages/lemons-search && cargo fmt",
 		"wasm:fmt:check": "cd packages/lemons-search && cargo fmt --check",
 		"wasm:lint": "cd packages/lemons-search && cargo clippy",
-		"wasm:test": "cd packages/lemons-search && wasm-pack test --node"
+		"wasm:bench:setup-runner": "cargo install --locked wasm-bindgen-cli --version 0.2.118",
+		"wasm:test": "cd packages/lemons-search && wasm-pack test --node",
+		"wasm:bench": "cd packages/lemons-search && CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER=wasm-bindgen-test-runner cargo bench --target wasm32-unknown-unknown"
 	},
 	"keywords": [],
 	"author": "Moritz Jung",

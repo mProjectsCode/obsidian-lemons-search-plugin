@@ -47,16 +47,17 @@ export interface HighlightSegment {
  */
 export type SearchResultDatum<T> = SearchDatum<T> & {
 	highlights?: HighlightSegment[];
+	highlightRanges?: Uint32Array | number[];
 };
 
 /**
  * A search result returned by Rust.
- * To minimize the amount of data that is transferred between the worker and the main thread,
- * we only send the index of the search datum and the highlights.
+ * To minimize transfer overhead between WASM and JS, Rust only returns indices.
+ * Highlight rendering is computed lazily in the UI layer.
  */
 export interface SearchResult {
 	index: number;
-	highlights: HighlightSegment[];
+	r: Uint32Array | number[];
 }
 
 export interface SearchPlaceholderCategory<T> {
@@ -182,6 +183,7 @@ export class SearchController<T> {
 			onSearchFinished: (result): void => this.onSearchFinished(result),
 			onInitialized: (): void => {
 				this.searchWorkerInitialized = true;
+				this.RPC?.call('setMaxResults', this.plugin.settings.maxResults);
 				this.RPC?.call(
 					'updateIndex',
 					this.data.data.map(d => d.content),
@@ -229,7 +231,7 @@ export class SearchController<T> {
 		this.ui.onSearchResults(
 			result.map(r => ({
 				...this.data.data[r.index],
-				highlights: r.highlights,
+				highlightRanges: r.r,
 			})),
 		);
 

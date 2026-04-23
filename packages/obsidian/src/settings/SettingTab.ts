@@ -42,6 +42,23 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 				});
 			});
 
+		new Setting(this.containerEl)
+			.setName('Max search results')
+			.setDesc('Maximum number of ranked results to return from the search engine.')
+			.addText(text => {
+				text.setPlaceholder(String(DEFAULT_SETTINGS.maxResults))
+					.setValue(String(this.plugin.settings.maxResults))
+					.onChange(value => {
+						const parsed = Number.parseInt(value, 10);
+						if (!Number.isFinite(parsed)) {
+							return;
+						}
+
+						this.plugin.settings.maxResults = Math.max(1, parsed);
+						void this.plugin.saveSettings();
+					});
+			});
+
 		this.addHotkeySetting({
 			name: 'Selection up',
 			description: 'Hotkey to select move the search result selection up by one.',

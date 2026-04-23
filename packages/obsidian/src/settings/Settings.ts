@@ -3,6 +3,7 @@ import type { Hotkey } from 'obsidian';
 export interface LemonsSearchSettings {
 	placeholder: string;
 	ignoreExcludedFiles: boolean;
+	maxResults: number;
 	hotkeySearchSelectionUp: Hotkey[];
 	hotkeySearchSelectionDown: Hotkey[];
 	hotkeySearchSelectionFirst: Hotkey[];
@@ -13,6 +14,7 @@ export interface LemonsSearchSettings {
 export const DEFAULT_SETTINGS: LemonsSearchSettings = {
 	placeholder: 'placeholder',
 	ignoreExcludedFiles: true,
+	maxResults: 200,
 	hotkeySearchSelectionUp: [{ modifiers: [], key: 'ArrowUp' }],
 	hotkeySearchSelectionDown: [{ modifiers: [], key: 'ArrowDown' }],
 	hotkeySearchSelectionFirst: [{ modifiers: [], key: 'Home' }],

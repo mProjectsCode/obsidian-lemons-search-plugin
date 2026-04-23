@@ -1,6 +1,7 @@
 import type { SearchResult } from 'packages/obsidian/src/searchUI/SearchController';
 
 export interface SearchWorkerRPCHandlersWorker {
+	setMaxResults: [number];
 	updateIndex: [string[]];
 
 	search: [string];

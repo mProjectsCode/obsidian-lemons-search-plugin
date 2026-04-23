@@ -9,6 +9,9 @@ let search: Search | undefined = undefined;
 
 const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
 	{
+		setMaxResults(maxResults): void {
+			search?.set_max_results(maxResults);
+		},
 		updateIndex(files): void {
 			search?.update_index(files);
 		},

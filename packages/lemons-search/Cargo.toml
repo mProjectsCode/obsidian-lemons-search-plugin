@@ -6,22 +6,23 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+bench = false
 
 [features]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-wasm-bindgen = "0.2.117"
+wasm-bindgen = "=0.2.118"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 nucleo-matcher = "0.3.1"
 itertools = "0.14.0"
-web-sys = { version = "0.3.94", features = ["Worker"] }
+web-sys = { version = "=0.3.95", features = ["Worker"] }
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.42"
+wasm-bindgen-test = "=0.3.68"
 
 [profile.release]
 opt-level = 3               # Highest level of optimization.
 lto = "fat"                 # Enable link-time optimization.
 overflow-checks = false     # Disable integer overflow checks.
-incremental = true          # Enable incremental compilation for faster builds.
+incremental = false
