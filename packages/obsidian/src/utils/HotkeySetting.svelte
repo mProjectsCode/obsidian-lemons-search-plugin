@@ -9,7 +9,7 @@
 		plugin,
 		name = '',
 		description = '',
-        hotkeys,
+        hotkeys: _hotkeys,
 		defaultHotkeys,
         onUpdate,
 		scope,
@@ -24,6 +24,8 @@
 	} = $props();
 
 	let recordingHotkey = $state(false);
+	// svelte-ignore state_referenced_locally -- We update the outside world via the onUpdate callback.
+	let hotkeys = $state(structuredClone(_hotkeys));
 
 	function deleteHotkey(i: number) {
 		hotkeys.splice(i, 1);
