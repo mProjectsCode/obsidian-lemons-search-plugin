@@ -14,7 +14,7 @@
     let keyboardSelection = $state(0);
     let mouseSelection = $state<number | undefined>(undefined);
     let results: SearchResultDatum<T>[] = $state([]);
-    let placeholderData = new IndexedPlaceholderCategories(props.placeholderData);
+    let placeholderData = $derived(new IndexedPlaceholderCategories(props.placeholderData));
 
     let showPlaceholderData = $derived(searchString.length === 0 && placeholderData.hasData());
     let resultLength = $derived.by(() => {

@@ -197,6 +197,7 @@ export class SearchController<T> {
 				this.searchQueueSlot = undefined;
 				this.ui.onSearchResults([]);
 				console.error('Failed to initialize Lemons Search worker:', message);
+				// eslint-disabl
 				new Notice('Lemons Search failed to initialize. Check console for details.');
 			},
 		});

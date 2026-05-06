@@ -9,7 +9,7 @@
 		plugin,
 		name = '',
 		description = '',
-        hotkeys: _hotkeys,
+        hotkeys,
 		defaultHotkeys,
         onUpdate,
 		scope,
@@ -24,7 +24,6 @@
 	} = $props();
 
 	let recordingHotkey = $state(false);
-	let hotkeys = $state(structuredClone(_hotkeys));
 
 	function deleteHotkey(i: number) {
 		hotkeys.splice(i, 1);

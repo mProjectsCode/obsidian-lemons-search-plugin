@@ -33,8 +33,8 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.app.keymap.pushScope(this.scope);
 
 		new Setting(this.containerEl)
-			.setName('Ignore Excluded Files')
-			.setDesc('Whether this plugin should ignore files that have been excluded in Obsidians settings under "Files and links > Excluded Files".')
+			.setName('Ignore excluded files')
+			.setDesc('Whether this plugin should ignore files that have been excluded in Obsidians settings under "Files and links > Excluded files".')
 			.addToggle(toggle => {
 				toggle.setValue(this.plugin.settings.ignoreExcludedFiles).onChange(value => {
 					this.plugin.settings.ignoreExcludedFiles = value;
@@ -62,7 +62,7 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.addHotkeySetting({
 			name: 'Selection up',
 			description: 'Hotkey to select move the search result selection up by one.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionUp,
+			hotkeys: structuredClone(this.plugin.settings.hotkeySearchSelectionUp),
 			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionUp,
 			onUpdate: (h: Hotkey[]) => {
 				this.plugin.settings.hotkeySearchSelectionUp = h;
@@ -73,7 +73,7 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.addHotkeySetting({
 			name: 'Selection down',
 			description: 'Hotkey to select move the search result selection down by one.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionDown,
+			hotkeys: structuredClone(this.plugin.settings.hotkeySearchSelectionDown),
 			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionDown,
 			onUpdate: (h: Hotkey[]) => {
 				this.plugin.settings.hotkeySearchSelectionDown = h;
@@ -84,7 +84,7 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.addHotkeySetting({
 			name: 'Selection first',
 			description: 'Hotkey to select the first search result.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionFirst,
+			hotkeys: structuredClone(this.plugin.settings.hotkeySearchSelectionFirst),
 			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionFirst,
 			onUpdate: (h: Hotkey[]) => {
 				this.plugin.settings.hotkeySearchSelectionFirst = h;
@@ -95,7 +95,7 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.addHotkeySetting({
 			name: 'Selection last',
 			description: 'Hotkey to select the last search result.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionLast,
+			hotkeys: structuredClone(this.plugin.settings.hotkeySearchSelectionLast),
 			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionLast,
 			onUpdate: (h: Hotkey[]) => {
 				this.plugin.settings.hotkeySearchSelectionLast = h;
@@ -106,7 +106,7 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		this.addHotkeySetting({
 			name: 'Copy selection to search',
 			description: 'Hotkey to copy the current selection to the search bar.',
-			hotkeys: this.plugin.settings.hotkeySearchFillSelection,
+			hotkeys: structuredClone(this.plugin.settings.hotkeySearchFillSelection),
 			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchFillSelection,
 			onUpdate: (h: Hotkey[]) => {
 				this.plugin.settings.hotkeySearchFillSelection = h;

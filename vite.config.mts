@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
 				content: getBuildBanner(prod ? 'Release Build' : 'Dev Build', version => version),
 			}),
 			viteStaticCopy({
-				targets: [{ src: 'manifest.json', dest: outDir }],
+				targets: [{ src: 'manifest.json', dest: '.' }],
 			}),
 		],
 		resolve: {
@@ -41,13 +41,12 @@ export default defineConfig(({ mode }) => {
 			sourcemap: prod ? false : 'inline',
 			cssCodeSplit: false,
 			emptyOutDir: false,
-			outDir: '',
+			outDir: outDir,
 			rolldownOptions: {
 				input: {
 					main: path.resolve(__dirname, entryFile),
 				},
 				output: {
-					dir: outDir,
 					entryFileNames: 'main.js',
 					assetFileNames: 'styles.css',
 				},

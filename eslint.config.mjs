@@ -5,8 +5,8 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import only_warn from 'eslint-plugin-only-warn';
 import no_relative_import_paths from 'eslint-plugin-no-relative-import-paths';
-import { importX } from 'eslint-plugin-import-x';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
+import obsidianmd from 'eslint-plugin-obsidianmd';
 
 export default defineConfig(
 	{
@@ -21,6 +21,7 @@ export default defineConfig(
 			...tseslint.configs.recommended,
 			...tseslint.configs.recommendedTypeChecked,
 			...tseslint.configs.stylisticTypeChecked,
+			...obsidianmd.configs.recommended,
 		],
 		languageOptions: {
 			parser: tseslint.parser,
@@ -32,7 +33,7 @@ export default defineConfig(
 			// @ts-ignore
 			'only-warn': only_warn,
 			'no-relative-import-paths': no_relative_import_paths,
-			import: importX,
+			obsidianmd: obsidianmd,
 		},
 		rules: {
 			'@typescript-eslint/no-explicit-any': ['warn'],
@@ -62,6 +63,10 @@ export default defineConfig(
 			'@typescript-eslint/no-inferrable-types': 'off',
 			'@typescript-eslint/explicit-function-return-type': ['warn'],
 			'@typescript-eslint/require-await': 'off',
+
+			'obsidianmd/commands/no-command-in-command-id': 'off',
+			'obsidianmd/commands/no-command-in-command-name': 'off',
+			'obsidianmd/ui/sentence-case': 'off',
 		},
 	},
 );
