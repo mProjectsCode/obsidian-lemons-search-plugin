@@ -2,6 +2,7 @@ import type { Hotkey } from 'obsidian';
 
 export interface LemonsSearchSettings {
 	placeholder: string;
+	// Whether to honor the Obsidian file exclusion settings.
 	ignoreExcludedFiles: boolean;
 	maxResults: number;
 	hotkeySearchSelectionUp: Hotkey[];

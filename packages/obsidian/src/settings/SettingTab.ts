@@ -1,136 +1,150 @@
-import type { App, Hotkey } from 'obsidian';
-import { PluginSettingTab, Scope, Setting } from 'obsidian';
+import type { App, Hotkey, Setting, SettingDefinitionItem, SettingDefinitionRender } from 'obsidian';
+import { PluginSettingTab, Scope } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
+import { HotkeySetting } from 'packages/obsidian/src/settings/HotkeySetting';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
-import HotkeySetting from 'packages/obsidian/src/utils/HotkeySetting.svelte';
-import type { Component } from 'svelte';
-import { mount } from 'svelte';
+
+type HotkeySettingKey =
+	| 'hotkeySearchSelectionUp'
+	| 'hotkeySearchSelectionDown'
+	| 'hotkeySearchSelectionFirst'
+	| 'hotkeySearchSelectionLast'
+	| 'hotkeySearchFillSelection';
 
 interface HotkeySettingsProps {
 	name: string;
 	description: string;
-	hotkeys: Hotkey[];
+	hotkeyKey: HotkeySettingKey;
 	defaultHotkeys: Hotkey[];
-	onUpdate: (hotkeys: Hotkey[]) => void;
 }
+
+const HOTKEY_SETTINGS: HotkeySettingsProps[] = [
+	{
+		name: 'Selection up',
+		description: 'Hotkey to move the search result selection up by one.',
+		hotkeyKey: 'hotkeySearchSelectionUp',
+		defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionUp,
+	},
+	{
+		name: 'Selection down',
+		description: 'Hotkey to move the search result selection down by one.',
+		hotkeyKey: 'hotkeySearchSelectionDown',
+		defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionDown,
+	},
+	{
+		name: 'Selection first',
+		description: 'Hotkey to select the first search result.',
+		hotkeyKey: 'hotkeySearchSelectionFirst',
+		defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionFirst,
+	},
+	{
+		name: 'Selection last',
+		description: 'Hotkey to select the last search result.',
+		hotkeyKey: 'hotkeySearchSelectionLast',
+		defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionLast,
+	},
+	{
+		name: 'Copy selection to search',
+		description: 'Hotkey to copy the current selection to the search bar.',
+		hotkeyKey: 'hotkeySearchFillSelection',
+		defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchFillSelection,
+	},
+];
 
 export class LemonsSearchSettingsTab extends PluginSettingTab {
 	plugin: LemonsSearchPlugin;
 	scope?: Scope;
-	components: ReturnType<Component>[];
 
 	constructor(app: App, plugin: LemonsSearchPlugin) {
 		super(app, plugin);
 
 		this.plugin = plugin;
-		this.components = [];
+	}
+
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: 'Honor excluded files',
+				desc: 'Whether this plugin should honor the Obsidian setting for excluded files "Files and links > Excluded files".',
+				control: {
+					type: 'toggle',
+					key: 'ignoreExcludedFiles',
+				},
+			},
+			{
+				name: 'Max search results',
+				desc: 'Maximum number of ranked results to return from the search engine.',
+				control: {
+					type: 'number',
+					key: 'maxResults',
+					min: 1,
+					step: 1,
+					defaultValue: DEFAULT_SETTINGS.maxResults,
+					validate: value => (Number.isInteger(value) && value >= 1 ? undefined : 'Value must be a positive integer.'),
+				},
+			},
+			{
+				type: 'group',
+				heading: 'Hotkeys',
+				items: HOTKEY_SETTINGS.map(props => this.createHotkeySetting(props)),
+			},
+		];
 	}
 
 	display(): void {
-		this.containerEl.empty();
-
-		this.scope = new Scope();
-		this.app.keymap.pushScope(this.scope);
-
-		new Setting(this.containerEl)
-			.setName('Ignore excluded files')
-			.setDesc('Whether this plugin should ignore files that have been excluded in Obsidians settings under "Files and links > Excluded files".')
-			.addToggle(toggle => {
-				toggle.setValue(this.plugin.settings.ignoreExcludedFiles).onChange(value => {
-					this.plugin.settings.ignoreExcludedFiles = value;
-					void this.plugin.saveSettings();
-				});
-			});
-
-		new Setting(this.containerEl)
-			.setName('Max search results')
-			.setDesc('Maximum number of ranked results to return from the search engine.')
-			.addText(text => {
-				text.setPlaceholder(String(DEFAULT_SETTINGS.maxResults))
-					.setValue(String(this.plugin.settings.maxResults))
-					.onChange(value => {
-						const parsed = Number.parseInt(value, 10);
-						if (!Number.isFinite(parsed)) {
-							return;
-						}
-
-						this.plugin.settings.maxResults = Math.max(1, parsed);
-						void this.plugin.saveSettings();
-					});
-			});
-
-		this.addHotkeySetting({
-			name: 'Selection up',
-			description: 'Hotkey to select move the search result selection up by one.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionUp,
-			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionUp,
-			onUpdate: (h: Hotkey[]) => {
-				this.plugin.settings.hotkeySearchSelectionUp = h;
-				void this.plugin.saveSettings();
-			},
-		});
-
-		this.addHotkeySetting({
-			name: 'Selection down',
-			description: 'Hotkey to select move the search result selection down by one.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionDown,
-			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionDown,
-			onUpdate: (h: Hotkey[]) => {
-				this.plugin.settings.hotkeySearchSelectionDown = h;
-				void this.plugin.saveSettings();
-			},
-		});
-
-		this.addHotkeySetting({
-			name: 'Selection first',
-			description: 'Hotkey to select the first search result.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionFirst,
-			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionFirst,
-			onUpdate: (h: Hotkey[]) => {
-				this.plugin.settings.hotkeySearchSelectionFirst = h;
-				void this.plugin.saveSettings();
-			},
-		});
-
-		this.addHotkeySetting({
-			name: 'Selection last',
-			description: 'Hotkey to select the last search result.',
-			hotkeys: this.plugin.settings.hotkeySearchSelectionLast,
-			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchSelectionLast,
-			onUpdate: (h: Hotkey[]) => {
-				this.plugin.settings.hotkeySearchSelectionLast = h;
-				void this.plugin.saveSettings();
-			},
-		});
-
-		this.addHotkeySetting({
-			name: 'Copy selection to search',
-			description: 'Hotkey to copy the current selection to the search bar.',
-			hotkeys: this.plugin.settings.hotkeySearchFillSelection,
-			defaultHotkeys: DEFAULT_SETTINGS.hotkeySearchFillSelection,
-			onUpdate: (h: Hotkey[]) => {
-				this.plugin.settings.hotkeySearchFillSelection = h;
-				void this.plugin.saveSettings();
-			},
+		const { containerEl } = this;
+		containerEl.empty();
+		containerEl.createEl('p', {
+			text: 'Lemons Search settings require Obsidian 1.13.0 or newer. This app appears to be running an older version.',
 		});
 	}
 
-	addHotkeySetting(props: HotkeySettingsProps): void {
-		const component = mount(HotkeySetting, {
-			target: this.containerEl,
-			props: {
-				plugin: this.plugin,
-				scope: this.scope!,
-				...props,
+	createHotkeySetting(props: HotkeySettingsProps): SettingDefinitionRender {
+		return {
+			name: props.name,
+			desc: props.description,
+			render: (setting: Setting) => this.renderHotkeySetting(setting, props),
+		};
+	}
+
+	renderHotkeySetting(setting: Setting, props: HotkeySettingsProps): () => void {
+		const scope = this.ensureScope();
+
+		const hotkeySetting = new HotkeySetting({
+			plugin: this.plugin,
+			containerEl: setting.controlEl,
+			scope,
+			hotkeys: this.plugin.settings[props.hotkeyKey],
+			defaultHotkeys: props.defaultHotkeys,
+			onUpdate: (hotkeys: Hotkey[]): void => {
+				this.plugin.settings[props.hotkeyKey] = hotkeys;
+				void this.plugin.saveSettings();
 			},
 		});
-		this.components.push(component);
+
+		return () => {
+			hotkeySetting.destroy();
+		};
+	}
+
+	ensureScope(): Scope {
+		if (!this.scope) {
+			this.scope = new Scope();
+			this.app.keymap.pushScope(this.scope);
+		}
+
+		return this.scope;
+	}
+
+	releaseScope(): void {
+		if (this.scope) {
+			this.app.keymap.popScope(this.scope);
+			this.scope = undefined;
+		}
 	}
 
 	hide(): void {
 		super.hide();
-		if (this.scope) {
-			this.app.keymap.popScope(this.scope);
-		}
+		this.releaseScope();
 	}
 }

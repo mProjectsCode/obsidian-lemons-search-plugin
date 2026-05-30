@@ -13,7 +13,7 @@ import 'packages/obsidian/src/styles.css';
 const CONTENT_SLICE_LENGTH = 5000;
 
 export default class LemonsSearchPlugin extends Plugin {
-	settings!: LemonsSearchSettings;
+	declare settings: LemonsSearchSettings;
 
 	hotkeyHelper!: HotkeyHelper;
 	data!: {
