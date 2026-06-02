@@ -5,6 +5,7 @@
 	"main": "main.js",
 	"scripts": {
 		"dev": "vite build --mode=development --watch",
+		"dev:wasm": "LEMONS_SEARCH_LOCAL_WASM=true vite build --mode=development --watch",
 		"build": "bun run typecheck && vite build --mode=production",
 		"typecheck": "tsc -noEmit -skipLibCheck",
 		"test": "bun test",
@@ -13,8 +14,8 @@
 		"format:check": "prettier --check .",
 		"lint": "eslint --max-warnings=0 packages/obsidian/** --no-warn-ignored",
 		"lint:fix": "eslint --max-warnings=0 --fix packages/obsidian/** --no-warn-ignored",
-		"check": "bun run wasm:fmt:check && bun run wasm:test && bun run wasm:build && bun run format:check && bun run typecheck && bun run lint && bun run test",
-		"check:fix": "bun run wasm:fmt && bun run wasm:test && bun run wasm:build && bun run format && bun run typecheck && bun run lint:fix && bun run test",
+		"check": "bun run format:check && bun run typecheck && bun run lint && bun run test",
+		"check:fix": "bun run format && bun run typecheck && bun run lint:fix && bun run test",
 		"release": "lemons-automation release",
 		"wasm:build": "cd packages/lemons-search && wasm-pack build --target web",
 		"wasm:dev": "cd packages/lemons-search && wasm-pack build --dev --target web",
@@ -54,6 +55,6 @@
 		"vite-plugin-static-copy": "^4.1.0"
 	},
 	"dependencies": {
-		"@lemons_dev/lemons-search": "https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.0/lemons-search-v0.1.0.tgz"
+		"@lemons_dev/lemons-search": "https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.4/lemons-search-v0.1.4.tgz"
 	}
 }

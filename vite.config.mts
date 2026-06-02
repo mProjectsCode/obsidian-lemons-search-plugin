@@ -9,6 +9,7 @@ import manifest from './manifest.json' with { type: 'json' };
 
 const entryFile = 'packages/obsidian/src/main.ts';
 const wasmPackagePath = path.resolve(__dirname, './packages/lemons-search/pkg');
+const useLocalWasmPackage = process.env.LEMONS_SEARCH_LOCAL_WASM === 'true';
 
 export default defineConfig(({ mode }) => {
 	const prod = mode === 'production';
@@ -28,12 +29,12 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: {
 				packages: path.resolve(__dirname, './packages'),
-				...(prod
-					? {}
-					: {
+				...(useLocalWasmPackage
+					? {
 							'@lemons_dev/lemons-search/lemons_search_bg.wasm': path.resolve(wasmPackagePath, 'lemons_search_bg.wasm'),
 							'@lemons_dev/lemons-search': path.resolve(wasmPackagePath, 'lemons_search.js'),
-						}),
+						}
+					: {}),
 			},
 		},
 		build: {
