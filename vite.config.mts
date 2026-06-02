@@ -8,6 +8,7 @@ import { getBuildBanner } from '@lemons_dev/lemons-obsidian-plugin-automation';
 import manifest from './manifest.json' with { type: 'json' };
 
 const entryFile = 'packages/obsidian/src/main.ts';
+const wasmPackagePath = path.resolve(__dirname, './packages/lemons-search/pkg');
 
 export default defineConfig(({ mode }) => {
 	const prod = mode === 'production';
@@ -27,6 +28,12 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: {
 				packages: path.resolve(__dirname, './packages'),
+				...(prod
+					? {}
+					: {
+							'@lemons_dev/lemons-search/lemons_search_bg.wasm': path.resolve(wasmPackagePath, 'lemons_search_bg.wasm'),
+							'@lemons_dev/lemons-search': path.resolve(wasmPackagePath, 'lemons_search.js'),
+						}),
 			},
 		},
 		build: {

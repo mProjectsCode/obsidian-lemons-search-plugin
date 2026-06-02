@@ -1,0 +1,3 @@
+[submodule "packages/lemons-search"]
+	path = packages/lemons-search
+	url = https://github.com/mProjectsCode/obsidian-lemons-search-wasm.git
