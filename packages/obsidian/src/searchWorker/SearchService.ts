@@ -5,8 +5,9 @@ import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { FullTextBuildProgress, FullTextBuildStats } from 'packages/obsidian/src/searchWorker/BuiltInSearchIndexer';
 import { BuiltInSearchIndexer } from 'packages/obsidian/src/searchWorker/BuiltInSearchIndexer';
 import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import { hydrateFullTextDatum } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
 import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker?worker&inline';
-import type { SearchDatastoreHealth } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+import type { SearchDatastoreHealth, SearchResultHydrator } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 import { SearchDatastore } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 import type {
 	DatastoreKind,
@@ -84,6 +85,10 @@ export class SearchService {
 		this.pending.clear();
 	}
 
+	isTerminated(): boolean {
+		return this.terminated;
+	}
+
 	async initializeBuiltIns(): Promise<void> {
 		this.builtInsPromise ??= this.doInitializeBuiltIns();
 		await this.builtInsPromise;
@@ -98,9 +103,9 @@ export class SearchService {
 		await this.builtInIndexer?.whenFullTextReady();
 	}
 
-	async createDatastore<T>(kind: DatastoreKind): Promise<SearchDatastore<T>> {
+	async createDatastore<T>(kind: DatastoreKind, hydrateResult?: SearchResultHydrator<T>): Promise<SearchDatastore<T>> {
 		const id = await this.request<string>('createDatastore', kind);
-		return new SearchDatastore<T>(this, id, kind);
+		return new SearchDatastore<T>(this, id, kind, hydrateResult);
 	}
 
 	setMaxResults(maxResults: number): void {
@@ -162,7 +167,7 @@ export class SearchService {
 	private async doInitializeBuiltIns(): Promise<void> {
 		this.filePath = await this.createDatastore<TFile>('fuzzy');
 		this.fileAlias = await this.createDatastore<TFile>('fuzzy');
-		this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText');
+		this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText', (datum, query) => hydrateFullTextDatum(this.plugin.app, datum, query));
 
 		this.builtInIndexer = new BuiltInSearchIndexer(
 			this.plugin,

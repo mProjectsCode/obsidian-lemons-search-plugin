@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { CachedMetadata, TFile } from 'obsidian';
-import { buildFullTextBlockRecords } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
+import { buildFullTextBlockRecords, fullTextHighlightRanges } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 
 function file(path: string): TFile {
 	return { path } as TFile;
@@ -68,5 +68,26 @@ describe('buildFullTextBlockRecords', () => {
 				},
 			},
 		]);
+	});
+
+	test('can omit block content from metadata while keeping index text', () => {
+		const records = buildFullTextBlockRecords(file('note.md'), 'Alpha beta', undefined, false);
+
+		expect(records[0].text).toBe('Alpha beta');
+		expect(records[0].meta?.content).toBe('');
+		expect(records[0].meta?.data).toEqual({
+			filePath: 'note.md',
+			startOffset: 0,
+			endOffset: 10,
+			blockType: undefined,
+		});
+	});
+
+	test('computes full-text highlight ranges from hydrated content', () => {
+		expect(fullTextHighlightRanges('Apple pie with apple slices', 'apple pie')).toEqual([0, 5, 6, 9, 15, 20]);
+	});
+
+	test('computes unicode highlight ranges by codepoint offset', () => {
+		expect(fullTextHighlightRanges('ægir apple', 'apple ægir')).toEqual([0, 4, 5, 10]);
 	});
 });

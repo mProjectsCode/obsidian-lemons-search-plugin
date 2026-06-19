@@ -37,8 +37,7 @@ export default class LemonsSearchPlugin extends Plugin {
 			command: new CommandDataSource(this),
 		};
 		this.search = new SearchService(this);
-		this.search.initialize();
-		void this.search.initializeBuiltIns();
+		this.app.workspace.onLayoutReady(() => this.initializeSearch());
 		this.api = new API(this);
 
 		this.addCommand({
@@ -129,6 +128,17 @@ export default class LemonsSearchPlugin extends Plugin {
 
 	onunload(): void {
 		this.search.terminate();
+	}
+
+	private initializeSearch(): void {
+		if (this.search.isTerminated()) {
+			return;
+		}
+		this.search.initialize();
+		void this.search.initializeBuiltIns().catch(error => {
+			new Notice('Lemons Search failed to initialize search indexes. Check console for details.');
+			console.error('Failed to initialize Lemons Search indexes:', error);
+		});
 	}
 
 	async loadSettings(): Promise<void> {

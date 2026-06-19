@@ -16,18 +16,26 @@ export interface SearchDatastoreHealth extends WorkerDatastoreHealth {
 	healthy: boolean;
 }
 
+export type SearchResultHydrator<T> = (
+	datum: SearchDatum<T>,
+	query: string,
+	highlightRanges: Uint32Array | number[] | undefined,
+) => Promise<SearchResultDatum<T>>;
+
 export class SearchDatastore<T> {
 	readonly id: string;
 	readonly kind: DatastoreKind;
 	private service: SearchService;
+	private hydrateResult?: SearchResultHydrator<T>;
 	private data = new Map<string, SearchDatum<T>>();
 	private ownerRecords = new Map<string, Set<string>>();
 	private mutationQueue: Promise<void> = Promise.resolve();
 
-	constructor(service: SearchService, id: string, kind: DatastoreKind) {
+	constructor(service: SearchService, id: string, kind: DatastoreKind, hydrateResult?: SearchResultHydrator<T>) {
 		this.service = service;
 		this.id = id;
 		this.kind = kind;
+		this.hydrateResult = hydrateResult;
 	}
 
 	getDatum(id: string): SearchDatum<T> | undefined {
@@ -36,6 +44,14 @@ export class SearchDatastore<T> {
 
 	getAllData(): SearchDatum<T>[] {
 		return Array.from(this.data.values());
+	}
+
+	async getSearchResult(id: string, query: string, highlightRanges: Uint32Array | number[] | undefined): Promise<SearchResultDatum<T> | undefined> {
+		const datum = this.data.get(id);
+		if (!datum) {
+			return undefined;
+		}
+		return this.hydrateResult ? await this.hydrateResult(datum, query, highlightRanges) : { ...datum, highlightRanges };
 	}
 
 	async clear(): Promise<void> {
@@ -107,6 +123,39 @@ export class SearchDatastore<T> {
 			for (const record of records) {
 				if (record.meta) {
 					this.data.set(record.id, record.meta);
+				}
+			}
+		});
+	}
+
+	async replaceOwners(ownerRecords: Map<string, SearchRecord<SearchDatum<T>>[]>): Promise<void> {
+		await this.enqueueMutation(async () => {
+			const deletedIds: string[] = [];
+			const records = Array.from(ownerRecords.values()).flat();
+
+			for (const [ownerId, ownerRecordList] of ownerRecords) {
+				const previousIds = Array.from(this.ownerRecords.get(ownerId) ?? []);
+				const nextIds = new Set(ownerRecordList.map(record => record.id));
+				deletedIds.push(...previousIds.filter(id => !nextIds.has(id)));
+			}
+
+			if (deletedIds.length > 0) {
+				await this.service.deleteRecords(this.id, deletedIds);
+			}
+			await this.service.upsertRecords(
+				this.id,
+				records.map(record => ({ id: record.id, text: record.text })),
+			);
+
+			for (const id of deletedIds) {
+				this.data.delete(id);
+			}
+			for (const [ownerId, ownerRecordList] of ownerRecords) {
+				this.ownerRecords.set(ownerId, new Set(ownerRecordList.map(record => record.id)));
+				for (const record of ownerRecordList) {
+					if (record.meta) {
+						this.data.set(record.id, record.meta);
+					}
 				}
 			}
 		});
@@ -189,13 +238,15 @@ export class SearchSession<T> {
 	async search(query: string): Promise<SearchResultDatum<T>[]> {
 		await this.store.whenSettled();
 		const results = await this.service.searchSession(this.id, query);
-		return results.flatMap(result => {
-			const datum = this.store.getDatum(result.id);
+		const data: SearchResultDatum<T>[] = [];
+		for (const result of results) {
+			const datum = await this.store.getSearchResult(result.id, query, result.r);
 			if (!datum) {
-				return [];
+				continue;
 			}
-			return [{ ...datum, highlightRanges: result.r }];
-		});
+			data.push(datum);
+		}
+		return data;
 	}
 
 	async close(): Promise<void> {

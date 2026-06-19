@@ -8,7 +8,7 @@ import type { SearchDatastore, SearchRecord } from 'packages/obsidian/src/search
 
 const FILE_PATH_STORE_ID = 'builtin:path';
 const FILE_ALIAS_STORE_ID = 'builtin:alias';
-const FULL_TEXT_BATCH_SIZE = 16;
+const FULL_TEXT_BATCH_SIZE = 64;
 const PROGRESS_NOTICE_INTERVAL_MS = 500;
 
 export interface BuiltInSearchStores {
@@ -81,7 +81,6 @@ export class BuiltInSearchIndexer {
 	private async rebuildFullTextStore(): Promise<FullTextBuildStats> {
 		for (;;) {
 			const generation = this.rebuildGeneration;
-			const owners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
 			const files = this.plugin.getFiles().filter(file => this.isMarkdownFile(file));
 			const startedAt = performance.now();
 			let indexedFiles = 0;
@@ -96,14 +95,28 @@ export class BuiltInSearchIndexer {
 				phase: 'reading',
 			});
 
+			await this.stores.fullText.clear();
+
 			for (let start = 0; start < files.length; start += FULL_TEXT_BATCH_SIZE) {
+				if (generation !== this.rebuildGeneration) {
+					break;
+				}
+
 				const batch = files.slice(start, start + FULL_TEXT_BATCH_SIZE);
 				const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
+				const batchOwners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
 
 				for (const result of batchResults) {
-					owners.set(result.path, result.records);
+					if (generation !== this.rebuildGeneration) {
+						break;
+					}
+					batchOwners.set(result.path, result.records);
 					indexedFiles += 1;
 					indexedBlocks += result.records.length;
+				}
+
+				if (generation === this.rebuildGeneration && batchOwners.size > 0) {
+					await this.stores.fullText.replaceOwners(batchOwners);
 				}
 
 				const now = performance.now();
@@ -129,7 +142,6 @@ export class BuiltInSearchIndexer {
 					elapsedMs: performance.now() - startedAt,
 					phase: 'committing',
 				});
-				await this.stores.fullText.replaceAllOwners(owners);
 				const stats = {
 					indexedFiles,
 					totalFiles: files.length,
@@ -150,7 +162,7 @@ export class BuiltInSearchIndexer {
 		const metadata = this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
 		return {
 			path: file.path,
-			records: buildFullTextBlockRecords(file, text, metadata),
+			records: buildFullTextBlockRecords(file, text, metadata, false),
 		};
 	}
 
@@ -249,7 +261,7 @@ export class BuiltInSearchIndexer {
 
 		const text = data ?? (await this.plugin.app.vault.cachedRead(file));
 		const metadata = cache ?? this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
-		const records = buildFullTextBlockRecords(file, text, metadata);
+		const records = buildFullTextBlockRecords(file, text, metadata, false);
 		await this.stores.fullText.replaceOwner(file.path, records);
 	}
 
