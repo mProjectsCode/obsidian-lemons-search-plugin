@@ -91,6 +91,17 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		];
 	}
 
+	async setControlValue(key: string, value: unknown): Promise<void> {
+		if (!(key in this.plugin.settings)) {
+			return;
+		}
+		const settingKey = key as keyof typeof this.plugin.settings;
+		const previousValue = this.plugin.settings[settingKey];
+		(this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
+		await this.plugin.saveSettings();
+		await this.plugin.onSettingChanged(settingKey, previousValue, value);
+	}
+
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();

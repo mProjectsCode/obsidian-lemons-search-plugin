@@ -27,15 +27,10 @@ export default defineConfig(({ mode }) => {
 			}),
 		],
 		resolve: {
-			alias: {
-				packages: path.resolve(__dirname, './packages'),
-				...(useLocalWasmPackage
-					? {
-							'@lemons_dev/lemons-search/lemons_search_bg.wasm': path.resolve(wasmPackagePath, 'lemons_search_bg.wasm'),
-							'@lemons_dev/lemons-search': path.resolve(wasmPackagePath, 'lemons_search.js'),
-						}
-					: {}),
-			},
+			alias: [
+				{ find: 'packages', replacement: path.resolve(__dirname, './packages') },
+				...(useLocalWasmPackage ? [{ find: /^@lemons_dev\/lemons-search$/, replacement: path.resolve(wasmPackagePath, 'lemons_search.js') }] : []),
+			],
 		},
 		build: {
 			lib: {

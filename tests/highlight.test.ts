@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { highlightTextFromRanges } from '../packages/obsidian/src/searchUI/highlight';
+import { highlightedSnippetFromRanges } from '../packages/obsidian/src/searchUI/highlightSnippet';
 
 describe('highlightTextFromRanges', () => {
 	test('decodes compact Uint32Array highlight ranges from wasm directly on JS side', () => {
@@ -46,5 +47,29 @@ describe('highlightTextFromRanges', () => {
 		const segments = highlightTextFromRanges(text, ranges);
 
 		expect(segments).toEqual([{ t: 'apple', h: false }]);
+	});
+});
+
+describe('highlightedSnippetFromRanges', () => {
+	test('centers snippets around the highlighted range with word context', () => {
+		const text = 'one two three four five six seven eight nine';
+		const start = Array.from(text.slice(0, text.indexOf('five'))).length;
+		const end = start + Array.from('five').length;
+
+		const segments = highlightedSnippetFromRanges(text, [start, end], 2);
+
+		expect(segments).toEqual([
+			{ t: '...', h: false },
+			{ t: 'three four ', h: false },
+			{ t: 'five', h: true },
+			{ t: ' six seven', h: false },
+			{ t: '...', h: false },
+		]);
+	});
+
+	test('falls back to a plain truncated snippet without ranges', () => {
+		const segments = highlightedSnippetFromRanges('one two three four five', undefined, 1);
+
+		expect(segments).toEqual([{ t: 'one two three four...', h: false }]);
 	});
 });

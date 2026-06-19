@@ -1,10 +1,7 @@
 import type { Modifier, Scope } from 'obsidian';
-import { Notice } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
-import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker?worker&inline';
-import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import type { SearchDatastore, SearchSession } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 
 export interface SearchData<T> {
 	data: SearchDatum<T>[];
@@ -49,16 +46,6 @@ export type SearchResultDatum<T> = SearchDatum<T> & {
 	highlights?: HighlightSegment[];
 	highlightRanges?: Uint32Array | number[];
 };
-
-/**
- * A search result returned by Rust.
- * To minimize transfer overhead between WASM and JS, Rust only returns indices.
- * Highlight rendering is computed lazily in the UI layer.
- */
-export interface SearchResult {
-	index: number;
-	r: Uint32Array | number[];
-}
 
 export interface SearchPlaceholderCategory<T> {
 	title: string;
@@ -128,26 +115,29 @@ export class SearchController<T> {
 	plugin: LemonsSearchPlugin;
 	uuid: string;
 
-	worker?: Worker;
 	targetEl?: HTMLElement;
 	onSubmitCBs: ((data: SearchDatum<T>, modifiers: Modifier[]) => void)[];
 	onCancelCBs: (() => void)[];
-	RPC?: RPCController<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>;
 	data: SearchData<T>;
+	store: SearchDatastore<T>;
+	destroyStoreOnDestroy: boolean;
+	session?: SearchSession<T>;
 	ui: SearchUI<T>;
 
 	searchQueueSlot: string | undefined;
-	searchWorkerRunning: boolean = false;
-	searchWorkerInitialized: boolean = false;
-	workerFailed: boolean = false;
+	searchInFlight: boolean = false;
+	sessionReady: boolean = false;
+	sessionFailed: boolean = false;
+	searchGeneration: number = 0;
+	destroyed: boolean = false;
 
-	// searchComponent: ReturnType<typeof SearchUIComponent>;
-
-	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>) {
+	constructor(plugin: LemonsSearchPlugin, ui: SearchUI<T>, data: SearchData<T>, store: SearchDatastore<T>, destroyStoreOnDestroy: boolean = false) {
 		this.plugin = plugin;
 		this.onSubmitCBs = [];
 		this.onCancelCBs = [];
 		this.data = data;
+		this.store = store;
+		this.destroyStoreOnDestroy = destroyStoreOnDestroy;
 		this.ui = ui;
 
 		this.uuid = crypto.randomUUID();
@@ -162,6 +152,7 @@ export class SearchController<T> {
 	}
 
 	create(targetEl: HTMLElement, scope: Scope): void {
+		this.destroyed = false;
 		this.targetEl = targetEl;
 		this.ui.create({
 			plugin: this.plugin,
@@ -177,30 +168,25 @@ export class SearchController<T> {
 			},
 		});
 
-		this.worker = new SearchWorker();
-
-		this.RPC = RPCController.toWorker<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(this.worker, {
-			onSearchFinished: (result): void => this.onSearchFinished(result),
-			onInitialized: (): void => {
-				this.searchWorkerInitialized = true;
-				this.RPC?.call('setMaxResults', this.plugin.settings.maxResults);
-				this.RPC?.call(
-					'updateIndex',
-					this.data.data.map(d => d.content),
-				);
+		void this.store
+			.createSession()
+			.then(session => {
+				if (this.destroyed) {
+					void session.close();
+					return;
+				}
+				this.session = session;
+				this.sessionReady = true;
 				this.startSearch();
-			},
-			onInitializationFailed: (message): void => {
-				this.workerFailed = true;
-				this.searchWorkerInitialized = false;
-				this.searchWorkerRunning = false;
+			})
+			.catch(e => {
+				this.sessionFailed = true;
+				this.sessionReady = false;
+				this.searchInFlight = false;
 				this.searchQueueSlot = undefined;
 				this.ui.onSearchResults([]);
-				console.error('Failed to initialize Lemons Search worker:', message);
-				// eslint-disabl
-				new Notice('Lemons Search failed to initialize. Check console for details.');
-			},
-		});
+				console.error('Failed to create Lemons Search session:', e);
+			});
 	}
 
 	search(s: string): void {
@@ -211,37 +197,55 @@ export class SearchController<T> {
 
 	startSearch(): void {
 		// if there is no search in the queue, we have nothing to do
-		// if the worker is not initialized, we cannot start a search
-		// if the worker is already running, a new search will be started when the current search is finished
-		if (this.searchQueueSlot === undefined || this.searchWorkerRunning || !this.searchWorkerInitialized || this.workerFailed) {
+		// if the session is not initialized, we cannot start a search
+		// if a search is already running, a new search will be started when the current search is finished
+		const session = this.session;
+		if (this.searchQueueSlot === undefined || this.searchInFlight || !this.sessionReady || this.sessionFailed || !session) {
 			return;
 		}
 
-		this.searchWorkerRunning = true;
-		this.RPC?.call('search', this.searchQueueSlot);
+		this.searchInFlight = true;
+		const query = this.searchQueueSlot;
 		this.searchQueueSlot = undefined;
+		const generation = ++this.searchGeneration;
+		void session
+			.search(query)
+			.then(results => {
+				if (!this.destroyed && generation === this.searchGeneration) {
+					this.onSearchFinished(results);
+				}
+			})
+			.catch(e => {
+				this.searchInFlight = false;
+				this.ui.onSearchResults([]);
+				console.error('Lemons Search query failed:', e);
+				this.startSearch();
+			});
 	}
 
 	/**
 	 * This is called when the current search is finished.
 	 * It will start a new search if there is a new search in the queue.
 	 */
-	onSearchFinished(result: SearchResult[]): void {
-		this.searchWorkerRunning = false;
+	onSearchFinished(result: SearchResultDatum<T>[]): void {
+		this.searchInFlight = false;
 
-		this.ui.onSearchResults(
-			result.map(r => ({
-				...this.data.data[r.index],
-				highlightRanges: r.r,
-			})),
-		);
+		this.ui.onSearchResults(result);
 
 		this.startSearch();
 	}
 
 	destroy(): void {
-		this.worker?.terminate();
-		// void unmount(this.searchComponent);
+		this.destroyed = true;
+		this.searchGeneration += 1;
+		void this.session?.close().catch(e => {
+			console.error('Failed to close Lemons Search session:', e);
+		});
+		if (this.destroyStoreOnDestroy) {
+			void this.store.destroy().catch(e => {
+				console.error('Failed to destroy Lemons Search datastore:', e);
+			});
+		}
 		this.ui.destroy();
 		this.targetEl?.empty();
 	}

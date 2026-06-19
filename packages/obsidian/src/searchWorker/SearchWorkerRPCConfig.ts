@@ -1,14 +1,42 @@
-import type { SearchResult } from 'packages/obsidian/src/searchUI/SearchController';
+export type DatastoreKind = 'fuzzy' | 'fullText';
+
+export interface WorkerSearchRecord {
+	id: string;
+	text: string;
+}
+
+export interface WorkerSearchResult {
+	id: string;
+	score: number;
+	r: Uint32Array | number[];
+}
+
+export interface WorkerDatastoreHealth {
+	exists: boolean;
+	kind: DatastoreKind | '';
+	liveRecords: number;
+	tombstones: number;
+	recordIds: string[];
+	postingTerms: number;
+	postingOccurrences: number;
+}
 
 export interface SearchWorkerRPCHandlersWorker {
 	setMaxResults: [number];
-	updateIndex: [string[]];
-
-	search: [string];
+	createDatastore: [string, DatastoreKind];
+	destroyDatastore: [string, string];
+	clearDatastore: [string, string];
+	upsertRecords: [string, string, WorkerSearchRecord[]];
+	deleteRecords: [string, string, string[]];
+	getDatastoreHealth: [string, string];
+	createSession: [string, string];
+	closeSession: [string, string];
+	searchSession: [string, string, string];
 }
 
 export interface SearchWorkerRPCHandlersMain {
-	onSearchFinished: [SearchResult[]];
+	onRequestResolved: [string, unknown];
+	onRequestFailed: [string, string];
 	onInitialized: [];
 	onInitializationFailed: [string];
 }

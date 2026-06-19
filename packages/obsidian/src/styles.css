@@ -54,6 +54,77 @@
 	max-width: 100%;
 }
 
+.lemons-search--full-text-search {
+	flex: 1;
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.1fr);
+	gap: var(--size-4-3);
+	min-height: 0;
+	overflow: hidden;
+}
+
+.lemons-search--full-text-search .lemons-search--search {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow-y: auto;
+}
+
+.lemons-search--full-text-search .lemons-search--search input {
+	width: 100%;
+}
+
+.lemons-search--full-text-preview {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+	border-left: 1px solid var(--background-modifier-border);
+}
+
+.lemons-search--full-text-preview-header {
+	padding: var(--size-4-2) var(--size-4-3);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lemons-search--full-text-preview-path {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lemons-search--full-text-preview-type {
+	color: var(--text-faint);
+	font-size: var(--font-ui-small);
+	text-transform: capitalize;
+}
+
+.lemons-search--full-text-preview-body {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: var(--size-4-3);
+}
+
+.lemons-search--full-text-preview-plain {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.lemons-search--full-text-preview-empty {
+	padding: var(--size-4-3);
+	color: var(--text-faint);
+}
+
+.lemons-search--full-text-snippet {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
 .lemons-search .lemons-search--search .prompt-results {
 	contain: paint;
 }
@@ -86,6 +157,19 @@
 .lemons-search .suggestion-item {
 	white-space: initial;
 	word-break: break-word;
+}
+
+@media (max-width: 700px) {
+	.lemons-search--full-text-search,
+	.lemons-search--preview-search {
+		grid-template-columns: 1fr;
+		grid-template-rows: minmax(14rem, 1fr) minmax(10rem, 1fr);
+	}
+
+	.lemons-search--full-text-preview {
+		border-left: 0;
+		border-top: 1px solid var(--background-modifier-border);
+	}
 }
 
 /* .lemons-search-modal .modal-content .prompt-results .suggestion-title {

@@ -1,6 +1,6 @@
 import type { HighlightSegment } from 'packages/obsidian/src/searchUI/SearchController';
 
-type RangeLike = Uint32Array | number[] | undefined;
+export type RangeLike = Uint32Array | number[] | undefined;
 type NormalizedRange = [start: number, end: number];
 
 function pushSegment(segments: HighlightSegment[], chars: string[], start: number, end: number, highlighted: boolean): void {
@@ -14,7 +14,7 @@ function pushSegment(segments: HighlightSegment[], chars: string[], start: numbe
 	});
 }
 
-function toSafeRanges(ranges: RangeLike, textCodepoints: number): number[] {
+export function toSafeRanges(ranges: RangeLike, textCodepoints: number): number[] {
 	if (ranges === undefined || ranges.length < 2) {
 		return [];
 	}

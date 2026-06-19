@@ -66,3 +66,10 @@ export type MaybePromise<T> = T | Promise<T>;
 export function expectType<T>(_: T): void {
 	// no-op
 }
+
+export function formatDuration(durationMs: number): string {
+	if (durationMs < 1000) {
+		return `${Math.round(durationMs)} ms`;
+	}
+	return `${(durationMs / 1000).toFixed(1)} s`;
+}

@@ -1,13 +1,16 @@
 import type { TFile } from 'obsidian';
-import { Plugin } from 'obsidian';
+import { Notice, Plugin } from 'obsidian';
 import { API, FileSearchType, SearchUIType } from 'packages/obsidian/src/API';
 import { CommandDataSource, CommandDataPlaceholders } from 'packages/obsidian/src/searchData/CommandDataSource';
 import { FileAliasDataSource } from 'packages/obsidian/src/searchData/FileAliasDataSource';
 import { FileDataSource, FileDataPlaceholders } from 'packages/obsidian/src/searchData/FileDataSource';
+import { openFullTextResult } from 'packages/obsidian/src/searchUI/fullText/openFullTextResult';
+import { SearchService } from 'packages/obsidian/src/searchWorker/SearchService';
 import type { LemonsSearchSettings } from 'packages/obsidian/src/settings/Settings';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 import { LemonsSearchSettingsTab } from 'packages/obsidian/src/settings/SettingTab';
 import { HotkeyHelper } from 'packages/obsidian/src/utils/Hotkeys';
+import { formatDuration } from 'packages/obsidian/src/utils/utils';
 import 'packages/obsidian/src/styles.css';
 
 const CONTENT_SLICE_LENGTH = 5000;
@@ -22,6 +25,7 @@ export default class LemonsSearchPlugin extends Plugin {
 		command: CommandDataSource;
 	};
 	api!: API;
+	search!: SearchService;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -32,6 +36,9 @@ export default class LemonsSearchPlugin extends Plugin {
 			alias: new FileAliasDataSource(this),
 			command: new CommandDataSource(this),
 		};
+		this.search = new SearchService(this);
+		this.search.initialize();
+		void this.search.initializeBuiltIns();
 		this.api = new API(this);
 
 		this.addCommand({
@@ -77,10 +84,52 @@ export default class LemonsSearchPlugin extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: 'open-full-text-search',
+			name: 'Open full-text search',
+			callback: async () => {
+				await this.api.searchFullText({
+					prompt: 'Search note contents...',
+					onSubmit: (data, modifiers) => {
+						void openFullTextResult(this.app, data.data, modifiers.includes('Mod'));
+					},
+				});
+			},
+		});
+
+		this.addCommand({
+			id: 'rebuild-search-datastores',
+			name: 'Rebuild in-memory search index',
+			callback: async () => {
+				const stats = await this.search.rebuildBuiltIns();
+				if (stats) {
+					new Notice(
+						`Lemons Search rebuilt the in-memory index for ${stats.indexedFiles.toLocaleString()} notes (${stats.indexedBlocks.toLocaleString()} blocks) in ${formatDuration(stats.durationMs)}.`,
+					);
+				} else {
+					new Notice('Lemons Search rebuilt the in-memory index.');
+				}
+			},
+		});
+
+		this.addCommand({
+			id: 'check-search-datastore-health',
+			name: 'Check in-memory search index health',
+			callback: async () => {
+				const report = await this.search.checkHealth();
+				const status = report.healthy ? 'healthy' : 'needs attention';
+				// eslint-disable-next-line obsidianmd/rule-custom-message -- This command explicitly reports diagnostics in the developer console.
+				console.info('Lemons Search in-memory index health:', report);
+				new Notice(`Lemons Search in-memory index health: ${status}. See console for details.`);
+			},
+		});
+
 		this.addSettingTab(new LemonsSearchSettingsTab(this.app, this));
 	}
 
-	onunload(): void {}
+	onunload(): void {
+		this.search.terminate();
+	}
 
 	async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData()) as LemonsSearchSettings;
@@ -88,6 +137,19 @@ export default class LemonsSearchPlugin extends Plugin {
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	async onSettingChanged(
+		key: keyof LemonsSearchSettings,
+		previousValue: LemonsSearchSettings[keyof LemonsSearchSettings],
+		nextValue: unknown,
+	): Promise<void> {
+		if (key === 'maxResults') {
+			this.search.setMaxResults(Number(nextValue));
+		}
+		if (key === 'ignoreExcludedFiles' && previousValue !== nextValue) {
+			await this.search.rebuildBuiltIns();
+		}
 	}
 
 	getFiles(): TFile[] {

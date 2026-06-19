@@ -1,0 +1,302 @@
+import type { CachedMetadata, TAbstractFile, TFile } from 'obsidian';
+import { parseFrontMatterAliases } from 'obsidian';
+import type LemonsSearchPlugin from 'packages/obsidian/src/main';
+import type { SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
+import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import { buildFullTextBlockRecords } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import type { SearchDatastore, SearchRecord } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+
+const FILE_PATH_STORE_ID = 'builtin:path';
+const FILE_ALIAS_STORE_ID = 'builtin:alias';
+const FULL_TEXT_BATCH_SIZE = 16;
+const PROGRESS_NOTICE_INTERVAL_MS = 500;
+
+export interface BuiltInSearchStores {
+	filePath: SearchDatastore<TFile>;
+	fileAlias: SearchDatastore<TFile>;
+	fullText: SearchDatastore<FullTextBlockMeta>;
+}
+
+export interface FullTextBuildProgress {
+	indexedFiles: number;
+	totalFiles: number;
+	indexedBlocks: number;
+	elapsedMs: number;
+	phase: 'reading' | 'committing';
+}
+
+export interface FullTextBuildStats {
+	indexedFiles: number;
+	totalFiles: number;
+	indexedBlocks: number;
+	durationMs: number;
+}
+
+export interface BuiltInSearchIndexerEvents {
+	onFullTextBuildStarted?(progress: FullTextBuildProgress): void;
+	onFullTextBuildProgress?(progress: FullTextBuildProgress): void;
+	onFullTextBuildCompleted?(stats: FullTextBuildStats): void;
+}
+
+export class BuiltInSearchIndexer {
+	private plugin: LemonsSearchPlugin;
+	private stores: BuiltInSearchStores;
+	private events: BuiltInSearchIndexerEvents;
+	private fullTextIndexPromise?: Promise<FullTextBuildStats>;
+	private rebuildGeneration = 0;
+
+	constructor(plugin: LemonsSearchPlugin, stores: BuiltInSearchStores, events: BuiltInSearchIndexerEvents = {}) {
+		this.plugin = plugin;
+		this.stores = stores;
+		this.events = events;
+	}
+
+	async initialize(): Promise<void> {
+		await this.rebuildPathAndAliasStores();
+		this.fullTextIndexPromise = this.scheduleIdle(() => this.rebuildFullTextStore());
+		this.registerVaultEvents();
+	}
+
+	async whenFullTextReady(): Promise<void> {
+		await this.fullTextIndexPromise;
+	}
+
+	async rebuild(): Promise<FullTextBuildStats> {
+		this.bumpRebuildGeneration();
+		const [, fullTextStats] = await Promise.all([this.rebuildPathAndAliasStores(), this.rebuildFullTextStore()]);
+		return fullTextStats;
+	}
+
+	private async rebuildPathAndAliasStores(): Promise<void> {
+		const pathOwners = new Map<string, SearchRecord<SearchDatum<TFile>>[]>();
+		const aliasOwners = new Map<string, SearchRecord<SearchDatum<TFile>>[]>();
+		for (const file of this.plugin.getFiles()) {
+			const records = this.buildFileMetadataRecords(file);
+			pathOwners.set(file.path, records.path);
+			aliasOwners.set(file.path, records.aliases);
+		}
+		await Promise.all([this.stores.filePath.replaceAllOwners(pathOwners), this.stores.fileAlias.replaceAllOwners(aliasOwners)]);
+	}
+
+	private async rebuildFullTextStore(): Promise<FullTextBuildStats> {
+		for (;;) {
+			const generation = this.rebuildGeneration;
+			const owners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
+			const files = this.plugin.getFiles().filter(file => this.isMarkdownFile(file));
+			const startedAt = performance.now();
+			let indexedFiles = 0;
+			let indexedBlocks = 0;
+			let lastProgressNoticeAt = 0;
+
+			this.reportFullTextProgress({
+				indexedFiles,
+				totalFiles: files.length,
+				indexedBlocks,
+				elapsedMs: 0,
+				phase: 'reading',
+			});
+
+			for (let start = 0; start < files.length; start += FULL_TEXT_BATCH_SIZE) {
+				const batch = files.slice(start, start + FULL_TEXT_BATCH_SIZE);
+				const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
+
+				for (const result of batchResults) {
+					owners.set(result.path, result.records);
+					indexedFiles += 1;
+					indexedBlocks += result.records.length;
+				}
+
+				const now = performance.now();
+				if (now - lastProgressNoticeAt >= PROGRESS_NOTICE_INTERVAL_MS || indexedFiles === files.length) {
+					lastProgressNoticeAt = now;
+					this.reportFullTextProgress({
+						indexedFiles,
+						totalFiles: files.length,
+						indexedBlocks,
+						elapsedMs: now - startedAt,
+						phase: 'reading',
+					});
+				}
+
+				await this.yieldToUI();
+			}
+
+			if (generation === this.rebuildGeneration) {
+				this.reportFullTextProgress({
+					indexedFiles,
+					totalFiles: files.length,
+					indexedBlocks,
+					elapsedMs: performance.now() - startedAt,
+					phase: 'committing',
+				});
+				await this.stores.fullText.replaceAllOwners(owners);
+				const stats = {
+					indexedFiles,
+					totalFiles: files.length,
+					indexedBlocks,
+					durationMs: performance.now() - startedAt,
+				};
+				this.events.onFullTextBuildCompleted?.(stats);
+				return stats;
+			}
+		}
+	}
+
+	private async buildFullTextRecordsForFile(file: TFile): Promise<{ path: string; records: SearchRecord<SearchDatum<FullTextBlockMeta>>[] }> {
+		if (this.isIgnored(file)) {
+			return { path: file.path, records: [] };
+		}
+		const text = await this.plugin.app.vault.cachedRead(file);
+		const metadata = this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
+		return {
+			path: file.path,
+			records: buildFullTextBlockRecords(file, text, metadata),
+		};
+	}
+
+	private registerVaultEvents(): void {
+		this.plugin.registerEvent(
+			this.plugin.app.vault.on('create', file => {
+				if (this.isFile(file)) {
+					void this.reindexFile(file);
+				}
+			}),
+		);
+		this.plugin.registerEvent(
+			this.plugin.app.vault.on('delete', file => {
+				if (this.isFile(file)) {
+					this.bumpRebuildGeneration();
+					void this.deleteFileRecords(file.path);
+				}
+			}),
+		);
+		this.plugin.registerEvent(
+			this.plugin.app.vault.on('rename', (file, oldPath) => {
+				if (this.isFile(file)) {
+					this.bumpRebuildGeneration();
+					void this.deleteFileRecords(oldPath).then(() => this.reindexFile(file));
+				}
+			}),
+		);
+		this.plugin.registerEvent(
+			this.plugin.app.metadataCache.on('changed', (file, data, cache) => {
+				this.bumpRebuildGeneration();
+				void Promise.all([this.reindexFileMetadata(file, cache), this.reindexFileBlocks(file, data, cache)]);
+			}),
+		);
+		this.plugin.registerEvent(
+			this.plugin.app.metadataCache.on('deleted', file => {
+				this.bumpRebuildGeneration();
+				void this.deleteFileRecords(file.path);
+			}),
+		);
+	}
+
+	private async reindexFile(file: TAbstractFile): Promise<void> {
+		if (!this.isFile(file)) return;
+		this.bumpRebuildGeneration();
+		if (this.isMarkdownFile(file)) {
+			await Promise.all([this.reindexFileMetadata(file), this.reindexFileBlocks(file)]);
+			return;
+		}
+		await Promise.all([this.reindexFileMetadata(file), this.stores.fullText.replaceOwner(file.path, [])]);
+	}
+
+	private async reindexFileMetadata(file: TFile, cache?: CachedMetadata): Promise<void> {
+		if (this.isIgnored(file)) {
+			await Promise.all([this.stores.filePath.replaceOwner(file.path, []), this.stores.fileAlias.replaceOwner(file.path, [])]);
+			return;
+		}
+
+		const records = this.buildFileMetadataRecords(file, cache);
+		await Promise.all([this.stores.filePath.replaceOwner(file.path, records.path), this.stores.fileAlias.replaceOwner(file.path, records.aliases)]);
+	}
+
+	private buildFileMetadataRecords(
+		file: TFile,
+		cache?: CachedMetadata,
+	): { path: SearchRecord<SearchDatum<TFile>>[]; aliases: SearchRecord<SearchDatum<TFile>>[] } {
+		const pathDatum: SearchDatum<TFile> = { content: file.path, data: file };
+		const pathRecord: SearchRecord<SearchDatum<TFile>> = {
+			id: `${FILE_PATH_STORE_ID}:${file.path}`,
+			text: file.path,
+			meta: pathDatum,
+		};
+
+		const metadata = cache?.frontmatter ?? this.plugin.app.metadataCache.getFileCache(file)?.frontmatter;
+		const aliases = [file.basename, ...(parseFrontMatterAliases(metadata) ?? [])];
+		const aliasRecords = aliases.map((alias, index): SearchRecord<SearchDatum<TFile>> => {
+			const datum = {
+				content: alias,
+				subText: file.path,
+				data: file,
+			};
+			return {
+				id: `${FILE_ALIAS_STORE_ID}:${file.path}:${index}:${alias}`,
+				text: alias,
+				meta: datum,
+			};
+		});
+
+		return { path: [pathRecord], aliases: aliasRecords };
+	}
+
+	private async reindexFileBlocks(file: TFile, data?: string, cache?: CachedMetadata): Promise<void> {
+		if (!this.isMarkdownFile(file) || this.isIgnored(file)) {
+			await this.stores.fullText.replaceOwner(file.path, []);
+			return;
+		}
+
+		const text = data ?? (await this.plugin.app.vault.cachedRead(file));
+		const metadata = cache ?? this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
+		const records = buildFullTextBlockRecords(file, text, metadata);
+		await this.stores.fullText.replaceOwner(file.path, records);
+	}
+
+	private async deleteFileRecords(path: string): Promise<void> {
+		await Promise.all([
+			this.stores.filePath.replaceOwner(path, []),
+			this.stores.fileAlias.replaceOwner(path, []),
+			this.stores.fullText.replaceOwner(path, []),
+		]);
+	}
+
+	private isMarkdownFile(file: TAbstractFile): boolean {
+		return 'extension' in file && file.extension === 'md';
+	}
+
+	private isFile(file: TAbstractFile): file is TFile {
+		return 'extension' in file;
+	}
+
+	private isIgnored(file: TFile): boolean {
+		return this.plugin.settings.ignoreExcludedFiles && this.plugin.app.metadataCache.isUserIgnored(file.path);
+	}
+
+	private bumpRebuildGeneration(): void {
+		this.rebuildGeneration += 1;
+	}
+
+	private async scheduleIdle<T>(cb: () => Promise<T>): Promise<T> {
+		await new Promise<void>(resolve => {
+			const idle = window.requestIdleCallback;
+			if (idle) {
+				idle(() => resolve());
+				return;
+			}
+			window.setTimeout(resolve, 100);
+		});
+		return await cb();
+	}
+
+	private reportFullTextProgress(progress: FullTextBuildProgress): void {
+		if (progress.indexedFiles === 0 && progress.phase === 'reading') {
+			this.events.onFullTextBuildStarted?.(progress);
+		}
+		this.events.onFullTextBuildProgress?.(progress);
+	}
+
+	private async yieldToUI(): Promise<void> {
+		await new Promise<void>(resolve => window.setTimeout(resolve, 0));
+	}
+}

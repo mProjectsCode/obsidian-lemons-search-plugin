@@ -6,10 +6,13 @@ import type { AbstractDataSource } from 'packages/obsidian/src/searchData/Abstra
 import type { CommandDataPlaceholders } from 'packages/obsidian/src/searchData/CommandDataSource';
 import type { FileDataPlaceholders } from 'packages/obsidian/src/searchData/FileDataSource';
 import { BasicSearchUIAdapter } from 'packages/obsidian/src/searchUI/basic/BasicSearchUIAdapter';
+import { FullTextSearchUIAdapter } from 'packages/obsidian/src/searchUI/fullText/FullTextSearchUIAdapter';
 import { PreviewSearchUIAdapter } from 'packages/obsidian/src/searchUI/preview/PreviewSearchUIAdapter';
 import type { SearchData, SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
 import { SearchController } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
+import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import type { SearchDatastore, SearchRecord } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 import { expectType } from 'packages/obsidian/src/utils/utils';
 
 export interface GenericSearchOptions<T> {
@@ -79,14 +82,23 @@ export enum FileSearchType {
 
 export class API {
 	plugin: LemonsSearchPlugin;
+	private genericStoreCounter = 0;
 
 	constructor(plugin: LemonsSearchPlugin) {
 		this.plugin = plugin;
 	}
 
+	/**
+	 * @deprecated Prefer creating a datastore and opening a search session via the datastore API.
+	 */
 	public search<T>(data: SearchData<T>, options: GenericSearchOptions<T>): void {
+		void this.openGenericSearch(data, options);
+	}
+
+	private async openGenericSearch<T>(data: SearchData<T>, options: GenericSearchOptions<T>): Promise<void> {
 		const searchUI = new BasicSearchUIAdapter<T>(options.prompt ?? 'Search...');
-		const searchController = new SearchController<T>(this.plugin, searchUI, data);
+		const store = await this.createDatastoreFromSearchData(data);
+		const searchController = new SearchController<T>(this.plugin, searchUI, data, store, true);
 		searchController.onSubmit((data, modifiers) => {
 			options.onSubmit(data, modifiers);
 		});
@@ -100,11 +112,17 @@ export class API {
 	 * @param options See {@link FileSearchOptions}.
 	 */
 	public async searchFiles(options: FileSearchOptions): Promise<void> {
+		await this.plugin.search.whenBuiltInsReady();
 		const dataSource = this.getFileDataSource(options);
-		const data = await dataSource.getData(options.placeholders);
+		const store = this.getFileDatastore(options);
+		const rawData = store.getAllData();
+		const data = {
+			data: rawData,
+			placeholders: await dataSource.getPlaceholders(rawData, options.placeholders ?? []),
+		};
 
 		const searchUI = this.getUIAdapterForFileSearch(options.ui, options.prompt ?? 'Select a file...');
-		const searchController = new SearchController<TFile>(this.plugin, searchUI, data);
+		const searchController = new SearchController<TFile>(this.plugin, searchUI, data, store);
 		searchController.onSubmit((data, modifiers) => {
 			dataSource.onSelect(data);
 			options.onSubmit(data, modifiers);
@@ -121,15 +139,35 @@ export class API {
 	public async searchCommands(options: CommandSearchOptions): Promise<void> {
 		const dataSource = this.plugin.data.command;
 		const data = await dataSource.getData(options.placeholders);
+		const store = await this.createDatastoreFromSearchData(data);
 
 		const searchUI = new BasicSearchUIAdapter<Command>(options.prompt ?? 'Select a command...');
-		const searchController = new SearchController<Command>(this.plugin, searchUI, data);
+		const searchController = new SearchController<Command>(this.plugin, searchUI, data, store, true);
 		searchController.onSubmit((data, modifiers) => {
 			dataSource.onSelect(data);
 			options.onSubmit(data, modifiers);
 		});
 
 		this.openModal(SearchUIType.Basic, searchController);
+	}
+
+	public async searchFullText(options: GenericSearchOptions<FullTextBlockMeta>): Promise<void> {
+		await this.plugin.search.whenFullTextReady();
+		const store = this.plugin.search.fullText;
+		if (!store) {
+			throw new Error('Full-text datastore is not initialized');
+		}
+		const data = {
+			data: store.getAllData(),
+			placeholders: [],
+		};
+		const searchUI = new FullTextSearchUIAdapter(options.prompt ?? 'Search note contents...');
+		const searchController = new SearchController<FullTextBlockMeta>(this.plugin, searchUI, data, store);
+		searchController.onSubmit((data, modifiers) => {
+			options.onSubmit(data, modifiers);
+		});
+
+		this.openModal(SearchUIType.Preview, searchController);
 	}
 
 	private getFileDataSource(options: FileSearchOptions): AbstractDataSource<TFile, string, FileDataPlaceholders> {
@@ -142,6 +180,35 @@ export class API {
 		expectType<never>(options.type);
 
 		throw new Error('Invalid file search type');
+	}
+
+	private getFileDatastore(options: FileSearchOptions): SearchDatastore<TFile> {
+		if (options.type === FileSearchType.FilePath) {
+			if (!this.plugin.search.filePath) {
+				throw new Error('File path datastore is not initialized');
+			}
+			return this.plugin.search.filePath;
+		} else if (options.type === FileSearchType.Alias) {
+			if (!this.plugin.search.fileAlias) {
+				throw new Error('File alias datastore is not initialized');
+			}
+			return this.plugin.search.fileAlias;
+		}
+
+		expectType<never>(options.type);
+		throw new Error('Invalid file search type');
+	}
+
+	private async createDatastoreFromSearchData<T>(data: SearchData<T>): Promise<SearchDatastore<T>> {
+		const store = await this.plugin.search.createDatastore<T>('fuzzy');
+		const prefix = `generic:${++this.genericStoreCounter}`;
+		const records: SearchRecord<SearchDatum<T>>[] = data.data.map((datum, index) => ({
+			id: `${prefix}:${index}`,
+			text: datum.content,
+			meta: datum,
+		}));
+		await store.upsert(records);
+		return store;
 	}
 
 	private openModal<T>(uiType: SearchUIType, controller: SearchController<T>): void {
