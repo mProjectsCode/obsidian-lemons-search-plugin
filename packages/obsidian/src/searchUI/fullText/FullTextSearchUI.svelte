@@ -187,19 +187,21 @@
 				</div>
 			{:else}
 				<div class="lemons-search--suggestion-empty">
-					<small>{searchString.length === 0 ? "Start typing to search note contents" : "No results found"}</small>
+					<small>No results found</small>
 				</div>
 			{/each}
 		</div>
 	</div>
-	<div class="lemons-search--full-text-preview">
-		{#if selectedDatum}
-			<div class="lemons-search--full-text-preview-header">
-				<div class="lemons-search--full-text-preview-path">{selectedDatum.data.filePath}</div>
-				<div class="lemons-search--full-text-preview-type">{blockLabel}</div>
+	<div class="lemons-search--full-text-preview lemons-search--result-preview">
+		<div class="lemons-search--full-text-preview-header lemons-search--result-preview-header">
+			<div class="lemons-search--full-text-preview-path lemons-search--result-preview-path">
+				{selectedDatum ? selectedDatum.data.filePath : "No file selected"}
 			</div>
+			<div class="lemons-search--full-text-preview-type lemons-search--result-preview-type">{selectedDatum ? blockLabel : "N/A"}</div>
+		</div>
+		{#if selectedDatum}
 			{#if renderSelectedAsMarkdown}
-				<div class="lemons-search--full-text-preview-body markdown-rendered markdown-preview-view">
+				<div class="lemons-search--full-text-preview-body lemons-search--result-preview-body markdown-rendered markdown-preview-view">
 					<MarkdownRenderer
 						app={props.plugin.app}
 						markdown={selectedDatum.content}
@@ -208,7 +210,7 @@
 					></MarkdownRenderer>
 				</div>
 			{:else}
-				<div class="lemons-search--full-text-preview-body lemons-search--full-text-preview-plain">
+				<div class="lemons-search--full-text-preview-body lemons-search--result-preview-body lemons-search--result-preview-plain">
 					{#each selectedTextHighlights as segment}
 						{#if segment.h}
 							<span class="suggestion-highlight">{segment.t}</span>
@@ -218,8 +220,6 @@
 					{/each}
 				</div>
 			{/if}
-		{:else}
-			<div class="lemons-search--full-text-preview-empty">Start typing to search note contents</div>
 		{/if}
 	</div>
 </div>

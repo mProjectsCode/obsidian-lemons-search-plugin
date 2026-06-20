@@ -3,12 +3,13 @@ import { parseFrontMatterAliases } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import type { SearchDatum } from 'packages/obsidian/src/searchUI/SearchController';
 import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
-import { buildFullTextBlockRecords } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import { buildFullTextBlockRecords, FullTextRecordIds } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
 import type { SearchDatastore, SearchRecord } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+import { sleep, waitForIdle } from 'packages/obsidian/src/utils/async';
 
 const FILE_PATH_STORE_ID = 'builtin:path';
 const FILE_ALIAS_STORE_ID = 'builtin:alias';
-const FULL_TEXT_BATCH_SIZE = 100;
+const FULL_TEXT_BATCH_SIZE = 500;
 const PROGRESS_NOTICE_INTERVAL_MS = 500;
 
 export interface BuiltInSearchStores {
@@ -42,18 +43,21 @@ export class BuiltInSearchIndexer {
 	private plugin: LemonsSearchPlugin;
 	private stores: BuiltInSearchStores;
 	private events: BuiltInSearchIndexerEvents;
+	private fullTextRecordIds: FullTextRecordIds;
 	private fullTextIndexPromise?: Promise<FullTextBuildStats>;
+	private fullTextRebuildQueue: Promise<void> = Promise.resolve();
 	private rebuildGeneration = 0;
 
-	constructor(plugin: LemonsSearchPlugin, stores: BuiltInSearchStores, events: BuiltInSearchIndexerEvents = {}) {
+	constructor(plugin: LemonsSearchPlugin, stores: BuiltInSearchStores, events: BuiltInSearchIndexerEvents = {}, fullTextRecordIds = new FullTextRecordIds()) {
 		this.plugin = plugin;
 		this.stores = stores;
 		this.events = events;
+		this.fullTextRecordIds = fullTextRecordIds;
 	}
 
 	async initialize(): Promise<void> {
 		await this.rebuildPathAndAliasStores();
-		this.fullTextIndexPromise = this.scheduleIdle(() => this.rebuildFullTextStore());
+		this.fullTextIndexPromise = this.scheduleIdle(() => this.enqueueFullTextRebuild());
 		this.registerVaultEvents();
 	}
 
@@ -63,8 +67,21 @@ export class BuiltInSearchIndexer {
 
 	async rebuild(): Promise<FullTextBuildStats> {
 		this.bumpRebuildGeneration();
-		const [, fullTextStats] = await Promise.all([this.rebuildPathAndAliasStores(), this.rebuildFullTextStore()]);
+		const [, fullTextStats] = await Promise.all([this.rebuildPathAndAliasStores(), this.enqueueFullTextRebuild()]);
 		return fullTextStats;
+	}
+
+	private enqueueFullTextRebuild(): Promise<FullTextBuildStats> {
+		const run = this.fullTextRebuildQueue.then(
+			() => this.rebuildFullTextStore(),
+			() => this.rebuildFullTextStore(),
+		);
+		this.fullTextRebuildQueue = run.then(
+			() => undefined,
+			() => undefined,
+		);
+		this.fullTextIndexPromise = run;
+		return run;
 	}
 
 	private async rebuildPathAndAliasStores(): Promise<void> {
@@ -95,61 +112,79 @@ export class BuiltInSearchIndexer {
 				phase: 'reading',
 			});
 
-			await this.stores.fullText.clear();
+			let bulkLoadStarted = false;
+			try {
+				await this.stores.fullText.beginBulkLoad();
+				bulkLoadStarted = true;
 
-			for (let start = 0; start < files.length; start += FULL_TEXT_BATCH_SIZE) {
-				if (generation !== this.rebuildGeneration) {
-					break;
-				}
-
-				const batch = files.slice(start, start + FULL_TEXT_BATCH_SIZE);
-				const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
-				const batchOwners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
-
-				for (const result of batchResults) {
+				for (let start = 0; start < files.length; start += FULL_TEXT_BATCH_SIZE) {
 					if (generation !== this.rebuildGeneration) {
 						break;
 					}
-					batchOwners.set(result.path, result.records);
-					indexedFiles += 1;
-					indexedBlocks += result.records.length;
+
+					const batch = files.slice(start, start + FULL_TEXT_BATCH_SIZE);
+					const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
+					const batchOwners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
+
+					for (const result of batchResults) {
+						if (generation !== this.rebuildGeneration) {
+							break;
+						}
+						batchOwners.set(result.path, result.records);
+						indexedFiles += 1;
+						indexedBlocks += result.records.length;
+					}
+
+					if (generation === this.rebuildGeneration && batchOwners.size > 0) {
+						await this.stores.fullText.replaceOwners(batchOwners);
+					}
+
+					const now = performance.now();
+					if (now - lastProgressNoticeAt >= PROGRESS_NOTICE_INTERVAL_MS || indexedFiles === files.length) {
+						lastProgressNoticeAt = now;
+						this.reportFullTextProgress({
+							indexedFiles,
+							totalFiles: files.length,
+							indexedBlocks,
+							elapsedMs: now - startedAt,
+							phase: 'reading',
+						});
+					}
+
+					await this.yieldToUI();
 				}
 
-				if (generation === this.rebuildGeneration && batchOwners.size > 0) {
-					await this.stores.fullText.replaceOwners(batchOwners);
-				}
-
-				const now = performance.now();
-				if (now - lastProgressNoticeAt >= PROGRESS_NOTICE_INTERVAL_MS || indexedFiles === files.length) {
-					lastProgressNoticeAt = now;
+				if (generation === this.rebuildGeneration) {
 					this.reportFullTextProgress({
 						indexedFiles,
 						totalFiles: files.length,
 						indexedBlocks,
-						elapsedMs: now - startedAt,
-						phase: 'reading',
+						elapsedMs: performance.now() - startedAt,
+						phase: 'committing',
 					});
+					await this.stores.fullText.finishBulkLoad();
+					bulkLoadStarted = false;
+					const stats = {
+						indexedFiles,
+						totalFiles: files.length,
+						indexedBlocks,
+						durationMs: performance.now() - startedAt,
+					};
+					this.events.onFullTextBuildCompleted?.(stats);
+					return stats;
 				}
 
-				await this.yieldToUI();
-			}
-
-			if (generation === this.rebuildGeneration) {
-				this.reportFullTextProgress({
-					indexedFiles,
-					totalFiles: files.length,
-					indexedBlocks,
-					elapsedMs: performance.now() - startedAt,
-					phase: 'committing',
-				});
-				const stats = {
-					indexedFiles,
-					totalFiles: files.length,
-					indexedBlocks,
-					durationMs: performance.now() - startedAt,
-				};
-				this.events.onFullTextBuildCompleted?.(stats);
-				return stats;
+				if (bulkLoadStarted) {
+					bulkLoadStarted = false;
+					await this.stores.fullText.clear();
+				}
+			} catch (e) {
+				if (bulkLoadStarted) {
+					await this.stores.fullText.clear().catch(clearError => {
+						console.error('Lemons Search failed to abort full-text bulk load:', clearError);
+					});
+				}
+				throw e;
 			}
 		}
 	}
@@ -162,7 +197,7 @@ export class BuiltInSearchIndexer {
 		const metadata = this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
 		return {
 			path: file.path,
-			records: buildFullTextBlockRecords(file, text, metadata, false),
+			records: buildFullTextBlockRecords(file, text, metadata, false, this.fullTextRecordIds),
 		};
 	}
 
@@ -261,7 +296,7 @@ export class BuiltInSearchIndexer {
 
 		const text = data ?? (await this.plugin.app.vault.cachedRead(file));
 		const metadata = cache ?? this.plugin.app.metadataCache.getFileCache(file) ?? undefined;
-		const records = buildFullTextBlockRecords(file, text, metadata, false);
+		const records = buildFullTextBlockRecords(file, text, metadata, false, this.fullTextRecordIds);
 		await this.stores.fullText.replaceOwner(file.path, records);
 	}
 
@@ -290,14 +325,7 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async scheduleIdle<T>(cb: () => Promise<T>): Promise<T> {
-		await new Promise<void>(resolve => {
-			const idle = window.requestIdleCallback;
-			if (idle) {
-				idle(() => resolve());
-				return;
-			}
-			window.setTimeout(resolve, 100);
-		});
+		await waitForIdle();
 		return await cb();
 	}
 
@@ -309,6 +337,6 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async yieldToUI(): Promise<void> {
-		await new Promise<void>(resolve => window.setTimeout(resolve, 0));
+		await sleep(0);
 	}
 }

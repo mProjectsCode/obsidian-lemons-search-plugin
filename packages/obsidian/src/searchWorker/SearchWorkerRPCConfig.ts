@@ -26,8 +26,11 @@ export interface SearchWorkerRPCHandlersWorker {
 	createDatastore: [string, DatastoreKind];
 	destroyDatastore: [string, string];
 	clearDatastore: [string, string];
+	beginBulkLoad: [string, string];
+	finishBulkLoad: [string, string];
 	upsertRecords: [string, string, WorkerSearchRecord[]];
 	deleteRecords: [string, string, string[]];
+	deleteRecordsByPrefix: [string, string, string];
 	getDatastoreHealth: [string, string];
 	createSession: [string, string];
 	closeSession: [string, string];

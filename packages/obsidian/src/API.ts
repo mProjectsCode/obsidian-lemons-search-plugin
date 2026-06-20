@@ -158,7 +158,7 @@ export class API {
 			throw new Error('Full-text datastore is not initialized');
 		}
 		const data = {
-			data: store.getAllData(),
+			data: [],
 			placeholders: [],
 		};
 		const searchUI = new FullTextSearchUIAdapter(options.prompt ?? 'Search note contents...');

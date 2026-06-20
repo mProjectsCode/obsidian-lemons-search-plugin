@@ -7,8 +7,11 @@ interface SearchEngineInstance {
 	create_datastore(kind: string): string;
 	destroy_datastore(storeId: string): void;
 	clear_datastore(storeId: string): void;
+	begin_bulk_load(storeId: string): void;
+	finish_bulk_load(storeId: string): void;
 	upsert_records(storeId: string, records: unknown): void;
 	delete_records(storeId: string, recordIds: string[]): void;
+	delete_records_by_prefix(storeId: string, prefix: string): void;
 	datastore_health(storeId: string): unknown;
 	create_session(storeId: string): string;
 	close_session(sessionId: string): void;
@@ -51,11 +54,20 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 		clearDatastore(requestId, storeId): void {
 			withEngine(requestId, engine => engine.clear_datastore(storeId));
 		},
+		beginBulkLoad(requestId, storeId): void {
+			withEngine(requestId, engine => engine.begin_bulk_load(storeId));
+		},
+		finishBulkLoad(requestId, storeId): void {
+			withEngine(requestId, engine => engine.finish_bulk_load(storeId));
+		},
 		upsertRecords(requestId, storeId, records): void {
 			withEngine(requestId, engine => engine.upsert_records(storeId, records));
 		},
 		deleteRecords(requestId, storeId, recordIds): void {
 			withEngine(requestId, engine => engine.delete_records(storeId, recordIds));
+		},
+		deleteRecordsByPrefix(requestId, storeId, prefix): void {
+			withEngine(requestId, engine => engine.delete_records_by_prefix(storeId, prefix));
 		},
 		getDatastoreHealth(requestId, storeId): void {
 			withEngine(requestId, engine => engine.datastore_health(storeId));
@@ -76,7 +88,7 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 void init()
 	.then(() => {
 		setup();
-		engine = new SearchEngine();
+		engine = new SearchEngine() as unknown as SearchEngineInstance;
 
 		// console.log('search worker initialized');
 

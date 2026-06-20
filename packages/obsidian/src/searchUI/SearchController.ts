@@ -1,7 +1,8 @@
 import type { Modifier, Scope } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
-import type { SearchDatastore, SearchSession } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+import type { SearchDatastore } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+import type { SearchSession } from 'packages/obsidian/src/searchWorker/SearchSession';
 
 export interface SearchData<T> {
 	data: SearchDatum<T>[];

@@ -1,9 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import type { CachedMetadata, TFile } from 'obsidian';
-import { buildFullTextBlockRecords, fullTextHighlightRanges } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
+import type { App, CachedMetadata } from 'obsidian';
+import { TFile } from 'obsidian';
+import {
+	buildFullTextBlockRecords,
+	FullTextRecordIds,
+	fullTextHighlightRanges,
+	hydrateFullTextDatum,
+} from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 
 function file(path: string): TFile {
-	return { path } as TFile;
+	return Object.assign(new TFile(), { path }) as TFile;
 }
 
 function section(type: string, start: number, end: number): NonNullable<CachedMetadata['sections']>[number] {
@@ -83,11 +89,64 @@ describe('buildFullTextBlockRecords', () => {
 		});
 	});
 
+	test('can build compact owner-based record ids', () => {
+		const recordIds = new FullTextRecordIds();
+		const records = buildFullTextBlockRecords(file('folder/note.md'), 'Alpha beta', undefined, false, recordIds);
+
+		expect(records[0].id).toBe('builtin:fullTextOwner:1:0:10');
+		expect(recordIds.existingRecordPrefixForPath('folder/note.md')).toBe('builtin:fullTextOwner:1:');
+		expect(recordIds.parse(records[0].id)).toEqual({
+			filePath: 'folder/note.md',
+			startOffset: 0,
+			endOffset: 10,
+		});
+	});
+
 	test('computes full-text highlight ranges from hydrated content', () => {
 		expect(fullTextHighlightRanges('Apple pie with apple slices', 'apple pie')).toEqual([0, 5, 6, 9, 15, 20]);
 	});
 
 	test('computes unicode highlight ranges by codepoint offset', () => {
 		expect(fullTextHighlightRanges('ægir apple', 'apple ægir')).toEqual([0, 4, 5, 10]);
+	});
+
+	test('hydrates full-text results from record id without stored metadata', async () => {
+		const text = '# Heading\nApple pie with apple slices';
+		const headingEnd = text.indexOf('Apple');
+		const note = file('folder/note:with-colon.md');
+		const recordIds = new FullTextRecordIds();
+		const id = recordIds.recordId(note.path, headingEnd, text.length);
+		const app = {
+			vault: {
+				getAbstractFileByPath: (path: string) => (path === note.path ? note : undefined),
+				cachedRead: async () => text,
+			},
+			metadataCache: {
+				getCache: () => ({
+					sections: [section('heading', 0, headingEnd), section('paragraph', headingEnd, text.length)],
+				}),
+			},
+		} as unknown as App;
+
+		const result = await hydrateFullTextDatum(
+			app,
+			{
+				id,
+			},
+			'apple',
+			recordIds,
+		);
+
+		expect(result).toEqual({
+			content: 'Apple pie with apple slices',
+			subText: note.path,
+			data: {
+				filePath: note.path,
+				startOffset: headingEnd,
+				endOffset: text.length,
+				blockType: 'paragraph',
+			},
+			highlightRanges: [0, 5, 15, 20],
+		});
 	});
 });

@@ -5,9 +5,9 @@ import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { FullTextBuildProgress, FullTextBuildStats } from 'packages/obsidian/src/searchWorker/BuiltInSearchIndexer';
 import { BuiltInSearchIndexer } from 'packages/obsidian/src/searchWorker/BuiltInSearchIndexer';
 import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
-import { hydrateFullTextDatum } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+import { FullTextRecordIds, hydrateFullTextDatum } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
 import SearchWorker from 'packages/obsidian/src/searchWorker/search.worker?worker&inline';
-import type { SearchDatastoreHealth, SearchResultHydrator } from 'packages/obsidian/src/searchWorker/SearchDatastore';
+import type { SearchDatastoreConstructorArg, SearchDatastoreHealth } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 import { SearchDatastore } from 'packages/obsidian/src/searchWorker/SearchDatastore';
 import type {
 	DatastoreKind,
@@ -17,6 +17,7 @@ import type {
 	WorkerSearchRecord,
 	WorkerSearchResult,
 } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
+import { Deferred } from 'packages/obsidian/src/utils/async';
 import { formatDuration } from 'packages/obsidian/src/utils/utils';
 
 interface PendingRequest {
@@ -36,11 +37,10 @@ export class SearchService {
 	private pending = new Map<string, PendingRequest>();
 	private requestCounter = 0;
 	private terminated = false;
-	private readyPromise: Promise<void>;
-	private readyResolve!: () => void;
-	private readyReject!: (reason: Error) => void;
+	private ready = new Deferred<void>();
 	private builtInsPromise?: Promise<void>;
 	private builtInIndexer?: BuiltInSearchIndexer;
+	private fullTextRecordIds = new FullTextRecordIds();
 	private fullTextIndexNotice?: Notice;
 	private fullTextIndexNoticeTimer?: number;
 	private fullTextIndexNoticeHideTimer?: number;
@@ -52,10 +52,6 @@ export class SearchService {
 
 	constructor(plugin: LemonsSearchPlugin) {
 		this.plugin = plugin;
-		this.readyPromise = new Promise((resolve, reject) => {
-			this.readyResolve = resolve;
-			this.readyReject = reject;
-		});
 	}
 
 	initialize(): void {
@@ -64,10 +60,10 @@ export class SearchService {
 		this.RPC = RPCController.toWorker<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(this.worker, {
 			onInitialized: (): void => {
 				this.RPC?.call('setMaxResults', this.plugin.settings.maxResults);
-				this.readyResolve();
+				this.ready.resolve(undefined);
 			},
 			onInitializationFailed: (message): void => {
-				this.readyReject(new Error(message));
+				this.ready.reject(new Error(message));
 				new Notice('Lemons Search failed to initialize. Check console for details.');
 				console.error('Failed to initialize Lemons Search worker:', message);
 			},
@@ -103,9 +99,9 @@ export class SearchService {
 		await this.builtInIndexer?.whenFullTextReady();
 	}
 
-	async createDatastore<T>(kind: DatastoreKind, hydrateResult?: SearchResultHydrator<T>): Promise<SearchDatastore<T>> {
+	async createDatastore<T>(kind: DatastoreKind, options?: SearchDatastoreConstructorArg<T>): Promise<SearchDatastore<T>> {
 		const id = await this.request<string>('createDatastore', kind);
-		return new SearchDatastore<T>(this, id, kind, hydrateResult);
+		return new SearchDatastore<T>(this, id, kind, options);
 	}
 
 	setMaxResults(maxResults: number): void {
@@ -114,6 +110,14 @@ export class SearchService {
 
 	async clearDatastore(storeId: string): Promise<void> {
 		await this.request('clearDatastore', storeId);
+	}
+
+	async beginBulkLoad(storeId: string): Promise<void> {
+		await this.request('beginBulkLoad', storeId);
+	}
+
+	async finishBulkLoad(storeId: string): Promise<void> {
+		await this.request('finishBulkLoad', storeId);
 	}
 
 	async destroyDatastore(storeId: string): Promise<void> {
@@ -128,6 +132,10 @@ export class SearchService {
 	async deleteRecords(storeId: string, ids: string[]): Promise<void> {
 		if (ids.length === 0) return;
 		await this.request('deleteRecords', storeId, ids);
+	}
+
+	async deleteRecordsByPrefix(storeId: string, prefix: string): Promise<void> {
+		await this.request('deleteRecordsByPrefix', storeId, prefix);
 	}
 
 	async createSession(storeId: string): Promise<string> {
@@ -167,7 +175,16 @@ export class SearchService {
 	private async doInitializeBuiltIns(): Promise<void> {
 		this.filePath = await this.createDatastore<TFile>('fuzzy');
 		this.fileAlias = await this.createDatastore<TFile>('fuzzy');
-		this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText', (datum, query) => hydrateFullTextDatum(this.plugin.app, datum, query));
+		this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText', {
+			metadataStrategy: {
+				type: 'none',
+				hydrateResult: (result, query) => hydrateFullTextDatum(this.plugin.app, result, query, this.fullTextRecordIds),
+			},
+			ownerDeletionStrategy: {
+				type: 'record-id-prefix',
+				getPrefix: ownerId => this.fullTextRecordIds.existingRecordPrefixForPath(ownerId),
+			},
+		});
 
 		this.builtInIndexer = new BuiltInSearchIndexer(
 			this.plugin,
@@ -181,6 +198,7 @@ export class SearchService {
 				onFullTextBuildProgress: (progress): void => this.onFullTextBuildProgress(progress),
 				onFullTextBuildCompleted: (stats): void => this.onFullTextBuildCompleted(stats),
 			},
+			this.fullTextRecordIds,
 		);
 		await this.builtInIndexer.initialize();
 	}
@@ -260,7 +278,7 @@ export class SearchService {
 	}
 
 	private async request<T = void>(method: keyof SearchWorkerRPCHandlersWorker, ...args: unknown[]): Promise<T> {
-		await this.readyPromise;
+		await this.ready.promise;
 		if (this.terminated) {
 			throw new Error('Search worker terminated');
 		}
