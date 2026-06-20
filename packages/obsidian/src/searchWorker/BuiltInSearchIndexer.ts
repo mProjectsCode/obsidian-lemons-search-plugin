@@ -8,7 +8,7 @@ import type { SearchDatastore, SearchRecord } from 'packages/obsidian/src/search
 
 const FILE_PATH_STORE_ID = 'builtin:path';
 const FILE_ALIAS_STORE_ID = 'builtin:alias';
-const FULL_TEXT_BATCH_SIZE = 64;
+const FULL_TEXT_BATCH_SIZE = 100;
 const PROGRESS_NOTICE_INTERVAL_MS = 500;
 
 export interface BuiltInSearchStores {

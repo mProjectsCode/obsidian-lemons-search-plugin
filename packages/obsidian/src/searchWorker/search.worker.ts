@@ -1,5 +1,4 @@
-import init, { setup } from '@lemons_dev/lemons-search';
-import * as LemonsSearch from '@lemons_dev/lemons-search';
+import init, { SearchEngine, setup } from '@lemons_dev/lemons-search';
 import { RPCController } from 'packages/obsidian/src/rpc/RPC';
 import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 'packages/obsidian/src/searchWorker/SearchWorkerRPCConfig';
 
@@ -77,13 +76,6 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 void init()
 	.then(() => {
 		setup();
-
-		const SearchEngine = Reflect.get(LemonsSearch, 'SearchEngine') as (new () => SearchEngineInstance) | undefined;
-		if (!SearchEngine) {
-			throw new Error(
-				'SearchEngine export is missing from @lemons_dev/lemons-search. Build with LEMONS_SEARCH_LOCAL_WASM=true or update the WASM package.',
-			);
-		}
 		engine = new SearchEngine();
 
 		// console.log('search worker initialized');

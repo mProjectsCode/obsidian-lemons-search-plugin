@@ -20,18 +20,20 @@ export function buildFullTextBlockRecords(
 ): SearchRecord<SearchDatum<FullTextBlockMeta>>[] {
 	const sections = cache?.sections?.filter(section => section.type !== 'yaml') ?? [];
 	if (sections.length === 0) {
-		return [blockRecord(file, text, 0, text.length, undefined, includeContentInMetadata)];
+		return [blockRecord(file, text.trim(), 0, text.length, undefined, includeContentInMetadata)];
 	}
 
-	return sections.flatMap(section => {
+	const records: SearchRecord<SearchDatum<FullTextBlockMeta>>[] = [];
+	for (const section of sections) {
 		const start = section.position.start.offset;
 		const end = section.position.end.offset;
 		const blockText = text.slice(start, end).trim();
 		if (blockText.length === 0) {
-			return [];
+			continue;
 		}
-		return [blockRecord(file, text, start, end, section.type, includeContentInMetadata)];
-	});
+		records.push(blockRecord(file, blockText, start, end, section.type, includeContentInMetadata));
+	}
+	return records;
 }
 
 export async function hydrateFullTextDatum(app: App, datum: SearchDatum<FullTextBlockMeta>, query: string): Promise<SearchResultDatum<FullTextBlockMeta>> {
@@ -72,13 +74,12 @@ export function fullTextHighlightRanges(text: string, query: string): number[] {
 
 function blockRecord(
 	file: TFile,
-	text: string,
+	blockText: string,
 	startOffset: number,
 	endOffset: number,
 	blockType: string | undefined,
 	includeContentInMetadata: boolean,
 ): SearchRecord<SearchDatum<FullTextBlockMeta>> {
-	const blockText = text.slice(startOffset, endOffset).trim();
 	const meta: FullTextBlockMeta = {
 		filePath: file.path,
 		startOffset,
