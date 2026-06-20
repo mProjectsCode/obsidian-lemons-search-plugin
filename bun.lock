@@ -5,7 +5,7 @@
     "": {
       "name": "lemons-search",
       "dependencies": {
-        "@lemons_dev/lemons-search": "https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.6/lemons-search-v0.1.6.tgz",
+        "@lemons_dev/lemons-search": "https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.7/lemons-search-v0.1.7.tgz",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "^20.10.6",
@@ -91,7 +91,7 @@
 
     "@lemons_dev/lemons-obsidian-plugin-automation": ["@lemons_dev/lemons-obsidian-plugin-automation@0.1.4", "", { "dependencies": { "@lemons_dev/parsinom": "^0.2.1", "moment": "^2.30.1", "string-argv": "^0.3.2" }, "peerDependencies": { "vite": "^8.0.9" }, "bin": { "lemons-automation": "bin/lemons-automation.js" } }, "sha512-lkNkudlOe0kgLRq8dsQ7R99DD78bZAcj0+m7TfTuTMROv7r16gRMb/gyjmVM2HdRdEX15O2f1PGBxK2Os7ylbQ=="],
 
-    "@lemons_dev/lemons-search": ["@lemons_dev/lemons-search@https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.6/lemons-search-v0.1.6.tgz", {}, "sha512-A/nCazPF+dPbr1NMQ3aFnTxVcGM6KuUrZronnxT0IpXz/2479IQmr0jztVYBeD1c9vssfObKhv10/WYXx+vOdA=="],
+    "@lemons_dev/lemons-search": ["@lemons_dev/lemons-search@https://github.com/mProjectsCode/obsidian-lemons-search-wasm/releases/download/v0.1.7/lemons-search-v0.1.7.tgz", {}, "sha512-QxdfaR479YgtDcHVXnYTddZowfBvap+k+Sy0uZHot3pdPyOKxvpWGG3zgnzz2Mfm/IOsMVMJxMCgPAmAeSZQpQ=="],
 
     "@lemons_dev/parsinom": ["@lemons_dev/parsinom@0.2.1", "", {}, "sha512-ew+G3gm5aWJBnIhrysxI7k09FCAtAoj48wbTzr16NoX9ndhB8UnhmqjTxYVv46DsG88HQo+DTWPIFQW5qTAwwg=="],
 
