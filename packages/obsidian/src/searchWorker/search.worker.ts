@@ -88,7 +88,7 @@ const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHand
 void init()
 	.then(() => {
 		setup();
-		engine = new SearchEngine() as unknown as SearchEngineInstance;
+		engine = new SearchEngine();
 
 		// console.log('search worker initialized');
 
