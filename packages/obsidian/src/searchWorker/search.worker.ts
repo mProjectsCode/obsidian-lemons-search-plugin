@@ -4,6 +4,7 @@ import type { SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker } from 
 
 interface SearchEngineInstance {
 	set_max_results(maxResults: number): void;
+	set_full_text_fuzzy_search?(enabled: boolean): void;
 	create_datastore(kind: string): string;
 	destroy_datastore(storeId: string): void;
 	clear_datastore(storeId: string): void;
@@ -40,12 +41,15 @@ function withEngine<T>(requestId: string, cb: (engine: SearchEngineInstance) => 
 	}
 }
 
-const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
-	{
-		setMaxResults(maxResults): void {
-			engine?.set_max_results(maxResults);
-		},
-		createDatastore(requestId, kind): void {
+	const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
+		{
+			setMaxResults(maxResults): void {
+				engine?.set_max_results(maxResults);
+			},
+			setFullTextFuzzySearch(enabled): void {
+				engine?.set_full_text_fuzzy_search?.(enabled);
+			},
+			createDatastore(requestId, kind): void {
 			withEngine(requestId, engine => engine.create_datastore(kind));
 		},
 		destroyDatastore(requestId, storeId): void {

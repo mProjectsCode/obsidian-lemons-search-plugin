@@ -9,6 +9,7 @@ export interface WorkerSearchResult {
 	id: string;
 	score: number;
 	r: Uint32Array | number[];
+	m?: string[];
 }
 
 export interface WorkerDatastoreHealth {
@@ -23,6 +24,7 @@ export interface WorkerDatastoreHealth {
 
 export interface SearchWorkerRPCHandlersWorker {
 	setMaxResults: [number];
+	setFullTextFuzzySearch: [boolean];
 	createDatastore: [string, DatastoreKind];
 	destroyDatastore: [string, string];
 	clearDatastore: [string, string];

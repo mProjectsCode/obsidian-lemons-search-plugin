@@ -155,7 +155,7 @@ export class API {
 		await this.plugin.search.whenFullTextReady();
 		const store = this.plugin.search.fullText;
 		if (!store) {
-			throw new Error('Full-text datastore is not initialized');
+			throw new Error('Full-text search is disabled. Enable it in settings and restart Obsidian.');
 		}
 		const data = {
 			data: [],

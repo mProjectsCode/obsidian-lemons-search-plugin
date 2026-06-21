@@ -83,18 +83,20 @@ export default class LemonsSearchPlugin extends Plugin {
 			},
 		});
 
-		this.addCommand({
-			id: 'open-full-text-search',
-			name: 'Open full-text search',
-			callback: async () => {
-				await this.api.searchFullText({
-					prompt: 'Search note contents...',
-					onSubmit: (data, modifiers) => {
-						void openFullTextResult(this.app, data.data, modifiers.includes('Mod'));
-					},
-				});
-			},
-		});
+		if (!this.settings.disableFullTextSearch) {
+			this.addCommand({
+				id: 'open-full-text-search',
+				name: 'Open full-text search',
+				callback: async () => {
+					await this.api.searchFullText({
+						prompt: 'Search note contents...',
+						onSubmit: (data, modifiers) => {
+							void openFullTextResult(this.app, data.data, modifiers.includes('Mod'));
+						},
+					});
+				},
+			});
+		}
 
 		this.addCommand({
 			id: 'rebuild-search-datastores',
@@ -159,6 +161,12 @@ export default class LemonsSearchPlugin extends Plugin {
 		}
 		if (key === 'ignoreExcludedFiles' && previousValue !== nextValue) {
 			await this.search.rebuildBuiltIns();
+		}
+		if (key === 'disableFullTextSearch' && previousValue !== nextValue) {
+			new Notice('Please restart Obsidian for this change to take full effect.');
+		}
+		if (key === 'fullTextFuzzySearch') {
+			this.search.setFullTextFuzzySearch(Boolean(nextValue));
 		}
 	}
 

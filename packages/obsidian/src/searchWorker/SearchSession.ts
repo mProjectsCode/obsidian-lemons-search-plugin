@@ -18,7 +18,7 @@ export class SearchSession<T> {
 		const results = await this.service.searchSession(this.id, query);
 		const data: SearchResultDatum<T>[] = [];
 		for (const result of results) {
-			const datum = await this.store.getSearchResult(result.id, query, result.r);
+			const datum = await this.store.getSearchResult(result.id, query, result.r, result.m);
 			if (!datum) {
 				continue;
 			}

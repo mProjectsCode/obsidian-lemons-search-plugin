@@ -96,6 +96,9 @@ export class SearchService {
 
 	async whenFullTextReady(): Promise<void> {
 		await this.initializeBuiltIns();
+		if (this.plugin.settings.disableFullTextSearch) {
+			return;
+		}
 		await this.builtInIndexer?.whenFullTextReady();
 	}
 
@@ -106,6 +109,10 @@ export class SearchService {
 
 	setMaxResults(maxResults: number): void {
 		this.RPC?.call('setMaxResults', Math.max(1, maxResults));
+	}
+
+	setFullTextFuzzySearch(enabled: boolean): void {
+		this.RPC?.call('setFullTextFuzzySearch', enabled);
 	}
 
 	async clearDatastore(storeId: string): Promise<void> {
@@ -160,7 +167,10 @@ export class SearchService {
 	}
 
 	async checkHealth(): Promise<SearchServiceHealthReport> {
-		await this.whenFullTextReady();
+		await this.initializeBuiltIns();
+		if (!this.plugin.settings.disableFullTextSearch) {
+			await this.whenFullTextReady();
+		}
 		const stores = {
 			filePath: await this.filePath?.healthCheck(),
 			fileAlias: await this.fileAlias?.healthCheck(),
@@ -168,23 +178,27 @@ export class SearchService {
 		};
 		return {
 			stores,
-			healthy: Object.values(stores).every(store => store?.healthy),
+			healthy: Object.values(stores).every(store => store?.healthy ?? true),
 		};
 	}
 
 	private async doInitializeBuiltIns(): Promise<void> {
 		this.filePath = await this.createDatastore<TFile>('fuzzy');
 		this.fileAlias = await this.createDatastore<TFile>('fuzzy');
-		this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText', {
-			metadataStrategy: {
-				type: 'none',
-				hydrateResult: (result, query) => hydrateFullTextDatum(this.plugin.app, result, query, this.fullTextRecordIds),
-			},
-			ownerDeletionStrategy: {
-				type: 'record-id-prefix',
-				getPrefix: ownerId => this.fullTextRecordIds.existingRecordPrefixForPath(ownerId),
-			},
-		});
+
+		if (!this.plugin.settings.disableFullTextSearch) {
+			this.fullText = await this.createDatastore<FullTextBlockMeta>('fullText', {
+				metadataStrategy: {
+					type: 'none',
+					hydrateResult: (result, _query, _highlightRanges, matchedTerms) =>
+						hydrateFullTextDatum(this.plugin.app, result, matchedTerms, this.fullTextRecordIds),
+				},
+				ownerDeletionStrategy: {
+					type: 'record-id-prefix',
+					getPrefix: ownerId => this.fullTextRecordIds.existingRecordPrefixForPath(ownerId),
+				},
+			});
+		}
 
 		this.builtInIndexer = new BuiltInSearchIndexer(
 			this.plugin,

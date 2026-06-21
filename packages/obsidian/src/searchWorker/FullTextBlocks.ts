@@ -107,7 +107,7 @@ export function buildFullTextBlockRecords(
 export async function hydrateFullTextDatum(
 	app: App,
 	result: SearchResultHydrationInput<FullTextBlockMeta>,
-	query: string,
+	matchedTerms: string[] | undefined,
 	recordIds?: FullTextRecordIds,
 ): Promise<SearchResultDatum<FullTextBlockMeta> | undefined> {
 	const datum = result.datum ?? buildDatumFromRecordId(app, result.id, recordIds);
@@ -131,7 +131,7 @@ export async function hydrateFullTextDatum(
 		...datum,
 		content,
 		subText: datum.subText ?? datum.data.filePath,
-		highlightRanges: fullTextHighlightRanges(content, query),
+		highlightRanges: fullTextHighlightRanges(content, matchedTerms),
 	};
 }
 
@@ -183,15 +183,15 @@ function findBlockType(app: App, meta: Omit<FullTextBlockMeta, 'blockType'>): st
 	return cache?.sections?.find(section => section.position.start.offset === meta.startOffset && section.position.end.offset === meta.endOffset)?.type;
 }
 
-export function fullTextHighlightRanges(text: string, query: string): number[] {
-	const queryTerms = new Set(tokenizeTerms(query));
-	if (queryTerms.size === 0) {
+export function fullTextHighlightRanges(text: string, matchedTerms: string[] | undefined): number[] {
+	if (!matchedTerms || matchedTerms.length === 0) {
 		return [];
 	}
 
+	const terms = new Set(matchedTerms.map(term => term.toLowerCase()));
 	const ranges: number[] = [];
 	tokenizeEach(text, (term, start, end) => {
-		if (queryTerms.has(term)) {
+		if (terms.has(term)) {
 			ranges.push(start, end);
 		}
 	});
@@ -222,12 +222,6 @@ function blockRecord(
 			data: meta,
 		},
 	};
-}
-
-function tokenizeTerms(text: string): string[] {
-	const terms: string[] = [];
-	tokenizeEach(text, term => terms.push(term));
-	return [...new Set(terms)].sort();
 }
 
 function tokenizeEach(text: string, emit: (term: string, start: number, end: number) => void): void {

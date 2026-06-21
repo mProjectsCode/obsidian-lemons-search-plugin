@@ -22,6 +22,7 @@ export type SearchResultHydrator<T> = (
 	result: SearchResultHydrationInput<T>,
 	query: string,
 	highlightRanges: Uint32Array | number[] | undefined,
+	matchedTerms?: string[],
 ) => Promise<SearchResultDatum<T> | undefined>;
 
 export interface SearchResultHydrationInput<T> {
@@ -94,10 +95,15 @@ export class SearchDatastore<T> {
 		return Array.from(this.data.values());
 	}
 
-	async getSearchResult(id: string, query: string, highlightRanges: Uint32Array | number[] | undefined): Promise<SearchResultDatum<T> | undefined> {
+	async getSearchResult(
+		id: string,
+		query: string,
+		highlightRanges: Uint32Array | number[] | undefined,
+		matchedTerms?: string[],
+	): Promise<SearchResultDatum<T> | undefined> {
 		const datum = this.data.get(id);
 		if (this.metadataStrategy.hydrateResult) {
-			return await this.metadataStrategy.hydrateResult({ id, datum }, query, highlightRanges);
+			return await this.metadataStrategy.hydrateResult({ id, datum }, query, highlightRanges, matchedTerms);
 		}
 		return defaultHydrateResult(datum, highlightRanges);
 	}

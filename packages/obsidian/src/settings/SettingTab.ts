@@ -84,6 +84,22 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 				},
 			},
 			{
+				name: 'Disable full-text search',
+				desc: 'When enabled, full-text content search and indexing are completely disabled.',
+				control: {
+					type: 'toggle',
+					key: 'disableFullTextSearch',
+				},
+			},
+			{
+				name: 'Fuzzy search in full-text',
+				desc: 'When enabled, full-text search uses fuzzy matching to find approximate term matches.',
+				control: {
+					type: 'toggle',
+					key: 'fullTextFuzzySearch',
+				},
+			},
+			{
 				type: 'group',
 				heading: 'Hotkeys',
 				items: HOTKEY_SETTINGS.map(props => this.createHotkeySetting(props)),

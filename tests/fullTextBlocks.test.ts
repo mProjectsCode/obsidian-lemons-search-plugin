@@ -103,11 +103,24 @@ describe('buildFullTextBlockRecords', () => {
 	});
 
 	test('computes full-text highlight ranges from hydrated content', () => {
-		expect(fullTextHighlightRanges('Apple pie with apple slices', 'apple pie')).toEqual([0, 5, 6, 9, 15, 20]);
+		expect(fullTextHighlightRanges('Apple pie with apple slices', ['apple', 'pie'])).toEqual([0, 5, 6, 9, 15, 20]);
+	});
+
+	test('computes fuzzy full-text highlight ranges from hydrated content', () => {
+		expect(fullTextHighlightRanges('Apple pie with apple slices', ['apple', 'slices'])).toEqual([0, 5, 15, 20, 21, 27]);
+	});
+
+	test('only highlights matched terms supplied by full-text search', () => {
+		expect(fullTextHighlightRanges('Apple tart with apple slices', ['apple'])).toEqual([0, 5, 16, 21]);
+	});
+
+	test('highlights prefix and substring matches chosen by full-text search', () => {
+		expect(fullTextHighlightRanges('Apple pineapple crabapple', ['apple'])).toEqual([0, 5]);
+		expect(fullTextHighlightRanges('Apple pineapple crabapple', ['apple', 'pineapple', 'crabapple'])).toEqual([0, 5, 6, 15, 16, 25]);
 	});
 
 	test('computes unicode highlight ranges by codepoint offset', () => {
-		expect(fullTextHighlightRanges('ægir apple', 'apple ægir')).toEqual([0, 4, 5, 10]);
+		expect(fullTextHighlightRanges('ægir apple', ['apple', 'ægir'])).toEqual([0, 4, 5, 10]);
 	});
 
 	test('hydrates full-text results from record id without stored metadata', async () => {
@@ -133,7 +146,7 @@ describe('buildFullTextBlockRecords', () => {
 			{
 				id,
 			},
-			'apple',
+			['apple'],
 			recordIds,
 		);
 

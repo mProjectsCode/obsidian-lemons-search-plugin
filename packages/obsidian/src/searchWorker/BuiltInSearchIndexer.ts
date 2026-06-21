@@ -15,7 +15,7 @@ const PROGRESS_NOTICE_INTERVAL_MS = 500;
 export interface BuiltInSearchStores {
 	filePath: SearchDatastore<TFile>;
 	fileAlias: SearchDatastore<TFile>;
-	fullText: SearchDatastore<FullTextBlockMeta>;
+	fullText?: SearchDatastore<FullTextBlockMeta>;
 }
 
 export interface FullTextBuildProgress {
@@ -57,7 +57,9 @@ export class BuiltInSearchIndexer {
 
 	async initialize(): Promise<void> {
 		await this.rebuildPathAndAliasStores();
-		this.fullTextIndexPromise = this.scheduleIdle(() => this.enqueueFullTextRebuild());
+		if (this.stores.fullText) {
+			this.fullTextIndexPromise = this.scheduleIdle(() => this.enqueueFullTextRebuild());
+		}
 		this.registerVaultEvents();
 	}
 
@@ -67,8 +69,12 @@ export class BuiltInSearchIndexer {
 
 	async rebuild(): Promise<FullTextBuildStats> {
 		this.bumpRebuildGeneration();
-		const [, fullTextStats] = await Promise.all([this.rebuildPathAndAliasStores(), this.enqueueFullTextRebuild()]);
-		return fullTextStats;
+		if (this.stores.fullText) {
+			const [, fullTextStats] = await Promise.all([this.rebuildPathAndAliasStores(), this.enqueueFullTextRebuild()]);
+			return fullTextStats;
+		}
+		await this.rebuildPathAndAliasStores();
+		return { indexedFiles: 0, totalFiles: 0, indexedBlocks: 0, durationMs: 0 };
 	}
 
 	private enqueueFullTextRebuild(): Promise<FullTextBuildStats> {
@@ -96,6 +102,7 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async rebuildFullTextStore(): Promise<FullTextBuildStats> {
+		const fullText = this.stores.fullText!;
 		for (;;) {
 			const generation = this.rebuildGeneration;
 			const files = this.plugin.getFiles().filter(file => this.isMarkdownFile(file));
@@ -114,7 +121,7 @@ export class BuiltInSearchIndexer {
 
 			let bulkLoadStarted = false;
 			try {
-				await this.stores.fullText.beginBulkLoad();
+				await fullText.beginBulkLoad();
 				bulkLoadStarted = true;
 
 				for (let start = 0; start < files.length; start += FULL_TEXT_BATCH_SIZE) {
@@ -136,7 +143,7 @@ export class BuiltInSearchIndexer {
 					}
 
 					if (generation === this.rebuildGeneration && batchOwners.size > 0) {
-						await this.stores.fullText.replaceOwners(batchOwners);
+						await fullText.replaceOwners(batchOwners);
 					}
 
 					const now = performance.now();
@@ -162,7 +169,7 @@ export class BuiltInSearchIndexer {
 						elapsedMs: performance.now() - startedAt,
 						phase: 'committing',
 					});
-					await this.stores.fullText.finishBulkLoad();
+					await fullText.finishBulkLoad();
 					bulkLoadStarted = false;
 					const stats = {
 						indexedFiles,
@@ -176,11 +183,11 @@ export class BuiltInSearchIndexer {
 
 				if (bulkLoadStarted) {
 					bulkLoadStarted = false;
-					await this.stores.fullText.clear();
+					await fullText.clear();
 				}
 			} catch (e) {
 				if (bulkLoadStarted) {
-					await this.stores.fullText.clear().catch(clearError => {
+					await fullText.clear().catch(clearError => {
 						console.error('Lemons Search failed to abort full-text bulk load:', clearError);
 					});
 				}
@@ -242,11 +249,15 @@ export class BuiltInSearchIndexer {
 	private async reindexFile(file: TAbstractFile): Promise<void> {
 		if (!this.isFile(file)) return;
 		this.bumpRebuildGeneration();
-		if (this.isMarkdownFile(file)) {
-			await Promise.all([this.reindexFileMetadata(file), this.reindexFileBlocks(file)]);
-			return;
+		if (this.stores.fullText) {
+			if (this.isMarkdownFile(file)) {
+				await Promise.all([this.reindexFileMetadata(file), this.reindexFileBlocks(file)]);
+				return;
+			}
+			await Promise.all([this.reindexFileMetadata(file), this.stores.fullText.replaceOwner(file.path, [])]);
+		} else {
+			await this.reindexFileMetadata(file);
 		}
-		await Promise.all([this.reindexFileMetadata(file), this.stores.fullText.replaceOwner(file.path, [])]);
 	}
 
 	private async reindexFileMetadata(file: TFile, cache?: CachedMetadata): Promise<void> {
@@ -289,6 +300,9 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async reindexFileBlocks(file: TFile, data?: string, cache?: CachedMetadata): Promise<void> {
+		if (!this.stores.fullText) {
+			return;
+		}
 		if (!this.isMarkdownFile(file) || this.isIgnored(file)) {
 			await this.stores.fullText.replaceOwner(file.path, []);
 			return;
@@ -301,11 +315,14 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async deleteFileRecords(path: string): Promise<void> {
-		await Promise.all([
+		const tasks = [
 			this.stores.filePath.replaceOwner(path, []),
 			this.stores.fileAlias.replaceOwner(path, []),
-			this.stores.fullText.replaceOwner(path, []),
-		]);
+		];
+		if (this.stores.fullText) {
+			tasks.push(this.stores.fullText.replaceOwner(path, []));
+		}
+		await Promise.all(tasks);
 	}
 
 	private isMarkdownFile(file: TAbstractFile): boolean {
