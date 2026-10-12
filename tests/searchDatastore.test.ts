@@ -46,6 +46,7 @@ class FakeSearchService {
 			tombstones: 0,
 			recordIds: [],
 			postingTerms: 0,
+			postingEntries: 0,
 			postingOccurrences: 0,
 		};
 	}

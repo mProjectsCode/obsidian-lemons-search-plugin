@@ -19,6 +19,7 @@ export interface WorkerDatastoreHealth {
 	tombstones: number;
 	recordIds: string[];
 	postingTerms: number;
+	postingEntries: number;
 	postingOccurrences: number;
 }
 

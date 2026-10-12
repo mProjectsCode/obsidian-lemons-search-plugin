@@ -60,6 +60,7 @@ export class SearchService {
 		this.RPC = RPCController.toWorker<SearchWorkerRPCHandlersMain, SearchWorkerRPCHandlersWorker>(this.worker, {
 			onInitialized: (): void => {
 				this.RPC?.call('setMaxResults', this.plugin.settings.maxResults);
+				this.RPC?.call('setFullTextFuzzySearch', this.plugin.settings.fullTextFuzzySearch);
 				this.ready.resolve(undefined);
 			},
 			onInitializationFailed: (message): void => {

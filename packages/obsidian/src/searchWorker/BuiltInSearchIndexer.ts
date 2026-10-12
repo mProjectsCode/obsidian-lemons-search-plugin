@@ -130,7 +130,12 @@ export class BuiltInSearchIndexer {
 					}
 
 					const batch = files.slice(start, start + FULL_TEXT_BATCH_SIZE);
-					const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
+					// const batchResults = await Promise.all(batch.map(file => this.buildFullTextRecordsForFile(file)));
+					let batchResults = [];
+					for (const file of batch) {
+						batchResults.push(await this.buildFullTextRecordsForFile(file));
+					}
+
 					const batchOwners = new Map<string, SearchRecord<SearchDatum<FullTextBlockMeta>>[]>();
 
 					for (const result of batchResults) {

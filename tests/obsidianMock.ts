@@ -3,6 +3,7 @@ import Moment from 'moment';
 
 mock.module('obsidian', () => ({
 	TFile: class TFile {},
+	Notice: class Notice {},
 	setIcon(iconEl: HTMLElement, iconName: string): void {
 		// do nothing
 	},

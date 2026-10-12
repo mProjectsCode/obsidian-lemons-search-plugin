@@ -1,24 +1,41 @@
 # Lemons Search
 
-A fast fuzzy finder based quick switcher with preview.
+A fast fuzzy finder and quick switcher with previews.
 
-The plugin adds a new quick switchers to make finding the files you want even easier and faster.
-The quick switchers lets you easily search all files in your vault and offers a quick preview of the selected search result.
+Lemons Search adds dedicated search views for files, aliases, commands, and note
+content. Each view includes keyboard navigation and a preview of the selected
+result.
 
 ![exampleImage](https://raw.githubusercontent.com/mProjectsCode/obsidian-lemons-search-plugin/master/exampleImage.png)
 
-To ensure top performance and high-quality results, the plugin is written in Rust using the [nucleo-matcher](https://crates.io/crates/nucleo-matcher) create running in a web worker.
-This ensures that the majority of the computational load is taken off the main thread for a smoother feel.
+The search engine runs in a background worker to keep the editor responsive.
 
 ## Commands
 
-- `Lemons Search: Open search` A quick switcher that lets you all files in your vault by file path.
-- `Lemons Search: Open alias search` A quick switcher that lets you all files in your vault by file names and aliases.
-- `Lemons Search: Command palette` A command palette.
+- `Lemons Search: Open search`: Find files by path.
+- `Lemons Search: Open alias search`: Find files by name or alias.
+- `Lemons Search: Open full-text search`: Search Markdown note contents and preview the matching block.
+- `Lemons Search: Command palette`: Find and run Obsidian commands.
 
-## Special Search Commands
+## Full-text search
 
-Every query consists of search atoms separated by spaces. Spaces can be escaped using `\`.
+Full-text search applies each query atom to individual words and requires all
+positive atoms to occur in the same Markdown block. Prefix an atom with `!` to
+exclude blocks containing it.
+
+By default, full-text atoms use fuzzy subsequence matching. For example, `apl`
+matches `apple`, but substitutions and transposed characters are not treated
+as general spelling corrections. The modifiers `'foo`, `^foo`, `foo$`, and
+`^foo$` request substring, prefix, postfix, and exact-word matching. Full-text
+matching is case-insensitive.
+
+When **Fuzzy search in full-text** is disabled, plain atoms require exact
+words. Substring (`'`), prefix (`^`), and negation (`!`) remain available;
+postfix `$` syntax is not supported in that mode.
+
+## Search syntax
+
+Every query consists of search atoms separated by spaces. Escape a space with `\` to keep it within one atom.
 In the following illustration, each underlined part is a separate search atom.
 
 ```
@@ -26,44 +43,36 @@ movie Star\ Wars
 ----- ----------
 ```
 
-Search atoms can be modified using special characters to change their behavior.
+Modifiers change how an atom is matched:
 
-- **Substring**: prefix with `'`
-    - will require search results to contain the search atom as a continuous sequence
-    - e.g. `'foo` will only match `yummy food` but not `funny doodle`
-    - use `!` to negate, e.g. `!foo`
-- **Prefix**: prefix with `^`
-    - will require search results to have the search atom as a prefix
-    - e.g. `^foo` will only match `food` but not `yummy food`
-    - use `!^` to negate, e.g. `!^foo`
-- **Postfix**: postfix with `$`
-    - will require search results to have the search atom as a postfix
-    - e.g. `.md$` will only match `foo.md` but not `foo.txt`
-    - use `!<search atom>$` to negate, e.g. `!.md$`
-- **Exact**: prefix with `^` and postfix with `$`
-    - will require search results to equal the search atom
-    - e.g. `^foo.md$` will **only** match `foo.md` and nothing else
-    - use `!^<search atom>$` to negate, e.g. `!^foo.md$`
+- **Substring**: Prefix with `'`. For example, `'foo` matches `yummy food` but not `funny doodle`.
+- **Prefix**: Prefix with `^`. For example, `^foo` matches `food` but not `yummy food`.
+- **Postfix**: Append `$`. For example, `.md$` matches `foo.md` but not `foo.txt`.
+- **Exact**: Combine `^` and `$`. For example, `^foo.md$` matches only `foo.md`.
+- **Negation**: Prefix an atom with `!`, such as `!foo`, `!^foo`, or `!.md$`.
 
-Lower case search atoms will ignore casing, but as soon as a search atom contains an upper case letter, it becomes case sensitive.
+Lowercase atoms ignore casing. An uppercase letter makes file, alias, and command search case-sensitive. Full-text search remains case-insensitive.
 
 ## Keyboard Navigation
 
-While the input field is focused, you can use the following keyboard short-cuts.
+While the input field is focused, use these shortcuts:
 
 - `↑` Move selection up by one
 - `↓` Move selection down by one
 - `Home` Move selection to the first item
 - `End` Move selection to the last item
 - `Enter` Open selection in same tab
-- `Ctrl + Enter` Open selection in a new Tab
+- `Ctrl + Enter` Open selection in a new tab
 - `Tab` Copy the current selection into the search bar
 - `Escape` Cancel the search
 
-Some of these short-cuts can be configures in the plugin's settings.
+Some shortcuts can be changed in the plugin settings.
 
 ## Mouse Navigation
 
-- Clicking on a suggestion that is not selected will select the clicked suggestion
-- Clicking on the selected suggestion will open the suggestion in the same tab
-- Ctrl-clicking on the selected suggestion will open the suggestion in a new tab
+- Click a suggestion to open it in the same tab.
+- Ctrl-click a suggestion to open it in a new tab.
+
+## Contributing
+
+Implementation details are documented in [ARCHITECTURE.md](ARCHITECTURE.md).
