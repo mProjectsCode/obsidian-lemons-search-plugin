@@ -4,3 +4,6 @@ exampleVault
 main.js
 packages/lemons-search
 packages/lemons-search-ui
+dist
+artifacts
+bun.lock

@@ -320,10 +320,7 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async deleteFileRecords(path: string): Promise<void> {
-		const tasks = [
-			this.stores.filePath.replaceOwner(path, []),
-			this.stores.fileAlias.replaceOwner(path, []),
-		];
+		const tasks = [this.stores.filePath.replaceOwner(path, []), this.stores.fileAlias.replaceOwner(path, [])];
 		if (this.stores.fullText) {
 			tasks.push(this.stores.fullText.replaceOwner(path, []));
 		}

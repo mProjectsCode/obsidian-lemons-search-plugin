@@ -3,11 +3,7 @@ import { Platform } from 'obsidian';
 import type LemonsSearchPlugin from 'packages/obsidian/src/main';
 
 export type HotkeyKey =
-	| 'hotkeySearchSelectionUp'
-	| 'hotkeySearchSelectionDown'
-	| 'hotkeySearchSelectionFirst'
-	| 'hotkeySearchSelectionLast'
-	| 'hotkeySearchFillSelection';
+	'hotkeySearchSelectionUp' | 'hotkeySearchSelectionDown' | 'hotkeySearchSelectionFirst' | 'hotkeySearchSelectionLast' | 'hotkeySearchFillSelection';
 
 export const KEY_MAP: Record<string, string> = {
 	ArrowLeft: '←',

@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
@@ -34,3 +34,5 @@ exampleVault/.obsidian/plugins/lemons-search/*
 !exampleVault/.obsidian/plugins/lemons-search/.hotreload
 
 dist
+/dist/
+/artifacts/

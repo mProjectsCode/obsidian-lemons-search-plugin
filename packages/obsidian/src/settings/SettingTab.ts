@@ -5,11 +5,7 @@ import { HotkeySetting } from 'packages/obsidian/src/settings/HotkeySetting';
 import { DEFAULT_SETTINGS } from 'packages/obsidian/src/settings/Settings';
 
 type HotkeySettingKey =
-	| 'hotkeySearchSelectionUp'
-	| 'hotkeySearchSelectionDown'
-	| 'hotkeySearchSelectionFirst'
-	| 'hotkeySearchSelectionLast'
-	| 'hotkeySearchFillSelection';
+	'hotkeySearchSelectionUp' | 'hotkeySearchSelectionDown' | 'hotkeySearchSelectionFirst' | 'hotkeySearchSelectionLast' | 'hotkeySearchFillSelection';
 
 interface HotkeySettingsProps {
 	name: string;

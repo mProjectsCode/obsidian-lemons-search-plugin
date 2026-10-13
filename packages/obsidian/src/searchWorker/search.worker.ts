@@ -41,15 +41,15 @@ function withEngine<T>(requestId: string, cb: (engine: SearchEngineInstance) => 
 	}
 }
 
-	const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
-		{
-			setMaxResults(maxResults): void {
-				engine?.set_max_results(maxResults);
-			},
-			setFullTextFuzzySearch(enabled): void {
-				engine?.set_full_text_fuzzy_search?.(enabled);
-			},
-			createDatastore(requestId, kind): void {
+const RPC = new RPCController<SearchWorkerRPCHandlersWorker, SearchWorkerRPCHandlersMain>(
+	{
+		setMaxResults(maxResults): void {
+			engine?.set_max_results(maxResults);
+		},
+		setFullTextFuzzySearch(enabled): void {
+			engine?.set_full_text_fuzzy_search?.(enabled);
+		},
+		createDatastore(requestId, kind): void {
 			withEngine(requestId, engine => engine.create_datastore(kind));
 		},
 		destroyDatastore(requestId, storeId): void {

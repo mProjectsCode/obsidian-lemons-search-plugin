@@ -1,20 +1,20 @@
 <script lang="ts">
-	import type { Modifier } from "obsidian";
-	import MarkdownRenderer from "packages/obsidian/src/searchUI/MarkdownRenderer.svelte";
-	import type { FullSearchUIProps, SearchResultDatum } from "packages/obsidian/src/searchUI/SearchController";
-	import { highlightTextFromRanges } from "packages/obsidian/src/searchUI/highlight";
-	import { highlightedSnippetFromRanges } from "packages/obsidian/src/searchUI/highlightSnippet";
-	import type { FullTextBlockMeta } from "packages/obsidian/src/searchWorker/FullTextBlocks";
-	import type { HotkeyFunctionMap } from "packages/obsidian/src/utils/Hotkeys";
-	import { mod } from "packages/obsidian/src/utils/utils";
-	import { onMount, untrack } from "svelte";
+	import type { Modifier } from 'obsidian';
+	import MarkdownRenderer from 'packages/obsidian/src/searchUI/MarkdownRenderer.svelte';
+	import type { FullSearchUIProps, SearchResultDatum } from 'packages/obsidian/src/searchUI/SearchController';
+	import { highlightTextFromRanges } from 'packages/obsidian/src/searchUI/highlight';
+	import { highlightedSnippetFromRanges } from 'packages/obsidian/src/searchUI/highlightSnippet';
+	import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
+	import type { HotkeyFunctionMap } from 'packages/obsidian/src/utils/Hotkeys';
+	import { mod } from 'packages/obsidian/src/utils/utils';
+	import { onMount, untrack } from 'svelte';
 
-	const MARKDOWN_BLOCK_TYPES = new Set(["paragraph", "heading", "list", "blockquote", "table", "callout"]);
+	const MARKDOWN_BLOCK_TYPES = new Set(['paragraph', 'heading', 'list', 'blockquote', 'table', 'callout']);
 
 	let props: FullSearchUIProps<FullTextBlockMeta> = $props();
 
 	let inputEl: HTMLInputElement | undefined;
-	let searchString = $state("");
+	let searchString = $state('');
 	let keyboardSelection = $state(0);
 	let mouseSelection = $state<number | undefined>(undefined);
 	let results: SearchResultDatum<FullTextBlockMeta>[] = $state([]);
@@ -33,8 +33,8 @@
 	let activeSelection = $derived(boundedMouseSelection ?? boundedKeyboardSelection);
 	let selectedDatum = $derived(activeSelection === undefined ? undefined : results[activeSelection]);
 	let selectedValue: FullTextBlockMeta | undefined = $state();
-	let previewSourcePath = $derived(selectedDatum?.data.filePath ?? "");
-	let blockLabel = $derived(selectedDatum?.data.blockType ? selectedDatum.data.blockType.replace("-", " ") : "block");
+	let previewSourcePath = $derived(selectedDatum?.data.filePath ?? '');
+	let blockLabel = $derived(selectedDatum?.data.blockType ? selectedDatum.data.blockType.replace('-', ' ') : 'block');
 	let renderSelectedAsMarkdown = $derived(shouldRenderAsMarkdown(selectedDatum?.data.blockType));
 	let selectedTextHighlights = $derived(selectedDatum ? highlightTextFromRanges(selectedDatum.content, selectedDatum.highlightRanges) : []);
 
@@ -114,17 +114,17 @@
 		inputEl?.focus();
 
 		const map: HotkeyFunctionMap = new Map();
-		map.set("hotkeySearchSelectionUp", () => moveKeyboardSelectionBy(-1));
-		map.set("hotkeySearchSelectionDown", () => moveKeyboardSelectionBy(1));
-		map.set("hotkeySearchSelectionFirst", () => setKeyboardSelection(0));
-		map.set("hotkeySearchSelectionLast", () => setKeyboardSelection(resultLength - 1));
-		map.set("hotkeySearchFillSelection", () => {
-			searchString = selectedDatum?.content ?? "";
+		map.set('hotkeySearchSelectionUp', () => moveKeyboardSelectionBy(-1));
+		map.set('hotkeySearchSelectionDown', () => moveKeyboardSelectionBy(1));
+		map.set('hotkeySearchSelectionFirst', () => setKeyboardSelection(0));
+		map.set('hotkeySearchSelectionLast', () => setKeyboardSelection(resultLength - 1));
+		map.set('hotkeySearchFillSelection', () => {
+			searchString = selectedDatum?.content ?? '';
 		});
-		map.set([{ modifiers: [], key: "Enter" }], (m) => {
+		map.set([{ modifiers: [], key: 'Enter' }], m => {
 			submitSelection(m);
 		});
-		map.set([{ modifiers: [], key: "Esc" }], () => {
+		map.set([{ modifiers: [], key: 'Esc' }], () => {
 			props.onCancel();
 		});
 
@@ -144,16 +144,11 @@
 				placeholder={props.prompt}
 				bind:value={searchString}
 				bind:this={inputEl}
-			>
+			/>
 			<div class="prompt-input-cta"></div>
 			<!-- svelte-ignore a11y_interactive_supports_focus -->
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<div
-				class="search-input-clear-button"
-				onpointerdown={keepInputFocusOnPointerDown}
-				onclick={() => searchString = ""}
-				role="button"
-			></div>
+			<div class="search-input-clear-button" onpointerdown={keepInputFocusOnPointerDown} onclick={() => (searchString = '')} role="button"></div>
 		</div>
 		<div class="prompt-results">
 			{#each results as datum, index (index)}
@@ -166,9 +161,9 @@
 					class:is-keyboard-selected={boundedKeyboardSelection === index}
 					class:is-mouse-selected={boundedMouseSelection === index}
 					onpointerdown={keepInputFocusOnPointerDown}
-					onclick={(e) => submitDatum(datum, props.plugin.hotkeyHelper.getEventModifiers(e))}
-					onmouseenter={() => mouseSelection = index}
-					onmouseleave={() => mouseSelection = undefined}
+					onclick={e => submitDatum(datum, props.plugin.hotkeyHelper.getEventModifiers(e))}
+					onmouseenter={() => (mouseSelection = index)}
+					onmouseleave={() => (mouseSelection = undefined)}
 					use:scrollToSelection={index}
 					role="button"
 				>
@@ -195,19 +190,14 @@
 	<div class="lemons-search--full-text-preview lemons-search--result-preview">
 		<div class="lemons-search--full-text-preview-header lemons-search--result-preview-header">
 			<div class="lemons-search--full-text-preview-path lemons-search--result-preview-path">
-				{selectedDatum ? selectedDatum.data.filePath : "No file selected"}
+				{selectedDatum ? selectedDatum.data.filePath : 'No file selected'}
 			</div>
-			<div class="lemons-search--full-text-preview-type lemons-search--result-preview-type">{selectedDatum ? blockLabel : "N/A"}</div>
+			<div class="lemons-search--full-text-preview-type lemons-search--result-preview-type">{selectedDatum ? blockLabel : 'N/A'}</div>
 		</div>
 		{#if selectedDatum}
 			{#if renderSelectedAsMarkdown}
 				<div class="lemons-search--full-text-preview-body lemons-search--result-preview-body markdown-rendered markdown-preview-view">
-					<MarkdownRenderer
-						app={props.plugin.app}
-						markdown={selectedDatum.content}
-						sourcePath={previewSourcePath}
-						inert={true}
-					></MarkdownRenderer>
+					<MarkdownRenderer app={props.plugin.app} markdown={selectedDatum.content} sourcePath={previewSourcePath} inert={true}></MarkdownRenderer>
 				</div>
 			{:else}
 				<div class="lemons-search--full-text-preview-body lemons-search--result-preview-body lemons-search--result-preview-plain">

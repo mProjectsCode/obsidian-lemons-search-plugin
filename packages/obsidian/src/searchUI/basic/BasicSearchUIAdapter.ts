@@ -1,5 +1,5 @@
 import SearchComponent from 'packages/obsidian/src/searchUI/SearchComponent.svelte';
-import type { SearchResultDatum, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
+import type { FullSearchUIProps, SearchResultDatum, SearchUIProps } from 'packages/obsidian/src/searchUI/SearchController';
 import type { SearchUI } from 'packages/obsidian/src/searchUI/SearchUI';
 import { mount, unmount } from 'svelte';
 
@@ -19,7 +19,7 @@ export class BasicSearchUIAdapter<T> implements SearchUI<T> {
 	}
 
 	create(props: SearchUIProps<T>): void {
-		this.component = mount(SearchComponent, {
+		this.component = mount<FullSearchUIProps<T>, object>(SearchComponent, {
 			target: props.targetEl,
 			props: {
 				...props,
