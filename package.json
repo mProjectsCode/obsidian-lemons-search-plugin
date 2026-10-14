@@ -30,7 +30,7 @@
 	"license": "GPL-3.0",
 	"devDependencies": {
 		"@happy-dom/global-registrator": "^20.10.6",
-		"@lemons_dev/lemons-obsidian-plugin-automation": "https://github.com/mProjectsCode/lemons-obsidian-plugin-helpers/releases/download/automation-v0.2.4/automation-v0.2.4.tgz",
+		"@lemons_dev/lemons-obsidian-plugin-automation": "https://github.com/mProjectsCode/lemons-obsidian-plugin-helpers/releases/download/automation-v0.2.5/automation-v0.2.5.tgz",
 		"@lemons_dev/parsinom": "^0.2.1",
 		"@sveltejs/vite-plugin-svelte": "7.1.2",
 		"@types/bun": "1.3.14",
