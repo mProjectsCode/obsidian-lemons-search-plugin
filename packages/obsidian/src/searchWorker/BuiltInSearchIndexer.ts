@@ -252,7 +252,9 @@ export class BuiltInSearchIndexer {
 	}
 
 	private async reindexFile(file: TAbstractFile): Promise<void> {
-		if (!this.isFile(file)) return;
+		if (!this.isFile(file)) {
+			return;
+		}
 		this.bumpRebuildGeneration();
 		if (this.stores.fullText) {
 			if (this.isMarkdownFile(file)) {

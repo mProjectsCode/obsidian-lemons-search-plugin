@@ -1,16 +1,17 @@
 <script lang="ts">
+	import type { TFile } from 'obsidian';
 	import { getPreview, PreviewType } from 'packages/obsidian/src/searchUI/preview/Preview';
 	import MarkdownRenderer from 'packages/obsidian/src/searchUI/MarkdownRenderer.svelte';
-	import type { FullSearchUIProps, SearchResultDatum } from '../SearchController';
 	import SearchComponent from '../SearchComponent.svelte';
-	import type { TFile } from 'obsidian';
+	import type { FullSearchUIProps, SearchResultDatum } from '../SearchController';
+	import type { SearchUI } from '../SearchUI';
 
 	let props: FullSearchUIProps<TFile> = $props();
 
 	let selectedValue: TFile | undefined = $state();
 
 	let preview = $derived(getPreview(selectedValue, props.plugin));
-	let search: ReturnType<typeof SearchComponent<TFile>> | undefined;
+	let search: Pick<SearchUI<TFile>, 'onSearchResults'> | undefined;
 
 	export function onSearchResults(r: SearchResultDatum<TFile>[]) {
 		search?.onSearchResults(r);
@@ -18,7 +19,8 @@
 </script>
 
 <div class="lemons-search lemons-search--preview-search">
-	<SearchComponent bind:this={search} cssClasses="lemons-search--search" onSelectedElementChange={e => (selectedValue = e)} {...props}></SearchComponent>
+	<SearchComponent bind:this={search} cssClasses="lemons-search--search" onSelectedElementChange={(e: TFile | undefined) => (selectedValue = e)} {...props}
+	></SearchComponent>
 	<div class="lemons-search--preview lemons-search--result-preview">
 		<div class="lemons-search--preview-header lemons-search--result-preview-header">
 			<div class="lemons-search--preview-path lemons-search--result-preview-path">{selectedValue ? selectedValue.path : 'No file selected'}</div>

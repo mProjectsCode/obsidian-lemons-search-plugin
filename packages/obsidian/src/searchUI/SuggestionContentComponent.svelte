@@ -1,6 +1,6 @@
 <script lang="ts" generics="T">
-	import type { SearchResultDatum } from './SearchController';
 	import { highlightTextFromRanges } from './highlight';
+	import type { SearchResultDatum } from './SearchController';
 
 	interface Props {
 		datum: SearchResultDatum<T>;

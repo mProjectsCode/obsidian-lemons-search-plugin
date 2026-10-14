@@ -49,8 +49,7 @@ export function areObjectsEqual(obj1: unknown, obj2: unknown): boolean {
 		}
 
 		for (const key of keys1) {
-			// @ts-ignore
-			if (!areObjectsEqual(obj1[key], obj2[key])) {
+			if (!areObjectsEqual((obj1 as Record<string, unknown>)[key], (obj2 as Record<string, unknown>)[key])) {
 				return false;
 			}
 		}

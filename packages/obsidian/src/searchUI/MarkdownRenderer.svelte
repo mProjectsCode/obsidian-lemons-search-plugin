@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { App, Component, MarkdownRenderer } from 'obsidian';
+	import type { App } from 'obsidian';
+	import { Component, MarkdownRenderer } from 'obsidian';
 	import { onDestroy, onMount } from 'svelte';
 
 	interface Props {
@@ -25,7 +26,7 @@
 
 	$effect(() => {
 		component?.unload();
-		element?.empty();
+		(element as { empty(): void } | undefined)?.empty();
 
 		component = new Component();
 		component.load();

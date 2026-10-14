@@ -68,7 +68,7 @@ export class RPCController<THandlers extends RPCConfig<THandlers>, TMethods exte
 
 		const handler = this.handlers[method];
 		if (handler) {
-			// @ts-expect-error
+			// @ts-expect-error -- The runtime method key selects a handler whose parameter tuple is unavailable here.
 			handler(...args);
 		}
 	}

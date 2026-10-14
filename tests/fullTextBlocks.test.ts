@@ -9,7 +9,7 @@ import {
 } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 
 function file(path: string): TFile {
-	return Object.assign(new TFile(), { path }) as TFile;
+	return Object.assign(new TFile(), { path });
 }
 
 function section(type: string, start: number, end: number): NonNullable<CachedMetadata['sections']>[number] {
@@ -19,7 +19,7 @@ function section(type: string, start: number, end: number): NonNullable<CachedMe
 			start: { line: 0, col: 0, offset: start },
 			end: { line: 0, col: 0, offset: end },
 		},
-	} as NonNullable<CachedMetadata['sections']>[number];
+	};
 }
 
 describe('buildFullTextBlockRecords', () => {
@@ -50,7 +50,7 @@ describe('buildFullTextBlockRecords', () => {
 		const paragraphStart = text.indexOf('Body text');
 		const records = buildFullTextBlockRecords(file('folder/note.md'), text, {
 			sections: [section('yaml', 0, headingStart), section('heading', headingStart, paragraphStart), section('paragraph', paragraphStart, text.length)],
-		} as CachedMetadata);
+		});
 
 		expect(records.map(record => ({ id: record.id, text: record.text, meta: record.meta?.data }))).toEqual([
 			{

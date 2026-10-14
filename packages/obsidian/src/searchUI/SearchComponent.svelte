@@ -2,9 +2,10 @@
 	import type { Modifier } from 'obsidian';
 	import type { SearchResultDatum } from 'packages/obsidian/src/searchUI/SearchController';
 	import { onMount, untrack } from 'svelte';
-	import { IndexedPlaceholderCategories, type FullSearchUIProps } from './SearchController';
-	import SuggestionContentComponent from './SuggestionContentComponent.svelte';
 	import type { HotkeyFunctionMap } from '../utils/Hotkeys';
+	import type { FullSearchUIProps } from './SearchController';
+	import { IndexedPlaceholderCategories } from './SearchController';
+	import SuggestionContentComponent from './SuggestionContentComponent.svelte';
 	import { mod } from '../utils/utils';
 
 	let props: FullSearchUIProps<T> = $props();
@@ -104,8 +105,7 @@
 	function scrollToSelection(node: HTMLElement, index: number) {
 		$effect(() => {
 			if (boundedKeyboardSelection === index) {
-				// @ts-ignore
-				node.scrollIntoViewIfNeeded(true);
+				(node as HTMLElement & { scrollIntoViewIfNeeded(centerIfNeeded?: boolean): void }).scrollIntoViewIfNeeded(true);
 			}
 		});
 	}

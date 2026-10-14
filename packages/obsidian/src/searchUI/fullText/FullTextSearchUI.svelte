@@ -104,8 +104,7 @@
 	function scrollToSelection(node: HTMLElement, index: number) {
 		$effect(() => {
 			if (boundedKeyboardSelection === index) {
-				// @ts-ignore
-				node.scrollIntoViewIfNeeded(true);
+				(node as HTMLElement & { scrollIntoViewIfNeeded(centerIfNeeded?: boolean): void }).scrollIntoViewIfNeeded(true);
 			}
 		});
 	}

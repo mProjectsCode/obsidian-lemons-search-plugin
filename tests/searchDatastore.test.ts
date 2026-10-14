@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { SearchService } from '../packages/obsidian/src/searchWorker/SearchService';
 import { SearchDatastore } from '../packages/obsidian/src/searchWorker/SearchDatastore';
+import type { SearchService } from '../packages/obsidian/src/searchWorker/SearchService';
 
 class FakeSearchService {
 	clearCalls = 0;

@@ -133,12 +133,16 @@ export class SearchService {
 	}
 
 	async upsertRecords(storeId: string, records: WorkerSearchRecord[]): Promise<void> {
-		if (records.length === 0) return;
+		if (records.length === 0) {
+			return;
+		}
 		await this.request('upsertRecords', storeId, records);
 	}
 
 	async deleteRecords(storeId: string, ids: string[]): Promise<void> {
-		if (ids.length === 0) return;
+		if (ids.length === 0) {
+			return;
+		}
 		await this.request('deleteRecords', storeId, ids);
 	}
 
@@ -280,14 +284,18 @@ export class SearchService {
 
 	private resolveRequest(requestId: string, value: unknown): void {
 		const pending = this.pending.get(requestId);
-		if (!pending) return;
+		if (!pending) {
+			return;
+		}
 		this.pending.delete(requestId);
 		pending.resolve(value);
 	}
 
 	private rejectRequest(requestId: string, message: string): void {
 		const pending = this.pending.get(requestId);
-		if (!pending) return;
+		if (!pending) {
+			return;
+		}
 		this.pending.delete(requestId);
 		pending.reject(new Error(message));
 	}

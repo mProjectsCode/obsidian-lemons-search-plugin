@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import type { CachedMetadata, EventRef, TAbstractFile, TFile } from 'obsidian';
 import { TFile as ObsidianTFile } from 'obsidian';
 import { BuiltInSearchIndexer } from '../packages/obsidian/src/searchWorker/BuiltInSearchIndexer';
+import type { FullTextBlockMeta } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 import { FullTextRecordIds } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 import type { SearchDatum } from '../packages/obsidian/src/searchUI/SearchController';
-import type { FullTextBlockMeta } from '../packages/obsidian/src/searchWorker/FullTextBlocks';
 import type { SearchRecord } from '../packages/obsidian/src/searchWorker/SearchDatastore';
 
 function deferred<T = void>(): { promise: Promise<T>; resolve: (value: T) => void } {
@@ -17,7 +17,7 @@ function deferred<T = void>(): { promise: Promise<T>; resolve: (value: T) => voi
 
 function file(path: string): TFile {
 	const basename = path.split('/').pop()?.replace(/\.md$/, '') ?? path;
-	return Object.assign(new ObsidianTFile(), { path, basename, extension: 'md' }) as TFile;
+	return Object.assign(new ObsidianTFile(), { path, basename, extension: 'md' });
 }
 
 class FakeOwnerStore<T> {
