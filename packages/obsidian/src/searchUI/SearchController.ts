@@ -106,9 +106,11 @@ export interface SearchUIProps<T> {
 	onCancel: () => void;
 }
 
+export type SearchSelectionValue<T> = T | undefined;
+
 export type FullSearchUIProps<T> = SearchUIProps<T> & {
 	prompt: string;
-	onSelectedElementChange?: (selected: T | undefined) => void;
+	onSelectedElementChange?: (selected: SearchSelectionValue<T>) => void;
 	cssClasses?: string;
 };
 

@@ -2,8 +2,9 @@
 	import type { Modifier } from 'obsidian';
 	import type { SearchResultDatum } from 'packages/obsidian/src/searchUI/SearchController';
 	import { onMount, untrack } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import type { HotkeyFunctionMap } from '../utils/Hotkeys';
-	import type { FullSearchUIProps } from './SearchController';
+	import type { FullSearchUIProps, SearchSelectionValue } from './SearchController';
 	import { IndexedPlaceholderCategories } from './SearchController';
 	import SuggestionContentComponent from './SuggestionContentComponent.svelte';
 	import { mod } from '../utils/utils';
@@ -49,7 +50,6 @@
 
 		return results[index];
 	}
-	let keyboardSelectedElement = $derived(getElementForIndex(boundedKeyboardSelection));
 	let selectedElement = $derived(getElementForIndex(activeSelection));
 
 	function clearMouseSelection(): void {
@@ -77,7 +77,7 @@
 		clearMouseSelection();
 	});
 
-	let selectedValue: T | undefined = $state();
+	let selectedValue: SearchSelectionValue<T> = $state();
 	$effect(() => {
 		const selected = selectedElement?.data;
 		untrack(() => {
@@ -118,7 +118,7 @@
 	onMount(() => {
 		inputEl?.focus();
 
-		const map: HotkeyFunctionMap = new Map();
+		const map: HotkeyFunctionMap = new SvelteMap();
 		map.set('hotkeySearchSelectionUp', () => moveKeyboardSelectionBy(-1));
 		map.set('hotkeySearchSelectionDown', () => moveKeyboardSelectionBy(1));
 		map.set('hotkeySearchSelectionFirst', () => setKeyboardSelection(0));
@@ -160,11 +160,11 @@
 	</div>
 	<div class="prompt-results">
 		{#if showPlaceholderData}
-			{#each placeholderData.categories as placeholderCategory}
+			{#each placeholderData.categories as placeholderCategory, loopIndex (loopIndex)}
 				<div class="lemons-search--suggestion-group-header">
 					<strong>{placeholderCategory.title}</strong>
 				</div>
-				{#each placeholderData.getDataForCategory(placeholderCategory) as datum, i}
+				{#each placeholderData.getDataForCategory(placeholderCategory) as datum, i (i)}
 					{@const index = i + placeholderCategory.startIndex}
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_interactive_supports_focus -->

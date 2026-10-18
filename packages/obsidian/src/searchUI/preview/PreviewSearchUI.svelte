@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TFile } from 'obsidian';
-	import { getPreview, PreviewType } from 'packages/obsidian/src/searchUI/preview/Preview';
 	import MarkdownRenderer from 'packages/obsidian/src/searchUI/MarkdownRenderer.svelte';
+	import { getPreview, PreviewType } from 'packages/obsidian/src/searchUI/preview/Preview';
 	import SearchComponent from '../SearchComponent.svelte';
 	import type { FullSearchUIProps, SearchResultDatum } from '../SearchController';
 	import type { SearchUI } from '../SearchUI';

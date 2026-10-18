@@ -12,7 +12,7 @@
 
 <div class="suggestion-content">
 	<div class="suggestion-title">
-		{#each highlights as h}
+		{#each highlights as h, loopIndex (loopIndex)}
 			{#if h.h}
 				<span class="suggestion-highlight">{h.t}</span>
 			{:else}
@@ -26,7 +26,7 @@
 </div>
 {#if datum.hotKeys && datum.hotKeys.length > 0}
 	<div class="suggestion-aux">
-		{#each datum.hotKeys as key}
+		{#each datum.hotKeys as key, loopIndex (loopIndex)}
 			<kbd class="suggestion-hotkey">{key}</kbd>
 		{/each}
 	</div>

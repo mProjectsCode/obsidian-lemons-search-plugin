@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { Modifier } from 'obsidian';
-	import MarkdownRenderer from 'packages/obsidian/src/searchUI/MarkdownRenderer.svelte';
-	import type { FullSearchUIProps, SearchResultDatum } from 'packages/obsidian/src/searchUI/SearchController';
 	import { highlightTextFromRanges } from 'packages/obsidian/src/searchUI/highlight';
 	import { highlightedSnippetFromRanges } from 'packages/obsidian/src/searchUI/highlightSnippet';
+	import MarkdownRenderer from 'packages/obsidian/src/searchUI/MarkdownRenderer.svelte';
+	import type { FullSearchUIProps, SearchResultDatum, SearchSelectionValue } from 'packages/obsidian/src/searchUI/SearchController';
 	import type { FullTextBlockMeta } from 'packages/obsidian/src/searchWorker/FullTextBlocks';
 	import type { HotkeyFunctionMap } from 'packages/obsidian/src/utils/Hotkeys';
 	import { mod } from 'packages/obsidian/src/utils/utils';
 	import { onMount, untrack } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	const MARKDOWN_BLOCK_TYPES = new Set(['paragraph', 'heading', 'list', 'blockquote', 'table', 'callout']);
 
@@ -32,7 +33,7 @@
 	});
 	let activeSelection = $derived(boundedMouseSelection ?? boundedKeyboardSelection);
 	let selectedDatum = $derived(activeSelection === undefined ? undefined : results[activeSelection]);
-	let selectedValue: FullTextBlockMeta | undefined = $state();
+	let selectedValue: SearchSelectionValue<FullTextBlockMeta> = $state();
 	let previewSourcePath = $derived(selectedDatum?.data.filePath ?? '');
 	let blockLabel = $derived(selectedDatum?.data.blockType ? selectedDatum.data.blockType.replace('-', ' ') : 'block');
 	let renderSelectedAsMarkdown = $derived(shouldRenderAsMarkdown(selectedDatum?.data.blockType));
@@ -112,7 +113,7 @@
 	onMount(() => {
 		inputEl?.focus();
 
-		const map: HotkeyFunctionMap = new Map();
+		const map: HotkeyFunctionMap = new SvelteMap();
 		map.set('hotkeySearchSelectionUp', () => moveKeyboardSelectionBy(-1));
 		map.set('hotkeySearchSelectionDown', () => moveKeyboardSelectionBy(1));
 		map.set('hotkeySearchSelectionFirst', () => setKeyboardSelection(0));
@@ -168,7 +169,7 @@
 				>
 					<div class="suggestion-content">
 						<div class="suggestion-title lemons-search--full-text-snippet">
-							{#each snippet as segment}
+							{#each snippet as segment, loopIndex (loopIndex)}
 								{#if segment.h}
 									<span class="suggestion-highlight">{segment.t}</span>
 								{:else}
@@ -200,7 +201,7 @@
 				</div>
 			{:else}
 				<div class="lemons-search--full-text-preview-body lemons-search--result-preview-body lemons-search--result-preview-plain">
-					{#each selectedTextHighlights as segment}
+					{#each selectedTextHighlights as segment, loopIndex (loopIndex)}
 						{#if segment.h}
 							<span class="suggestion-highlight">{segment.t}</span>
 						{:else}
