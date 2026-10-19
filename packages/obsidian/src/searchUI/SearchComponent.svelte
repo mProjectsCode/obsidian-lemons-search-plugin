@@ -4,10 +4,10 @@
 	import { onMount, untrack } from 'svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import type { HotkeyFunctionMap } from '../utils/Hotkeys';
+	import { mod } from '../utils/utils';
 	import type { FullSearchUIProps, SearchSelectionValue } from './SearchController';
 	import { IndexedPlaceholderCategories } from './SearchController';
 	import SuggestionContentComponent from './SuggestionContentComponent.svelte';
-	import { mod } from '../utils/utils';
 
 	let props: FullSearchUIProps<T> = $props();
 
