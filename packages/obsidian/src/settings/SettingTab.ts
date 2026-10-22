@@ -114,14 +114,6 @@ export class LemonsSearchSettingsTab extends PluginSettingTab {
 		await this.plugin.onSettingChanged(settingKey, previousValue, value);
 	}
 
-	display(): void {
-		const { containerEl } = this;
-		containerEl.empty();
-		containerEl.createEl('p', {
-			text: 'Lemons Search settings require Obsidian 1.13.0 or newer. This app appears to be running an older version.',
-		});
-	}
-
 	createHotkeySetting(props: HotkeySettingsProps): SettingDefinitionRender {
 		return {
 			name: props.name,

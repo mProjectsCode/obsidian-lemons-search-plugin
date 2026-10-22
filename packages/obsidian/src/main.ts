@@ -119,9 +119,8 @@ export default class LemonsSearchPlugin extends Plugin {
 			callback: async () => {
 				const report = await this.search.checkHealth();
 				const status = report.healthy ? 'healthy' : 'needs attention';
-				// eslint-disable-next-line obsidianmd/rule-custom-message -- This command explicitly reports diagnostics in the developer console.
-				console.info('Lemons Search in-memory index health:', report);
-				new Notice(`Lemons Search in-memory index health: ${status}. See console for details.`);
+				console.debug('Lemons Search in-memory index health:', report);
+				new Notice(`Lemons Search in-memory index health: ${status}. Enable debug messages in the console for details.`);
 			},
 		});
 
